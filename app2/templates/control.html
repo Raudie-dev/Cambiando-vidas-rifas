@@ -9,292 +9,385 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/paneles-style.css' %}">
-    <style>
-        #sidebar-wrapper { transition: margin-left 0.3s; }
-        #wrapper.toggled #sidebar-wrapper { margin-left: -250px !important; }
-    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Navbar Superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container-fluid">
         <button class="btn btn-outline-light me-3" id="sidebarToggle">
           <i class="fas fa-bars"></i>
         </button>
         <img src="{% static 'images/Agrofichas.png' %}" alt="Logo" height="50" class="me-2">
         <div class="ms-auto d-flex align-items-center">
+          <span class="text-secondary me-3 d-none d-md-inline">
+            <i class="fas fa-user-circle me-2"></i>Administrador
+          </span>
           <a href="{% url 'login' %}" class="btn btn-outline-light">
-            <i class="fas fa-sign-out-alt"></i> Salir
+            <i class="fas fa-sign-out-alt"></i> 
+            <span class="d-none d-md-inline ms-1">Salir</span>
           </a>
         </div>
       </div>
     </nav>
+
     <div class="d-flex" id="wrapper" style="min-height: 100vh;">
       <!-- Sidebar -->
-      <div class="bg-dark text-white" id="sidebar-wrapper" style="width: 250px;">
-        <div class="p-3 text-center border-bottom">
+      <div id="sidebar-wrapper">
+        <div class="sidebar-heading border-bottom">
           <img src="{% static 'images/logo.png' %}" alt="Logo" width="80" class="mb-2">
-          <h5>Rifas</h5>
+          <h5>Sistema de Rifas</h5>
         </div>
         <div class="list-group list-group-flush">
-          <a href="{% url 'control' %}" class="list-group-item bg-dark text-white active">
-            <i class="fas fa-gifts me-2"></i>Panel Rifas
+          <a href="{% url 'control' %}" class="list-group-item active">
+            <i class="fas fa-gifts"></i>
+            <span>Panel Rifas</span>
           </a>
-          <a href="{% url 'compras' %}" class="list-group-item bg-dark text-white">
-            <i class="fas fa-shopping-cart me-2"></i>Compras pendientes
+          <a href="{% url 'compras' %}" class="list-group-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Compras pendientes</span>
           </a>
         </div>
       </div>
+
       <!-- Contenido principal -->
-      <div class="flex-grow-1 p-4" id="page-content-wrapper">
+      <div class="flex-grow-1" id="page-content-wrapper">
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
             {% endfor %}
         {% endif %}
-        <h2 class="mb-4"><i class="fas fa-gifts me-2"></i>Gestión de Rifas</h2>
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="mb-0">Crear nueva rifa</h4>
+        <!-- Header de la página -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#createRifaModal">
-                <i class="fas fa-plus me-1"></i> Nueva Rifa
-            </button>
+                <h2 class="mb-1">
+                    <i class="fas fa-gifts me-2 text-gradient"></i>Gestión de Rifas
+                </h2>
+                <p class="text-secondary mb-0">Administra y crea nuevas rifas</p>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createRifaModal">
+                <i class="fas fa-plus"></i> Nueva Rifa
+              </button>
               <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#createPaymentModal">
-                <i class="fas fa-credit-card me-1"></i> Nuevo método de pago
+                <i class="fas fa-credit-card"></i> Nuevo Método de Pago
               </button>
             </div>
         </div>
 
-        <!-- Modal: Crear Rifa -->
-        <div class="modal fade" id="createRifaModal" tabindex="-1" aria-labelledby="createRifaModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="createRifaModalLabel">Crear Rifa</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-              </div>
-              <form method="post" enctype="multipart/form-data">
-              <div class="modal-body">
-                    {% csrf_token %}
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <input type="text" name="titulo" class="form-control" placeholder="Título de la rifa" required>
-                        </div>
-                        <div class="col-md-3">
-                            <input type="date" name="fecha_sorteo" class="form-control" required>
-                        </div>
-                        <div class="col-md-3">
-                            <input type="number" name="total_tickets" class="form-control" placeholder="Total tickets" required min="1" value="100">
-                        </div>
-                        <div class="col-12">
-                            <textarea name="descripcion" class="form-control" placeholder="Descripción (opcional)"></textarea>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Imágenes (hasta 3)</label>
-                            <input type="file" name="fotos" class="form-control" multiple accept="image/*">
-                            <small class="text-muted">Puedes subir hasta 3 imágenes.</small>
-                        </div>
-                    </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Crear Rifa</button>
-              </div>
-              </form>
+        <!-- Card de Rifas -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>Rifas Activas
+                </h5>
+                <span class="badge bg-primary">{{ rifas|length }} Total</span>
             </div>
-          </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-tag me-2"></i>Título</th>
+                                <th><i class="fas fa-calendar me-2"></i>Fecha Sorteo</th>
+                                <th><i class="fas fa-ticket-alt me-2"></i>Tickets</th>
+                                <th><i class="fas fa-images me-2"></i>Fotos</th>
+                                <th class="text-center"><i class="fas fa-cog me-2"></i>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rifa in rifas %}
+                            <tr>
+                                <td class="fw-semibold">{{ rifa.titulo }}</td>
+                                <td>{{ rifa.fecha_sorteo }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span>{{ rifa.tickets_sold }} / {{ rifa.total_tickets }}</span>
+                                        <div class="progress" style="width: 60px; height: 6px;">
+                      {% widthratio rifa.tickets_sold rifa.total_tickets 100 as fill_width %}
+                      <div class="progress-bar bg-gradient-primary" data-progress="{{ fill_width }}"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if rifa.images.all %}
+                                    <div id="carousel-{{ rifa.id }}" class="carousel slide" data-bs-ride="carousel" style="max-width:120px;">
+                                        <div class="carousel-inner" style="border-radius: 0.5rem; overflow: hidden;">
+                                            {% for img in rifa.images.all %}
+                                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                                <img src="{{ img.image.url }}" class="d-block w-100" alt="..." style="max-height:60px; object-fit:cover;">
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% if rifa.images.count > 1 %}
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ rifa.id }}" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ rifa.id }}" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                    {% else %}
+                                    <span class="text-muted">Sin imágenes</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <form method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="eliminar_id" value="{{ rifa.id }}">
+                                        <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <i class="fas fa-inbox fa-3x text-muted mb-3 d-block"></i>
+                                    <p class="text-muted mb-0">No hay rifas registradas.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
+        <!-- Card de Métodos de Pago -->
         <div class="card">
-            <div class="card-body">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Título</th>
-                            <th>Fecha Sorteo</th>
-                            <th>Tickets</th>
-                            <th>Fotos</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for rifa in rifas %}
-                        <tr>
-                            <td>{{ rifa.titulo }}</td>
-                            <td>{{ rifa.fecha_sorteo }}</td>
-                            <td>{{ rifa.tickets_sold }} / {{ rifa.total_tickets }}</td>
-                            <td>
-                                {% if rifa.images.all %}
-                                <div id="carousel-{{ rifa.id }}" class="carousel slide" data-bs-ride="carousel" style="max-width:160px;">
-                                    <div class="carousel-inner">
-                                        {% for img in rifa.images.all %}
-                                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                            <img src="{{ img.image.url }}" class="d-block w-100" alt="..." style="max-height:60px; object-fit:cover;">
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    {% if rifa.images.count > 1 %}
-                                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ rifa.id }}" data-bs-slide="prev">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Previous</span>
-                                    </button>
-                                    <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ rifa.id }}" data-bs-slide="next">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Next</span>
-                                    </button>
-                                    {% endif %}
-                                </div>
-                                {% else %}
-                                -
-                                {% endif %}
-                            </td>
-                            <td>
-                                <form method="post" style="display:inline;">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="eliminar_id" value="{{ rifa.id }}">
-                                    <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center">No hay rifas registradas.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-credit-card me-2"></i>Métodos de Pago
+            </h5>
+            <span class="badge bg-primary">{{ app_methods|length }} Métodos</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Detalles</th>
+                      <th class="text-center">Estado</th>
+                      <th class="text-center">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for metodo in app_methods %}
+                    <tr>
+                      <td class="fw-semibold">
+                        <i class="fas fa-credit-card me-2 text-primary"></i>
+                        {{ metodo.nombre }}
+                      </td>
+                      <td style="max-width:400px;">
+                        <small class="text-secondary">{{ metodo.detalles|truncatewords:10 }}</small>
+                      </td>
+                      <td class="text-center">
+                        <form method="post" class="d-inline toggle-active-form" id="toggle-form-{{ metodo.id }}">
+                          {% csrf_token %}
+                          <input type="hidden" name="toggle_metodo_id" value="{{ metodo.id }}">
+                          <input type="hidden" name="activo" value="{% if metodo.activo %}1{% else %}0{% endif %}">
+                          <div class="form-check form-switch d-inline-block">
+                            <input class="form-check-input toggle-active-input" type="checkbox" 
+                                   id="toggleActive{{ metodo.id }}" {% if metodo.activo %}checked{% endif %}>
+                          </div>
+                        </form>
+                      </td>
+                      <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-outline-secondary edit-method-btn me-1" 
+                                data-id="{{ metodo.id }}" 
+                                data-name="{{ metodo.nombre|escapejs }}" 
+                                data-fields='[{% for f in metodo.fields.all %}{"field_name":"{{ f.field_name|escapejs }}","field_value":"{{ f.field_value|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]' 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editPaymentModal">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <form method="post" class="d-inline">
+                          {% csrf_token %}
+                          <input type="hidden" name="eliminar_metodo_id" value="{{ metodo.id }}">
+                          <button type="submit" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <i class="fas fa-credit-card fa-3x text-muted mb-3 d-block"></i>
+                            <p class="text-muted mb-0">No hay métodos de pago registrados.</p>
+                        </td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
                 </table>
             </div>
-        </div>
-    <!-- Métodos de pago existentes -->
-    <div class="card mt-4">
-      <div class="card-body">
-        <h5>Métodos de pago</h5>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Detalles</th>
-              <th>Activo</th>
-            </tr>
-          </thead>
-          <tbody>
-          {% for metodo in app_methods %}
-            <tr>
-              <td>{{ metodo.nombre }}</td>
-              <td style="max-width:400px; white-space:normal;">{{ metodo.detalles }}</td>
-              <td>
-                <form method="post" class="d-inline toggle-active-form" id="toggle-form-{{ metodo.id }}">
-                  {% csrf_token %}
-                  <input type="hidden" name="toggle_metodo_id" value="{{ metodo.id }}">
-                  <input type="hidden" name="activo" value="{% if metodo.activo %}1{% else %}0{% endif %}">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input toggle-active-input" type="checkbox" id="toggleActive{{ metodo.id }}" {% if metodo.activo %}checked{% endif %}>
-                    <label class="form-check-label" for="toggleActive{{ metodo.id }}"></label>
-                  </div>
-                </form>
-              </td>
-              <td>
-                <button type="button" class="btn btn-sm btn-outline-secondary edit-method-btn" data-id="{{ metodo.id }}" data-name="{{ metodo.nombre|escapejs }}" data-fields='[{% for f in metodo.fields.all %}{"field_name":"{{ f.field_name|escapejs }}","field_value":"{{ f.field_value|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]' data-bs-toggle="modal" data-bs-target="#editPaymentModal">Editar</button>
-                <form method="post" style="display:inline;">
-                  {% csrf_token %}
-                  <input type="hidden" name="eliminar_metodo_id" value="{{ metodo.id }}">
-                  <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-                </form>
-              </td>
-            </tr>
-          {% empty %}
-            <tr><td colspan="3">No hay métodos registrados.</td></tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-      </div>
-      <!-- Modal: Crear método de pago -->
-      <div class="modal fade" id="createPaymentModal" tabindex="-1" aria-labelledby="createPaymentModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="createPaymentModalLabel">Crear método de pago</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <form method="post">
-            <div class="modal-body">
-              {% csrf_token %}
-              <div class="mb-3">
-                <label class="form-label">Nombre del método</label>
-                <input type="text" name="metodo_nombre" class="form-control" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Campos del método (nombre del dato / valor)</label>
-                <div id="paymentFields">
-                  <div class="d-flex mb-2 field-row">
-                    <input type="text" name="field_name" class="form-control me-2" placeholder="Nombre del dato (p.ej. Cuenta)">
-                    <input type="text" name="field_value" class="form-control me-2" placeholder="Valor (p.ej. 1234-5678)">
-                    <button type="button" class="btn btn-outline-danger btn-sm remove-field">-</button>
-                  </div>
-                </div>
-                <button type="button" id="addFieldBtn" class="btn btn-sm btn-outline-primary mt-2">Agregar campo</button>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button type="submit" name="crear_metodo_pago" class="btn btn-primary">Crear</button>
-            </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <!-- Modal: Editar método de pago -->
-      <div class="modal fade" id="editPaymentModal" tabindex="-1" aria-labelledby="editPaymentModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="editPaymentModalLabel">Editar método de pago</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <form method="post">
-            <div class="modal-body">
-              {% csrf_token %}
-              <input type="hidden" name="editar_metodo_id" id="editar_metodo_id">
-              <div class="mb-3">
-                <label class="form-label">Nombre del método</label>
-                <input type="text" name="metodo_nombre_edit" id="metodo_nombre_edit" class="form-control" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Campos del método (nombre del dato / valor)</label>
-                <div id="paymentFieldsEdit">
-                  <!-- filas se generarán dinámicamente -->
-                </div>
-                <button type="button" id="addFieldBtnEdit" class="btn btn-sm btn-outline-primary mt-2">Agregar campo</button>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button type="submit" name="editar_metodo" class="btn btn-primary">Guardar cambios</button>
-            </div>
-            </form>
           </div>
         </div>
       </div>
     </div>
-<div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 3000;">
-  {% for message in messages %}
-  <div class="toast align-items-center text-bg-{{ message.tags|default:'info' }} border-0 show mb-2" role="alert" aria-live="assertive" aria-atomic="true" id="toast-message-{{ forloop.counter }}">
-    <div class="d-flex">
-      <div class="toast-body">
-        <i class="fas fa-info-circle me-2"></i> {{ message }}
+
+    <!-- Modal: Crear Rifa -->
+    <div class="modal fade" id="createRifaModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+                <i class="fas fa-plus-circle me-2"></i>Crear Nueva Rifa
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <form method="post" enctype="multipart/form-data">
+          <div class="modal-body">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Título de la Rifa</label>
+                        <input type="text" name="titulo" class="form-control" placeholder="Ej: Rifa Premium 2024" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Fecha de Sorteo</label>
+                        <input type="date" name="fecha_sorteo" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Total de Tickets</label>
+                        <input type="number" name="total_tickets" class="form-control" placeholder="100" required min="1" value="100">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Descripción (Opcional)</label>
+                        <textarea name="descripcion" class="form-control" rows="3" placeholder="Describe los premios y detalles de la rifa..."></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Imágenes de los Premios (Hasta 3)</label>
+                        <input type="file" name="fotos" class="form-control" multiple accept="image/*">
+                        <small class="text-muted">Formatos aceptados: JPG, PNG, GIF</small>
+                    </div>
+                </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <i class="fas fa-times me-1"></i>Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-check me-1"></i>Crear Rifa
+            </button>
+          </div>
+          </form>
+        </div>
       </div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
     </div>
-  </div>
-  {% endfor %}
-</div>
+
+    <!-- Modal: Crear método de pago -->
+    <div class="modal fade" id="createPaymentModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+                <i class="fas fa-plus-circle me-2"></i>Nuevo Método de Pago
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <form method="post">
+          <div class="modal-body">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Nombre del Método</label>
+              <input type="text" name="metodo_nombre" class="form-control" placeholder="Ej: Zelle, PayPal" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Campos del Método</label>
+              <small class="text-muted d-block mb-2">Añade los datos necesarios (cuenta, titular, etc.)</small>
+              <div id="paymentFields">
+                <div class="d-flex mb-2 field-row">
+                  <input type="text" name="field_name" class="form-control me-2" placeholder="Nombre del campo">
+                  <input type="text" name="field_value" class="form-control me-2" placeholder="Valor">
+                  <button type="button" class="btn btn-danger btn-sm remove-field">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+              <button type="button" id="addFieldBtn" class="btn btn-sm btn-outline-primary mt-2">
+                <i class="fas fa-plus me-1"></i>Agregar Campo
+              </button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <i class="fas fa-times me-1"></i>Cancelar
+            </button>
+            <button type="submit" name="crear_metodo_pago" class="btn btn-primary">
+                <i class="fas fa-check me-1"></i>Crear
+            </button>
+          </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Editar método de pago -->
+    <div class="modal fade" id="editPaymentModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+                <i class="fas fa-edit me-2"></i>Editar Método de Pago
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <form method="post">
+          <div class="modal-body">
+            {% csrf_token %}
+            <input type="hidden" name="editar_metodo_id" id="editar_metodo_id">
+            <div class="mb-3">
+              <label class="form-label">Nombre del Método</label>
+              <input type="text" name="metodo_nombre_edit" id="metodo_nombre_edit" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Campos del Método</label>
+              <div id="paymentFieldsEdit"></div>
+              <button type="button" id="addFieldBtnEdit" class="btn btn-sm btn-outline-primary mt-2">
+                <i class="fas fa-plus me-1"></i>Agregar Campo
+              </button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <i class="fas fa-times me-1"></i>Cancelar
+            </button>
+            <button type="submit" name="editar_metodo" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i>Guardar Cambios
+            </button>
+          </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 3000;">
+      {% for message in messages %}
+      <div class="toast align-items-center text-bg-{{ message.tags|default:'info' }} border-0 show mb-2" role="alert">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-info-circle me-2"></i> {{ message }}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Sidebar Toggle
     var sidebarToggle = document.getElementById('sidebarToggle');
     var wrapper = document.getElementById('wrapper');
     if (sidebarToggle && wrapper) {
@@ -302,56 +395,68 @@ document.addEventListener('DOMContentLoaded', function() {
             wrapper.classList.toggle('toggled');
         });
     }
+
+    // Toast Auto-hide
     var toastElList = [].slice.call(document.querySelectorAll('.toast'));
     toastElList.forEach(function(toastEl) {
         var toast = new bootstrap.Toast(toastEl, { delay: 4000 });
         toast.show();
     });
-  // Dinámica para agregar/quitar campos en modal de métodos de pago
+
+  // Payment Fields - Create Modal
   var addFieldBtn = document.getElementById('addFieldBtn');
   var paymentFields = document.getElementById('paymentFields');
+  
   if (addFieldBtn && paymentFields) {
     addFieldBtn.addEventListener('click', function() {
       var row = document.createElement('div');
       row.className = 'd-flex mb-2 field-row';
-      row.innerHTML = '<input type="text" name="field_name" class="form-control me-2" placeholder="Nombre del dato">'
+      row.innerHTML = '<input type="text" name="field_name" class="form-control me-2" placeholder="Nombre del campo">'
               + '<input type="text" name="field_value" class="form-control me-2" placeholder="Valor">'
-              + '<button type="button" class="btn btn-outline-danger btn-sm remove-field">-</button>';
+              + '<button type="button" class="btn btn-danger btn-sm remove-field"><i class="fas fa-minus"></i></button>';
       paymentFields.appendChild(row);
     });
 
     paymentFields.addEventListener('click', function(e) {
-      if (e.target && e.target.classList.contains('remove-field')) {
+      if (e.target && e.target.closest('.remove-field')) {
         var row = e.target.closest('.field-row');
         if (row) row.remove();
       }
     });
 
-    // Before submitting the form, serialize field_name and field_value pairs into hidden inputs arrays
     var paymentForm = document.querySelector('#createPaymentModal form');
     if (paymentForm) {
       paymentForm.addEventListener('submit', function() {
-        // remove any existing serialized inputs
-        var existing = paymentForm.querySelectorAll('input[name="field_name_list"] , input[name="field_value_list"]');
+        var existing = paymentForm.querySelectorAll('input[name="field_name_list"], input[name="field_value_list"]');
         existing.forEach(function(el){ el.remove(); });
+        
         var rows = paymentFields.querySelectorAll('.field-row');
         rows.forEach(function(r){
           var nameInput = r.querySelector('input[name="field_name"]');
           var valueInput = r.querySelector('input[name="field_value"]');
           if (nameInput && valueInput && nameInput.value.trim()) {
-            var hn = document.createElement('input'); hn.type = 'hidden'; hn.name = 'field_name_list'; hn.value = nameInput.value.trim();
-            var hv = document.createElement('input'); hv.type = 'hidden'; hv.name = 'field_value_list'; hv.value = valueInput.value.trim();
+            var hn = document.createElement('input'); 
+            hn.type = 'hidden'; 
+            hn.name = 'field_name_list'; 
+            hn.value = nameInput.value.trim();
+            var hv = document.createElement('input'); 
+            hv.type = 'hidden'; 
+            hv.name = 'field_value_list'; 
+            hv.value = valueInput.value.trim();
             paymentForm.appendChild(hn);
             paymentForm.appendChild(hv);
           }
         });
       });
     }
-  // Edit modal logic
+  }
+
+  // Edit Modal
   var editModal = document.getElementById('editPaymentModal');
   var editBtnList = document.querySelectorAll('.edit-method-btn');
   var paymentFieldsEdit = document.getElementById('paymentFieldsEdit');
   var addFieldBtnEdit = document.getElementById('addFieldBtnEdit');
+  
   if (editModal) {
     editBtnList.forEach(function(btn) {
       btn.addEventListener('click', function() {
@@ -359,26 +464,26 @@ document.addEventListener('DOMContentLoaded', function() {
         var name = this.dataset.name;
         var fields = [];
         try { fields = JSON.parse(this.dataset.fields || '[]'); } catch(e){ fields = []; }
+        
         document.getElementById('editar_metodo_id').value = id;
         document.getElementById('metodo_nombre_edit').value = name;
-        // clear existing rows
         paymentFieldsEdit.innerHTML = '';
+        
         if (fields.length) {
           fields.forEach(function(f){
             var row = document.createElement('div');
             row.className = 'd-flex mb-2 field-row';
-            row.innerHTML = '<input type="text" name="field_name_edit" class="form-control me-2" placeholder="Nombre del dato" value="'+ (f.field_name||'') +'">'
+            row.innerHTML = '<input type="text" name="field_name_edit" class="form-control me-2" placeholder="Nombre del campo" value="'+ (f.field_name||'') +'">'
                     + '<input type="text" name="field_value_edit" class="form-control me-2" placeholder="Valor" value="'+ (f.field_value||'') +'">'
-                    + '<button type="button" class="btn btn-outline-danger btn-sm remove-field">-</button>';
+                    + '<button type="button" class="btn btn-danger btn-sm remove-field"><i class="fas fa-minus"></i></button>';
             paymentFieldsEdit.appendChild(row);
           });
         } else {
-          // create one empty row
           var row = document.createElement('div');
           row.className = 'd-flex mb-2 field-row';
-          row.innerHTML = '<input type="text" name="field_name_edit" class="form-control me-2" placeholder="Nombre del dato">'
+          row.innerHTML = '<input type="text" name="field_name_edit" class="form-control me-2" placeholder="Nombre del campo">'
                   + '<input type="text" name="field_value_edit" class="form-control me-2" placeholder="Valor">'
-                  + '<button type="button" class="btn btn-outline-danger btn-sm remove-field">-</button>';
+                  + '<button type="button" class="btn btn-danger btn-sm remove-field"><i class="fas fa-minus"></i></button>';
           paymentFieldsEdit.appendChild(row);
         }
       });
@@ -388,14 +493,14 @@ document.addEventListener('DOMContentLoaded', function() {
       addFieldBtnEdit.addEventListener('click', function(){
         var row = document.createElement('div');
         row.className = 'd-flex mb-2 field-row';
-        row.innerHTML = '<input type="text" name="field_name_edit" class="form-control me-2" placeholder="Nombre del dato">'
+        row.innerHTML = '<input type="text" name="field_name_edit" class="form-control me-2" placeholder="Nombre del campo">'
                 + '<input type="text" name="field_value_edit" class="form-control me-2" placeholder="Valor">'
-                + '<button type="button" class="btn btn-outline-danger btn-sm remove-field">-</button>';
+                + '<button type="button" class="btn btn-danger btn-sm remove-field"><i class="fas fa-minus"></i></button>';
         paymentFieldsEdit.appendChild(row);
       });
 
       paymentFieldsEdit.addEventListener('click', function(e){
-        if (e.target && e.target.classList.contains('remove-field')) {
+        if (e.target && e.target.closest('.remove-field')) {
           var row = e.target.closest('.field-row');
           if (row) row.remove();
         }
@@ -404,16 +509,22 @@ document.addEventListener('DOMContentLoaded', function() {
       var editForm = document.querySelector('#editPaymentModal form');
       if (editForm) {
         editForm.addEventListener('submit', function(){
-          // remove existing serialized inputs
-          var existing = editForm.querySelectorAll('input[name="field_name_list"] , input[name="field_value_list"]');
+          var existing = editForm.querySelectorAll('input[name="field_name_list"], input[name="field_value_list"]');
           existing.forEach(function(el){ el.remove(); });
+          
           var rows = paymentFieldsEdit.querySelectorAll('.field-row');
           rows.forEach(function(r){
             var nameInput = r.querySelector('input[name="field_name_edit"]');
             var valueInput = r.querySelector('input[name="field_value_edit"]');
             if (nameInput && valueInput && nameInput.value.trim()) {
-              var hn = document.createElement('input'); hn.type = 'hidden'; hn.name = 'field_name_list'; hn.value = nameInput.value.trim();
-              var hv = document.createElement('input'); hv.type = 'hidden'; hv.name = 'field_value_list'; hv.value = valueInput.value.trim();
+              var hn = document.createElement('input'); 
+              hn.type = 'hidden'; 
+              hn.name = 'field_name_list'; 
+              hn.value = nameInput.value.trim();
+              var hv = document.createElement('input'); 
+              hv.type = 'hidden'; 
+              hv.name = 'field_value_list'; 
+              hv.value = valueInput.value.trim();
               editForm.appendChild(hn);
               editForm.appendChild(hv);
             }
@@ -422,18 +533,24 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   }
-  }
-});
-    // submit toggle form when switch changed
-    document.querySelectorAll('.toggle-active-input').forEach(function(chk){
-      chk.addEventListener('change', function(){
-        var form = this.closest('form.toggle-active-form');
-        if (!form) return;
-        var hidden = form.querySelector('input[name="activo"]');
-        if (hidden) hidden.value = this.checked ? '1' : '0';
-        form.submit();
-      });
+  
+  // Toggle active forms
+  document.querySelectorAll('.toggle-active-input').forEach(function(chk){
+    chk.addEventListener('change', function(){
+      var form = this.closest('form.toggle-active-form');
+      if (!form) return;
+      var hidden = form.querySelector('input[name="activo"]');
+      if (hidden) hidden.value = this.checked ? '1' : '0';
+      form.submit();
     });
+  });
+
+  // Apply data-progress widths to progress bars in the table
+  document.querySelectorAll('.progress-bar[data-progress]').forEach(function(pb){
+    var v = pb.getAttribute('data-progress');
+    if (v !== null) pb.style.width = v + '%';
+  });
+});
 </script>
 </body>
 </html>

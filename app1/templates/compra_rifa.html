@@ -3,194 +3,212 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comprar Tickets - {{ rifa.titulo }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body class="purchase-page">
+    <!-- Header -->
     <header class="header">
-        <div class="container header-wrapper">
-            <a href="{% url 'index' %}" class="logo">
-                <i class="fas fa-flask-vial me-2"></i>PruebasApp
-            </a>
-        </div>
+        <nav class="nav-menu-compra"> 
+            <div class="nav-actions">
+                <a href="{% url 'index' %}" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                  
+                </a>
+            </div>  
+            <h1 class="purchase-title">{{ rifa.titulo }}</h1>
+        </nav>
     </header>
 
-    <section class="section" style="padding-top: 80px;">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-body">
-                            <h3 class="card-title">Comprar Tickets - {{ rifa.titulo }}</h3>
-                            <p>{{ rifa.descripcion }}</p>
-                            <p><strong>Sorteo:</strong> {{ rifa.fecha_sorteo }}</p>
-                            <p><strong>Disponibles:</strong> {{ rifa.tickets_available }}</p>
+    <!-- Purchase Container -->
+    <div class="purchase-container">
+        <form method="post" enctype="multipart/form-data" class="purchase-form">
+            {% csrf_token %}
+            <input type="hidden" name="rifa_id" value="{{ rifa.id }}">
 
-                            <form method="post" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <input type="hidden" name="rifa_id" value="{{ rifa.id }}">
-                                <div class="mb-3">
-                                    <label class="form-label">Identificación</label>
-                                    <input type="text" name="identificacion" class="form-control" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Nombre completo</label>
-                                    <input type="text" name="nombre" class="form-control" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Email (opcional)</label>
-                                    <input type="email" name="email" class="form-control">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Cantidad de tickets</label>
-                                    <input type="number" name="cantidad" min="1" max="{{ rifa.tickets_available }}" value="1" class="form-control" required>
-                                </div>
-                                <hr>
-                                <h5>Método de pago</h5>
-                                <div class="mb-3">
-                                    {% for metodo in metodos_pago %}
-                                    <div class="form-check">
-                                        <input class="form-check-input payment-radio" type="radio" name="metodo_pago" id="metodo-{{ metodo.id }}" value="{{ metodo.nombre }}" {% if forloop.first %}checked{% endif %} data-metodo-id="{{ metodo.id }}">
-                                        <label class="form-check-label" for="metodo-{{ metodo.id }}">{{ metodo.nombre }}</label>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                                <div class="mb-3" id="paymentDetails">
-                                    <!-- detalles del método seleccionado aparecerán aquí -->
-                                </div>
-                                <div class="mb-3 d-flex gap-2" id="paymentCopyActions" style="display:none;">
-                                    
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Comprobante de pago (imagen)</label>
-                                    <input type="file" name="comprobante" class="form-control" accept="image/*">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Código de referencia</label>
-                                    <input type="text" name="referencia" class="form-control">
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <a href="{% url 'index' %}" class="btn btn-secondary">Volver</a>
-                                    <button type="submit" class="btn btn-primary">Enviar comprobante y comprar</button>
-                                </div>
-                            </form>
-
+            <!-- Raffle Info Section -->
+            <div class="purchase-section">
+                <div class="raffle-info-header">
+                    <div class="raffle-info-item">
+                        <i class="fas fa-calendar"></i>
+                        <div>
+                            <span class="info-label">Juega el</span>
+                            <span class="info-value">{{ rifa.fecha_sorteo|date:"d M Y" }}</span>
+                        </div>
+                    </div>
+                    <div class="raffle-info-item">
+                        <i class="fas fa-ticket-alt"></i>
+                        <div>
+                            <span class="info-label">Valor Boleto</span>
+                            <span class="info-value">Bs. 2600.00</span>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
 
-</body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-        const radios = document.querySelectorAll('.payment-radio');
-        const detailsDiv = document.getElementById('paymentDetails');
-    const copyActions = document.getElementById('paymentCopyActions');
-    const copyAllBtn = document.getElementById('copyAllBtn');
-    const copyFeedback = document.getElementById('copyFeedback');
-        function renderDetails(metodoId) {
-                // find method data in a JS object embedded below
-                if (!window._paymentMethods) return;
-                const m = window._paymentMethods.find(x => String(x.id) === String(metodoId));
-                if (!m) {
-                        detailsDiv.innerHTML = '';
-            copyActions.style.display = 'none';
-                        return;
-                }
-                // show its fields
-                let html = '';
-                if (m.fields && m.fields.length) {
-                        html += '<div class="card p-2">';
-            m.fields.forEach((f, idx) => {
-                // each field has a copy button
-                const safeName = String(f.field_name).replace(/"/g, '\\"');
-                const safeValue = String(f.field_value).replace(/"/g, '\\"');
-                html += '<div class="d-flex align-items-center justify-content-between mb-1">'
-                    + '<div><strong>' + f.field_name + ':</strong> <span class="field-value" data-field-idx="' + idx + '">' + f.field_value + '</span></div>'
-                    + '<div><button type="button" class="btn btn-sm btn-outline-primary copy-field" data-field-idx="' + idx + '" data-field-name="' + safeName + '" data-field-value="' + safeValue + '">Copiar</button></div>'
-                    + '</div>';
-            });
-                        html += '</div>';
-            copyActions.style.display = '';
-                } else if (m.detalles) {
-            html = '<div class="card p-2">' + m.detalles + '</div>';
-            copyActions.style.display = '';
-                } else {
-                        html = '';
-            copyActions.style.display = 'none';
-                }
-                detailsDiv.innerHTML = html;
-        attachCopyHandlers();
-        }
-    function attachCopyHandlers() {
-        // individual field copy buttons
-        const buttons = document.querySelectorAll('.copy-field');
-        buttons.forEach(b => {
-            b.removeEventListener('click', onCopyFieldClick);
-            b.addEventListener('click', onCopyFieldClick);
-        });
-    }
-    function onCopyFieldClick(e) {
-        const btn = e.currentTarget;
-        const value = btn.dataset.fieldValue || '';
-        copyToClipboard(value, function(success) {
-            showCopyFeedback(success);
-        });
-    }
-    function copyToClipboard(text, cb) {
-        if (!navigator.clipboard) {
-            // fallback
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.position = 'fixed';
-            ta.style.opacity = '0';
-            document.body.appendChild(ta);
-            ta.select();
-            try {
-                const ok = document.execCommand('copy');
-                document.body.removeChild(ta);
-                cb(Boolean(ok));
-            } catch (err) {
-                document.body.removeChild(ta);
-                cb(false);
-            }
-            return;
-        }
-        navigator.clipboard.writeText(text).then(() => cb(true)).catch(() => cb(false));
-    }
-    function showCopyFeedback(success) {
-        if (!success) return;
-        copyFeedback.style.display = '';
-        setTimeout(() => { copyFeedback.style.display = 'none'; }, 2000);
-    }
-        radios.forEach(r => r.addEventListener('change', function() { renderDetails(this.dataset.metodoId); }));
-        // initial render of first checked
-        const checked = document.querySelector('.payment-radio:checked');
-        if (checked) renderDetails(checked.dataset.metodoId);
+            <!-- Prizes Section -->
+            {% if rifa.images.all %}
+            <div class="purchase-section">
+                <h3 class="section-subtitle">
+                    <i class="fas fa-gift"></i> Premios
+                </h3>
+                <div class="prizes-carousel">
+                    <div class="carousel-wrapper">
+                        {% for img in rifa.images.all %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <img src="{{ img.image.url }}" alt="Premio {{ forloop.counter }}" class="prize-image">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if rifa.images.count > 1 %}
+                    <button type="button" class="carousel-btn prev-btn" onclick="changePrizeSlide(-1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button type="button" class="carousel-btn next-btn" onclick="changePrizeSlide(1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <div class="carousel-indicators">
+                        {% for img in rifa.images.all %}
+                        <span class="indicator {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
 
-    // copy all details button
-    copyAllBtn.addEventListener('click', function() {
-        const checked = document.querySelector('.payment-radio:checked');
-        if (!checked) return;
-        const m = window._paymentMethods.find(x => String(x.id) === String(checked.dataset.metodoId));
-        if (!m) return;
-        let text = m.nombre + '\n';
-        if (m.fields && m.fields.length) {
-            m.fields.forEach(f => { text += f.field_name + ': ' + f.field_value + '\n'; });
-        } else if (m.detalles) {
-            text += m.detalles + '\n';
-        }
-        copyToClipboard(text, function(success) { showCopyFeedback(success); });
-    });
-});
-</script>
+            <!-- Ticket Quantity Selector -->
+            <div class="purchase-section">
+                <h3 class="section-subtitle">
+                    <i class="fas fa-ticket-alt"></i> Cantidad de Tickets
+                </h3>
+                <div class="ticket-selector">
+                    <div class="quick-select-grid">
+                        <button type="button" class="quick-select-btn" data-value="1">1</button>
+                        <button type="button" class="quick-select-btn" data-value="2">2</button>
+                        <button type="button" class="quick-select-btn" data-value="5">5</button>
+                        <button type="button" class="quick-select-btn" data-value="10">10</button>
+                        <button type="button" class="quick-select-btn" data-value="25">25</button>
+                        <button type="button" class="quick-select-btn" data-value="50">50</button>
+                    </div>
+                    <div class="quantity-controls">
+                        <button type="button" class="quantity-btn minus-btn">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <input type="number" name="cantidad" id="cantidadInput" class="quantity-input" value="1" min="1" max="{{ rifa.tickets_available }}" required>
+                        <button type="button" class="quantity-btn plus-btn">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-    <!-- JSON con métodos de pago para uso en cliente -->
+            <!-- Payment Summary -->
+            <div class="purchase-section">
+                <div class="payment-summary">
+                    <div class="summary-row">
+                        <span>Monto USD</span>
+                        <span id="montoUSD" class="summary-value">20.00 USD</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Método de Pago</span>
+                        <span id="metodoPagoText" class="summary-value">- - - - - -</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="purchase-section">
+                <h3 class="section-subtitle">
+                    <i class="fas fa-credit-card"></i> Métodos de Pago
+                </h3>
+                <div class="payment-methods">
+                    {% for metodo in metodos_pago %}
+                    <label class="payment-method-card">
+                        <input type="radio" name="metodo_pago" value="{{ metodo.nombre }}" data-metodo-id="{{ metodo.id }}" {% if forloop.first %}checked{% endif %}>
+                        <div class="payment-method-content">
+                            <div class="payment-method-icon">
+                                {% if 'Zelle' in metodo.nombre %}
+                                <i class="fas fa-dollar-sign"></i>
+                                {% elif 'Binance' in metodo.nombre %}
+                                <i class="fab fa-bitcoin"></i>
+                                {% elif 'PayPal' in metodo.nombre %}
+                                <i class="fab fa-paypal"></i>
+                                {% else %}
+                                <i class="fas fa-university"></i>
+                                {% endif %}
+                            </div>
+                            <span class="payment-method-name">{{ metodo.nombre }}</span>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+
+                <!-- Payment Details -->
+                <div id="paymentDetails" class="payment-details"></div>
+                
+                <div id="paymentCopyActions" class="copy-actions" style="display: none;">
+                    <button type="button" id="copyAllBtn" class="btn-copy">
+                        <i class="fas fa-copy"></i> Copiar Datos
+                    </button>
+                    <span id="copyFeedback" class="copy-feedback" style="display: none;">
+                        <i class="fas fa-check"></i> Copiado
+                    </span>
+                </div>
+            </div>
+
+            <!-- Buyer Information -->
+            <div class="purchase-section">
+                <h3 class="section-subtitle">
+                    <i class="fas fa-user"></i> Datos del Comprador
+                </h3>
+                
+                <div class="form-group">
+                    <label for="cedulaInput">Cédula</label>
+                    <input type="text" id="cedulaInput" name="identificacion" class="form-input" placeholder="Escriba su cédula" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombreInput">Nombre completo</label>
+                    <input type="text" id="nombreInput" name="nombre" class="form-input" placeholder="Escriba su nombre completo" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="correoInput">Correo</label>
+                    <input type="email" id="correoInput" name="email" class="form-input" placeholder="Escriba su correo de uso diario">
+                </div>
+
+                <div class="form-group">
+                    <label for="telefonoInput">Teléfono/Whatsapp</label>
+                    <input type="tel" id="telefonoInput" name="telefono" class="form-input" placeholder="Escriba su nro de Whatsapp">
+                </div>
+
+                <div class="form-group">
+                    <label for="comprobanteInput">Capture Bancario</label>
+                    <input type="file" id="comprobanteInput" name="comprobante" class="form-input-file" accept="image/*">
+                    <label for="comprobanteInput" class="file-input-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Seleccionar archivo</span>
+                        <span class="file-name">Ningún archivo seleccionado</span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label for="referenciaInput">Referencia bancaria (Últimos 6 Dígitos)</label>
+                    <input type="text" id="referenciaInput" name="referencia" class="form-input" placeholder="últimos 6 dígitos de la referencia" maxlength="6">
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-money-bill-wave"></i> Comprar
+            </button>
+        </form>
+    </div>
+
+    <!-- Payment Methods Data -->
     <script id="paymentMethodsData" type="application/json">
     [
     {% for metodo in metodos_pago %}
@@ -207,7 +225,216 @@ document.addEventListener('DOMContentLoaded', function() {
     {% endfor %}
     ]
     </script>
+
+    <script src="{% static 'js/main.js' %}"></script>
     <script>
-    window._paymentMethods = JSON.parse(document.getElementById('paymentMethodsData').textContent || '[]');
+    function changePrizeSlide(direction) {
+        const carousel = document.querySelector('.prizes-carousel');
+        if (!carousel) return; // no carousel on page
+
+        const items = carousel.querySelectorAll('.carousel-item');
+        if (!items || items.length === 0) return;
+
+        const indicators = carousel.querySelectorAll('.indicator');
+        let currentIndex = Array.from(items).findIndex(item => item.classList.contains('active'));
+
+        // if no active item found, default to 0
+        if (currentIndex < 0) currentIndex = 0;
+
+        // safely remove current active
+        if (items[currentIndex]) items[currentIndex].classList.remove('active');
+        if (indicators && indicators[currentIndex]) indicators[currentIndex].classList.remove('active');
+
+        // compute next index
+        currentIndex = (currentIndex + direction + items.length) % items.length;
+
+        // add active to new index if exists
+        if (items[currentIndex]) items[currentIndex].classList.add('active');
+        if (indicators && indicators[currentIndex]) indicators[currentIndex].classList.add('active');
+    }
+
+    function goToPrizeSlide(index) {
+        const carousel = document.querySelector('.prizes-carousel');
+        if (!carousel) return;
+
+        const items = carousel.querySelectorAll('.carousel-item');
+        if (!items || items.length === 0) return;
+
+        const indicators = carousel.querySelectorAll('.indicator');
+
+        // clamp index
+        let idx = parseInt(index) || 0;
+        if (idx < 0) idx = 0;
+        if (idx >= items.length) idx = items.length - 1;
+
+        items.forEach(item => item.classList.remove('active'));
+        if (indicators && indicators.length) indicators.forEach(ind => ind.classList.remove('active'));
+
+        if (items[idx]) items[idx].classList.add('active');
+        if (indicators && indicators[idx]) indicators[idx].classList.add('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        window._paymentMethods = JSON.parse(document.getElementById('paymentMethodsData').textContent || '[]');
+        
+        const cantidadInput = document.getElementById('cantidadInput');
+        const minusBtn = document.querySelector('.minus-btn');
+        const plusBtn = document.querySelector('.plus-btn');
+        const quickSelectBtns = document.querySelectorAll('.quick-select-btn');
+        const carouselIndicators = document.querySelectorAll('.carousel-indicators .indicator');
+        const paymentRadios = document.querySelectorAll('input[name="metodo_pago"]');
+        const detailsDiv = document.getElementById('paymentDetails');
+        const copyActions = document.getElementById('paymentCopyActions');
+        const copyAllBtn = document.getElementById('copyAllBtn');
+        const copyFeedback = document.getElementById('copyFeedback');
+        const metodoPagoText = document.getElementById('metodoPagoText');
+        const fileInput = document.getElementById('comprobanteInput');
+
+        // Quantity controls
+        minusBtn.addEventListener('click', () => {
+            const current = parseInt(cantidadInput.value) || 1;
+            if (current > 1) cantidadInput.value = current - 1;
+        });
+
+        plusBtn.addEventListener('click', () => {
+            const current = parseInt(cantidadInput.value) || 1;
+            const max = parseInt(cantidadInput.max) || 999;
+            if (current < max) cantidadInput.value = current + 1;
+        });
+
+        quickSelectBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const value = parseInt(btn.dataset.value);
+                const max = parseInt(cantidadInput.max) || 999;
+                cantidadInput.value = Math.min(value, max);
+                
+                quickSelectBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Carousel indicators (usando data-index en lugar de onclick inline)
+        if (carouselIndicators && carouselIndicators.length) {
+            carouselIndicators.forEach(ind => {
+                ind.addEventListener('click', function() {
+                    const idx = parseInt(this.getAttribute('data-index')) || 0;
+                    goToPrizeSlide(idx);
+                });
+            });
+        }
+
+        // File input display
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                const label = this.nextElementSibling;
+                const fileName = label.querySelector('.file-name');
+                if (this.files.length > 0) {
+                    fileName.textContent = this.files[0].name;
+                } else {
+                    fileName.textContent = 'Ningún archivo seleccionado';
+                }
+            });
+        }
+
+        // Payment method selection
+        function renderDetails(metodoId) {
+            const m = window._paymentMethods.find(x => String(x.id) === String(metodoId));
+            if (!m) {
+                detailsDiv.innerHTML = '';
+                copyActions.style.display = 'none';
+                metodoPagoText.textContent = '- - - - - -';
+                return;
+            }
+
+            metodoPagoText.textContent = m.nombre;
+            
+            let html = '';
+            if (m.fields && m.fields.length) {
+                html += '<div class="payment-info-card">';
+                m.fields.forEach((f, idx) => {
+                    html += '<div class="payment-info-row">'
+                        + '<div class="payment-info-label">' + f.field_name + '</div>'
+                        + '<div class="payment-info-value">' + f.field_value + '</div>'
+                        + '</div>';
+                });
+                html += '</div>';
+                copyActions.style.display = 'flex';
+            } else if (m.detalles) {
+                html = '<div class="payment-info-card"><p>' + m.detalles + '</p></div>';
+                copyActions.style.display = 'flex';
+            } else {
+                html = '';
+                copyActions.style.display = 'none';
+            }
+            
+            detailsDiv.innerHTML = html;
+        }
+
+        paymentRadios.forEach(r => {
+            r.addEventListener('change', function() {
+                renderDetails(this.dataset.metodoId);
+            });
+        });
+
+        // Initial render
+        const checked = document.querySelector('input[name="metodo_pago"]:checked');
+        if (checked) renderDetails(checked.dataset.metodoId);
+
+        // Copy all details
+        copyAllBtn.addEventListener('click', function() {
+            const checked = document.querySelector('input[name="metodo_pago"]:checked');
+            if (!checked) return;
+            
+            const m = window._paymentMethods.find(x => String(x.id) === String(checked.dataset.metodoId));
+            if (!m) return;
+            
+            let text = m.nombre + '\n';
+            if (m.fields && m.fields.length) {
+                m.fields.forEach(f => { text += f.field_name + ': ' + f.field_value + '\n'; });
+            } else if (m.detalles) {
+                text += m.detalles + '\n';
+            }
+            
+            copyToClipboard(text, function(success) {
+                if (success) {
+                    copyFeedback.style.display = 'inline-flex';
+                    setTimeout(() => { copyFeedback.style.display = 'none'; }, 2000);
+                }
+            });
+        });
+
+        function copyToClipboard(text, cb) {
+            if (!navigator.clipboard) {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    const ok = document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    cb(Boolean(ok));
+                } catch (err) {
+                    document.body.removeChild(ta);
+                    cb(false);
+                }
+                return;
+            }
+            navigator.clipboard.writeText(text).then(() => cb(true)).catch(() => cb(false));
+        }
+
+        // Auto-rotate prizes carousel
+        const prizesCarousel = document.querySelector('.prizes-carousel');
+        if (prizesCarousel) {
+            const items = prizesCarousel.querySelectorAll('.carousel-item');
+            if (items && items.length > 1) {
+                setInterval(function() {
+                    changePrizeSlide(1);
+                }, 5000); // Change every 5 seconds
+            }
+        }
+    });
     </script>
+</body>
 </html>

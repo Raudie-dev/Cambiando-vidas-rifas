@@ -4,127 +4,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compras pendientes</title>
+    <title>Compras Pendientes</title>
+    <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/paneles-style.css' %}">
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
-    <button class="btn btn-outline-light me-3" id="sidebarToggle">
-      <i class="fas fa-bars"></i>
-    </button>
-    <img src="{% static 'images/Agrofichas.png' %}" alt="Logo" height="50" class="me-2">
-    <div class="ms-auto d-flex align-items-center">
-      <a href="{% url 'login' %}" class="btn btn-outline-light">
-        <i class="fas fa-sign-out-alt"></i> Salir
-      </a>
-    </div>
-  </div>
-</nav>
-<div class="d-flex" id="wrapper" style="min-height:100vh;">
-  <div class="bg-dark text-white" id="sidebar-wrapper" style="width:250px;">
-    <div class="p-3 text-center border-bottom">
-      <img src="{% static 'images/logo.png' %}" alt="Logo" width="80" class="mb-2">
-      <h5>Rifas</h5>
-    </div>
-      <div class="list-group list-group-flush">
-      <a href="{% url 'control' %}" class="list-group-item bg-dark text-white">
-        <i class="fas fa-gifts me-2"></i>Panel Rifas
-      </a>
-      <a href="{% url 'compras' %}" class="list-group-item bg-dark text-white active">
-        <i class="fas fa-shopping-cart me-2"></i>Compras pendientes
-      </a>
-    </div>
-  </div>
-  <div class="flex-grow-1 p-4" id="page-content-wrapper">
-    <h2>Compras pendientes</h2>
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
-
-    <div class="card">
-      <div class="card-body">
-        {% if compras %}
-        <table class="table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Rifa</th>
-              <th>Participante</th>
-              <th>Cantidad</th>
-              <th>Método</th>
-              <th>Referencia</th>
-              <th>Comprobante</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for c in compras %}
-            <tr>
-              <td>{{ c.id }}</td>
-              <td>{{ c.rifa.titulo }}</td>
-              <td>{{ c.participante.nombre }} ({{ c.participante.identificacion }})</td>
-              <td>{{ c.cantidad }}</td>
-              <td>{{ c.metodo_pago }}</td>
-              <td>{{ c.referencia }}</td>
-                <td>
-                {% if c.comprobante %}
-                  <!-- Thumbnail button that triggers modal (modal rendered after the table) -->
-                  <button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#compModal{{ c.id }}">
-                    <img src="{{ c.comprobante.url }}" alt="comprobante" style="max-height:40px; object-fit:cover;" class="img-thumbnail">
-                  </button>
-                {% else %}
-                  -
-                {% endif %}
-                </td>
-              <td>
-                <form method="post" style="display:inline;">
-                  {% csrf_token %}
-                  <input type="hidden" name="confirmar_id" value="{{ c.id }}">
-                  <button class="btn btn-success btn-sm" type="submit">Confirmar</button>
-                </form>
-                <form method="post" style="display:inline;">
-                  {% csrf_token %}
-                  <input type="hidden" name="rechazar_id" value="{{ c.id }}">
-                  <button class="btn btn-danger btn-sm" type="submit">Rechazar</button>
-                </form>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% else %}
-        <p>No hay compras pendientes.</p>
-        {% endif %}
-      </div>
-    </div>
-    <!-- Modales para comprobantes (renderizados fuera de la tabla) -->
-    {% for c in compras %}
-      {% if c.comprobante %}
-      <div class="modal fade" id="compModal{{ c.id }}" tabindex="-1" aria-labelledby="compModalLabel{{ c.id }}" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="compModalLabel{{ c.id }}">Comprobante - Compra {{ c.id }}</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body text-center">
-              <img src="{{ c.comprobante.url }}" alt="comprobante" class="img-fluid">
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-          </div>
+    <!-- Navbar Superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <button class="btn btn-outline-light me-3" id="sidebarToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <img src="{% static 'images/Agrofichas.png' %}" alt="Logo" height="50" class="me-2">
+        <div class="ms-auto d-flex align-items-center">
+          <span class="text-secondary me-3 d-none d-md-inline">
+            <i class="fas fa-user-circle me-2"></i>Administrador
+          </span>
+          <a href="{% url 'login' %}" class="btn btn-outline-light">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="d-none d-md-inline ms-1">Salir</span>
+          </a>
         </div>
       </div>
-      {% endif %}
-    {% endfor %}
-  </div>
-</div>
+    </nav>
+
+    <div class="d-flex" id="wrapper" style="min-height:100vh;">
+      <!-- Sidebar -->
+      <div id="sidebar-wrapper">
+        <div class="sidebar-heading border-bottom">
+          <img src="{% static 'images/logo.png' %}" alt="Logo" width="80" class="mb-2">
+          <h5>Sistema de Rifas</h5>
+        </div>
+        <div class="list-group list-group-flush">
+          <a href="{% url 'control' %}" class="list-group-item">
+            <i class="fas fa-gifts"></i>
+            <span>Panel Rifas</span>
+          </a>
+          <a href="{% url 'compras' %}" class="list-group-item active">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Compras pendientes</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="flex-grow-1" id="page-content-wrapper">
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Header de la página -->
+        <div class="mb-4">
+            <h2 class="mb-1">
+                <i class="fas fa-shopping-cart me-2 text-gradient"></i>Compras Pendientes
+            </h2>
+            <p class="text-secondary mb-0">Revisa y gestiona las compras de tickets</p>
+        </div>
+
+        <!-- Card de Compras -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-clock me-2"></i>Compras Por Confirmar
+            </h5>
+            <span class="badge bg-warning">{{ compras|length }} Pendientes</span>
+          </div>
+          <div class="card-body p-0">
+            {% if compras %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead>
+                    <tr>
+                      <th><i class="fas fa-hashtag me-2"></i>ID</th>
+                      <th><i class="fas fa-ticket-alt me-2"></i>Rifa</th>
+                      <th><i class="fas fa-user me-2"></i>Participante</th>
+                      <th><i class="fas fa-sort-numeric-up me-2"></i>Cantidad</th>
+                      <th><i class="fas fa-credit-card me-2"></i>Método</th>
+                      <th><i class="fas fa-receipt me-2"></i>Referencia</th>
+                      <th><i class="fas fa-image me-2"></i>Comprobante</th>
+                      <th class="text-center"><i class="fas fa-cog me-2"></i>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for c in compras %}
+                    <tr>
+                      <td class="fw-bold text-primary">#{{ c.id }}</td>
+                      <td>{{ c.rifa.titulo }}</td>
+                      <td>
+                        <div>
+                            <div class="fw-semibold">{{ c.participante.nombre }}</div>
+                            <small class="text-muted">{{ c.participante.identificacion }}</small>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge bg-primary">{{ c.cantidad }} tickets</span>
+                      </td>
+                      <td>
+                        <i class="fas fa-credit-card me-1 text-success"></i>
+                        {{ c.metodo_pago }}
+                      </td>
+                      <td>
+                        <code class="text-info">{{ c.referencia }}</code>
+                      </td>
+                      <td>
+                        {% if c.comprobante %}
+                          <button type="button" class="btn btn-sm btn-outline-primary" 
+                                  data-bs-toggle="modal" 
+                                  data-bs-target="#compModal{{ c.id }}">
+                            <i class="fas fa-eye me-1"></i>Ver
+                          </button>
+                        {% else %}
+                          <span class="text-muted">-</span>
+                        {% endif %}
+                      </td>
+                      <td class="text-center">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <form method="post" style="display:inline;">
+                              {% csrf_token %}
+                              <input type="hidden" name="confirmar_id" value="{{ c.id }}">
+                              <button class="btn btn-success btn-sm" type="submit" title="Confirmar">
+                                <i class="fas fa-check"></i>
+                              </button>
+                            </form>
+                            <form method="post" style="display:inline;">
+                              {% csrf_token %}
+                              <input type="hidden" name="rechazar_id" value="{{ c.id }}">
+                              <button class="btn btn-danger btn-sm" type="submit" title="Rechazar">
+                                <i class="fas fa-times"></i>
+                              </button>
+                            </form>
+                        </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-check-circle fa-3x text-success mb-3 d-block"></i>
+                <h5 class="text-muted">No hay compras pendientes</h5>
+                <p class="text-secondary mb-0">Todas las compras han sido procesadas</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Modales para comprobantes -->
+        {% for c in compras %}
+          {% if c.comprobante %}
+          <div class="modal fade" id="compModal{{ c.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">
+                    <i class="fas fa-receipt me-2"></i>Comprobante - Compra #{{ c.id }}
+                  </h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                  <div class="mb-3">
+                    <div class="row g-2 text-start">
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Participante</small>
+                            <strong>{{ c.participante.nombre }}</strong>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Método de Pago</small>
+                            <strong>{{ c.metodo_pago }}</strong>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Cantidad</small>
+                            <strong>{{ c.cantidad }} tickets</strong>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Referencia</small>
+                            <strong>{{ c.referencia }}</strong>
+                        </div>
+                    </div>
+                  </div>
+                  <div class="border rounded p-2" style="background-color: var(--dark-bg);">
+                    <img src="{{ c.comprobante.url }}" alt="Comprobante" class="img-fluid rounded" style="max-height: 500px;">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cerrar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sidebar Toggle
+    var sidebarToggle = document.getElementById('sidebarToggle');
+    var wrapper = document.getElementById('wrapper');
+    if (sidebarToggle && wrapper) {
+        sidebarToggle.addEventListener('click', function() {
+            wrapper.classList.toggle('toggled');
+        });
+    }
+});
+</script>
 </body>
 </html>

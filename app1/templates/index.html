@@ -3,193 +3,450 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Rifas disponibles</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rifas Disponibles - RifasApp</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Navbar -->
+    <!-- Header -->
     <header class="header">
-        <div class="container header-wrapper">
-            <a href="{% url 'index' %}" class="logo">
-                <i class="fas fa-flask-vial me-2"></i>PruebasApp
-            </a>
-            <nav>
-                <ul class="nav-list">
-                    <li><a href="{% url 'index' %}" class="active"><i class="fas fa-table"></i> Registros</a></li>
-                    <li><a href="#"><i class="fas fa-info-circle"></i> Acerca</a></li>
-                    <li><a href="#"><i class="fas fa-envelope"></i> Contacto</a></li>
-                </ul>
-            </nav>
-        </div>
+        <nav class="nav">
+            <div class="nav-logo">
+                <a href="{% url 'index' %}"">
+                    <img src="{% static 'images/logo-img.png' %}" class="logo-img alt="logo">
+                    
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="{% url 'index' %}" class="active">Rifas</a></li>
+                <li><a href="#como-funciona">Cómo Funciona</a></li>
+                <li><a href="#quienes-somos">Quiénes Somos</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button id="navConfirmBtn" class="btn-outline" type="button">
+                    <i class="fas fa-check-circle"></i> Consultar Ticket
+                </button>
+            </div>
+            <button class="mobile-menu-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
     </header>
 
     <!-- Hero Section -->
-    <section class="welcome-area" style="padding-top: 120px;">
-        <div class="container">
-            <div class="welcome-content">
-                <div class="welcome-text">
-                    <h1><i class="fas fa-ticket-alt"></i> Rifas disponibles</h1>
-                    <p>
-                        Compra tickets para participar en las rifas. Completa tu identificación y cantidad de tickets deseada.
-                    </p>
-                </div>
-                <div class="welcome-image">
-                    <img src="{% static 'images/data_hero.png' %}" alt="Registros" style="max-width:350px;">
-                </div>
+    <section class="hero">
+        <div class="hero-content">
+            <!-- Logo agregado -->
+            
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                Rifas Activas Ahora
+            </div>
+            <div class="hero-logo-container">
+                <img src="{% static 'images/cambiando vidas def-04.png' %}" alt="RifasApp Logo" class="hero-logo-img">
+            </div>
+            <h1 class="hero-title">Participa y Gana Increíbles Premios</h1>
+            
+            <p class="hero-description">
+                Compra tus tickets de forma segura y participa en rifas de productos exclusivos. 
+                Transparencia garantizada en cada sorteo.
+            </p>
+            <div class="hero-actions">
+                <a href="#rifas" class="btn-primary btn-large">Ver Rifas</a>
+                <button id="heroConfirmBtn" class="btn-outline btn-large">Consultar Ticket</button>
             </div>
         </div>
     </section>
 
-    <!-- Tabla de registros -->
-    <section class="section section-light" style="padding-top: 40px;">
-        <div class="container">
-            <h2 class="section-title" style="font-size:2rem;"><i class="fas fa-gift"></i> Rifas disponibles</h2>
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 1rem;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
-            {% if messages %}
-                <div class="mb-3">
-                    {% for message in messages %}
-                        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
+    <!-- Rifas Section -->
+    <section id="rifas" class="rifas-section">
+        <div class="section-header">
+            <h2 class="section-title">Rifas Disponibles</h2>
+            <p class="section-description">Elige tu rifa favorita y compra tus tickets ahora</p>
+        </div>
+
+        <div class="rifas-grid">
+            {% for rifa in rifas %}
+            {% with delay=forloop.counter0|add:1 %}
+            <div class="rifa-card" data-animation-delay="{{ delay }}00" data-card-id="{{ rifa.id }}">
+                {% if rifa.images.all %}
+                <div class="rifa-image-slider">
+                    <div class="slider-wrapper">
+                        {% for img in rifa.images.all %}
+                        <img src="{{ img.image.url }}" alt="{{ rifa.titulo }}" class="rifa-image {% if forloop.first %}active{% endif %}">
+                        {% endfor %}
+                    </div>
+                    {% if rifa.images.count > 1 %}
+                    <button class="slider-btn prev-btn" onclick="changeSlide(this, -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="slider-btn next-btn" onclick="changeSlide(this, 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    {% endif %}
                 </div>
-            {% endif %}
+                {% else %}
+                <div class="rifa-image-placeholder">
+                    <i class="fas fa-gift"></i>
+                </div>
+                {% endif %}
 
-            <div class="row">
-                {% for rifa in rifas %}
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        {% if rifa.images.all %}
-                        <div id="carousel-idx-{{ rifa.id }}" class="carousel slide" data-bs-ride="carousel">
-                            <div class="carousel-inner">
-                                {% for img in rifa.images.all %}
-                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                    <img src="{{ img.image.url }}" class="d-block w-100" alt="Foto rifa" style="max-height:250px; object-fit:cover;">
-                                </div>
-                                {% endfor %}
-                            </div>
-                            {% if rifa.images.count > 1 %}
-                            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-idx-{{ rifa.id }}" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Previous</span>
-                            </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#carousel-idx-{{ rifa.id }}" data-bs-slide="next">
-                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Next</span>
-                            </button>
-                            {% endif %}
+                <div class="rifa-content">
+                    <h3 class="rifa-title">{{ rifa.titulo }}</h3>
+                    <p class="rifa-description">{{ rifa.descripcion|truncatewords:15 }}</p>
+                    
+                    <div class="rifa-info">
+                        <div class="rifa-date">
+                            <i class="fas fa-calendar"></i>
+                            {{ rifa.fecha_sorteo|date:"d M Y" }}
                         </div>
+                        <div class="rifa-tickets">
+                            <i class="fas fa-ticket-alt"></i>
+                            {{ rifa.tickets_sold }}/{{ rifa.total_tickets }}
+                        </div>
+                    </div>
+
+                    <div class="rifa-progress">
+                        <div class="progress-bar">
+                            {% widthratio rifa.tickets_sold rifa.total_tickets 100 as fill_width %}
+                            <div class="progress-fill" data-progress="{{ fill_width }}"></div>
+                        </div>
+                        <div class="progress-text">
+                            {{ rifa.tickets_available }} tickets disponibles
+                        </div>
+                    </div>
+
+                    <div class="rifa-footer">
+                        {% if rifa.tickets_available > 0 %}
+                        <a href="{% url 'compra_rifa' rifa.id %}" class="btn-primary" style="flex: 1;">
+                            <i class="fas fa-shopping-cart"></i> Comprar
+                        </a>
+                        <button class="btn-secondary" onclick="openConfirmModal('{{ rifa.id }}')">
+                            <i class="fas fa-check-circle"></i> Consultar Ticket
+                        </button>
+                        {% else %}
+                        <button class="btn-secondary" style="flex: 1;" disabled>
+                            <i class="fas fa-times-circle"></i> Agotada
+                        </button>
                         {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ rifa.titulo }}</h5>
-                            <p class="card-text">{{ rifa.descripcion }}</p>
-                            <p>
-                                <strong>Sorteo:</strong> {{ rifa.fecha_sorteo }}<br>
-                                <strong>Tickets vendidos:</strong> {{ rifa.tickets_sold }} / {{ rifa.total_tickets }}<br>
-                                <strong>Disponibles:</strong> {{ rifa.tickets_available }}
-                            </p>
+                    </div>
+                </div>
+            </div>
+            {% endwith %}
+            {% empty %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No hay rifas disponibles en este momento</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
 
-                            {% if rifa.tickets_available > 0 %}
-                            <div class="row g-2">
-                                <div class="col-12">
-                                    <a href="{% url 'compra_rifa' rifa.id %}" class="btn btn-primary w-100">
-                                        <i class="fas fa-ticket-alt"></i> Comprar
-                                    </a>
-                                </div>
-                            </div>
-                            {% else %}
-                                <div class="alert alert-secondary">Agotada</div>
-                            {% endif %}
-                                                        <!-- Botón para confirmar ticket: abre modal donde se introduce identificación -->
-                                                        <div class="mt-2">
-                                                                <button class="btn btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#confirmModal{{ rifa.id }}">
-                                                                        <i class="fas fa-check-circle"></i> Confirmar ticket
-                                                                </button>
+    <!-- Redesigned Quiénes Somos section -->
+    <section id="quienes-somos" class="about-section">
+        <div class="section-header">
+            <h2 class="section-title">Quiénes Somos</h2>
+            <div class="about-badge">
+                    <i class="fas fa-certificate"></i>
+                    <span>Conoces mas Sobre Nosotros</span>
+            </div>
+        </div>
 
-                                                                <!-- Modal -->
-                                                                <div class="modal fade" id="confirmModal{{ rifa.id }}" tabindex="-1" aria-labelledby="confirmModalLabel{{ rifa.id }}" aria-hidden="true">
-                                                                    <div class="modal-dialog modal-dialog-centered">
-                                                                        <div class="modal-content">
-                                                                            <div class="modal-header">
-                                                                                <h5 class="modal-title" id="confirmModalLabel{{ rifa.id }}">Confirmar Tickets - {{ rifa.titulo }}</h5>
-                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                                                            </div>
-                                                                            <div class="modal-body">
-                                                                                <div class="mb-3">
-                                                                                        <label for="identificacionInput{{ rifa.id }}" class="form-label">Identificación</label>
-                                                                                        <input type="text" id="identificacionInput{{ rifa.id }}" class="form-control" placeholder="Ingrese identificación">
-                                                                                </div>
-                                                                                <div id="statusResult{{ rifa.id }}" style="min-height:80px;"></div>
-                                                                            </div>
-                                                                            <div class="modal-footer">
-                                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                                                                                                        <button type="button" class="btn btn-primary" onclick="checkTickets('{{ rifa.id }}')">Buscar</button>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                        </div>
+        <div class="about-content">
+            <div class="about-text">
+                
+                <h3 class="about-subtitle">Tu plataforma de confianza para rifas online</h3>
+                
+                <p class="about-paragraph">
+                    Somos una plataforma innovadora dedicada a ofrecer rifas transparentes y seguras. 
+                    Nuestro compromiso es brindar una experiencia excepcional a todos nuestros participantes, 
+                    garantizando sorteos justos y premios increíbles.
+                </p>
+       
+                <div class="about-features">
+                    <div class="about-feature-item">
+                        <div class="about-feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="about-feature-content">
+                            <h4>100% Seguro</h4>
+                            <p>Transacciones protegidas y datos encriptados con tecnología de última generación</p>
+                        </div>
+                    </div>
+                    <div class="about-feature-item">
+                        <div class="about-feature-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="about-feature-content">
+                            <h4>Transparencia Total</h4>
+                            <p>Sorteos verificables y resultados públicos accesibles para todos</p>
+                        </div>
+                    </div>
+                    <div class="about-feature-item">
+                        <div class="about-feature-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="about-feature-content">
+                            <h4>Soporte 24/7</h4>
+                            <p>Atención al cliente siempre disponible para resolver tus dudas</p>
                         </div>
                     </div>
                 </div>
-                {% empty %}
-                    <p>No hay rifas disponibles.</p>
-                {% endfor %}
+            </div>
+            
+            <div class="about-image">
+                <div class="about-image-wrapper">
+                    <img src="https://images.ecestaticos.com/0heyD9gpC4g4bWgAd-9MmpLTaN4=/0x0:1254x836/1200x900/filters:fill(white):format(jpg)/f.elconfidencial.com%2Foriginal%2Faef%2Fa91%2Fdeb%2Faefa91debc6fa3c745636a3d329f91e2.jpg" alt="Equipo RifasApp">
+                    <div class="about-image-overlay">
+                        <i class="fas fa-play-circle"></i>
+                        <p>Ver cómo funcionamos</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="footer mt-5">
-        <div class="container footer-content">
-            <a href="{% url 'index' %}" class="footer-logo">
-                <i class="fas fa-flask-vial"></i> PruebasApp
-            </a>
-            <p>&copy; {{ now|date:"Y" }} PruebasApp. Todos los derechos reservados.</p>
+    <footer id="contacto" class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span class="logo-text">RifasApp</span>
+                </div>
+                <p class="footer-description">
+                    Plataforma segura y transparente para participar en rifas y sorteos.
+                </p>
+            </div>
+
+            <div class="footer-section">
+                <h4 class="footer-title">Enlaces</h4>
+                <ul class="footer-links">
+                    <li><a href="{% url 'index' %}">Rifas</a></li>
+                    <li><a href="#como-funciona">Cómo Funciona</a></li>
+                    <li><a href="#quienes-somos">Quiénes Somos</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4 class="footer-title">Legal</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Términos y Condiciones</a></li>
+                    <li><a href="#">Política de Privacidad</a></li>
+                    <li><a href="#">Preguntas Frecuentes</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4 class="footer-title">Contacto</h4>
+                <ul class="footer-links">
+                    <li><i class="fas fa-envelope"></i> info@rifasapp.com</li>
+                    <li><i class="fas fa-phone"></i> +1 234 567 890</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Ciudad, País</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 RifasApp. Todos los derechos reservados.</p>
         </div>
     </footer>
-</body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-function checkTickets(rifaId) {
-    const identInput = document.getElementById('identificacionInput' + rifaId);
-    const resultDiv = document.getElementById('statusResult' + rifaId);
-    if (!identInput) return;
-    const identificacion = identInput.value.trim();
-    if (!identificacion) {
-        resultDiv.innerHTML = '<div class="text-danger">Ingrese identificación</div>';
-        return;
+
+    <!-- Modals -->
+    {% for rifa in rifas %}
+    <div class="modal-overlay" id="confirmModal{{ rifa.id }}">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar Ticket - {{ rifa.titulo }}</h3>
+                <button class="modal-close" onclick="closeModal('confirmModal{{ rifa.id }}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="identificacionInput{{ rifa.id }}">Identificación</label>
+                    <input type="text" id="identificacionInput{{ rifa.id }}" class="form-input" placeholder="Ingrese su identificación">
+                </div>
+                <div id="statusResult{{ rifa.id }}" class="status-result"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('confirmModal{{ rifa.id }}')">Cerrar</button>
+                <button class="btn-primary" onclick="checkTickets('{{ rifa.id }}')">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+    // Auto-rotation interval storage
+    const autoRotateIntervals = new Map();
+
+    function changeSlide(btn, direction) {
+        const card = btn.closest('.rifa-card');
+        const images = card.querySelectorAll('.rifa-image');
+        let currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+        
+        images[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex + direction + images.length) % images.length;
+        images[currentIndex].classList.add('active');
+        
+        // Reset auto-rotation timer when manually changed
+        const cardId = card.dataset.cardId;
+        if (autoRotateIntervals.has(cardId)) {
+            clearInterval(autoRotateIntervals.get(cardId));
+            startAutoRotation(card);
+        }
     }
-    resultDiv.innerHTML = '<div class="text-center">Buscando...</div>';
-    // Construir URL reemplazando el placeholder 0
-    let base = "{% url 'tickets_status' 0 %}";
-    base = base.replace('/0/', '/' + rifaId + '/');
-    const url = base + '?identificacion=' + encodeURIComponent(identificacion);
-    fetch(url)
-        .then(response => response.json().then(data => ({ ok: response.ok, status: response.status, data })))
-        .then(({ ok, data }) => {
-            if (!ok) {
-                resultDiv.innerHTML = '<div class="text-danger">' + (data.error || 'Error') + '</div>';
-                return;
-            }
-            if (data.status === 'CONFIRMADO') {
-                if (data.tickets && data.tickets.length) {
-                    resultDiv.innerHTML = '<div class="alert alert-success">Tickets asignados: <strong>' + data.tickets.join(', ') + '</strong></div>';
-                } else {
-                    resultDiv.innerHTML = '<div class="alert alert-warning">Compra confirmada pero no se encontraron tickets.</div>';
+
+    // Auto-rotation for raffle cards
+    function startAutoRotation(card) {
+        const images = card.querySelectorAll('.rifa-image');
+        if (images.length <= 1) return;
+        
+        const cardId = card.dataset.cardId;
+        
+        const interval = setInterval(() => {
+            let currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+            images[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % images.length;
+            images[currentIndex].classList.add('active');
+        }, 4000); // Change every 4 seconds
+        
+        autoRotateIntervals.set(cardId, interval);
+    }
+
+    function openConfirmModal(rifaId) {
+        const modal = document.getElementById('confirmModal' + rifaId);
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    function checkTickets(rifaId) {
+        const identInput = document.getElementById('identificacionInput' + rifaId);
+        const resultDiv = document.getElementById('statusResult' + rifaId);
+        
+        if (!identInput) return;
+        
+        const identificacion = identInput.value.trim();
+        if (!identificacion) {
+            resultDiv.innerHTML = '<div class="alert alert-error">Por favor ingrese su identificación</div>';
+            return;
+        }
+        
+        resultDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin"></i> Buscando...</div>';
+        
+        let base = "{% url 'tickets_status' 0 %}";
+        base = base.replace('/0/', '/' + rifaId + '/');
+        const url = base + '?identificacion=' + encodeURIComponent(identificacion);
+        
+        fetch(url)
+            .then(response => response.json().then(data => ({ ok: response.ok, status: response.status, data })))
+            .then(({ ok, data }) => {
+                if (!ok) {
+                    resultDiv.innerHTML = '<div class="alert alert-error">' + (data.error || 'Error al buscar tickets') + '</div>';
+                    return;
                 }
-            } else if (data.status === 'NO_PARTICIPANTE' || data.status === 'NO_COMPRA') {
-                resultDiv.innerHTML = '<div class="alert alert-info">' + (data.message || '') + '</div>';
-            } else {
-                resultDiv.innerHTML = '<div class="alert alert-warning">Estado: ' + (data.status || 'DESCONOCIDO') + (data.message ? ' - ' + data.message : '') + '</div>';
+                
+                if (data.status === 'CONFIRMADO') {
+                    if (data.tickets && data.tickets.length) {
+                        resultDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle"></i> <strong>Tickets confirmados:</strong> ' + data.tickets.join(', ') + '</div>';
+                    } else {
+                        resultDiv.innerHTML = '<div class="alert alert-warning">Compra confirmada pero no se encontraron tickets asignados.</div>';
+                    }
+                } else if (data.status === 'NO_PARTICIPANTE' || data.status === 'NO_COMPRA') {
+                    resultDiv.innerHTML = '<div class="alert alert-info">' + (data.message || 'No se encontraron tickets con esta identificación') + '</div>';
+                } else {
+                    resultDiv.innerHTML = '<div class="alert alert-warning">Estado: ' + (data.status || 'DESCONOCIDO') + (data.message ? ' - ' + data.message : '') + '</div>';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                resultDiv.innerHTML = '<div class="alert alert-error">Error de conexión. Por favor intente nuevamente.</div>';
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const navBtn = document.getElementById('navConfirmBtn');
+        const heroBtn = document.getElementById('heroConfirmBtn');
+        
+        function openFirstModal() {
+            const modal = document.querySelector('[id^="confirmModal"]');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
             }
-        })
-        .catch(err => {
-            console.error(err);
-            resultDiv.innerHTML = '<div class="text-danger">Error de red</div>';
+        }
+        
+        if (navBtn) navBtn.addEventListener('click', openFirstModal);
+        if (heroBtn) heroBtn.addEventListener('click', openFirstModal);
+        
+        // Close modal on outside click
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
         });
-}
-</script>
+
+        // Apply animation-delay and progress-fill width
+        document.querySelectorAll('.rifa-card[data-animation-delay]').forEach(function(card) {
+            var delayMs = card.getAttribute('data-animation-delay');
+            if (delayMs) card.style.animationDelay = (delayMs.endsWith('ms') ? delayMs : (delayMs + 'ms'));
+        });
+
+        document.querySelectorAll('.progress-fill[data-progress]').forEach(function(el) {
+            var w = el.getAttribute('data-progress');
+            if (w !== null) el.style.width = w + '%';
+        });
+
+        // Initialize auto-rotation for all raffle cards
+        document.querySelectorAll('.rifa-card').forEach(card => {
+            startAutoRotation(card);
+        });
+
+        // Stop auto-rotation when hovering over a card
+        document.querySelectorAll('.rifa-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                const cardId = card.dataset.cardId;
+                if (autoRotateIntervals.has(cardId)) {
+                    clearInterval(autoRotateIntervals.get(cardId));
+                }
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                startAutoRotation(card);
+            });
+        });
+    });
+    </script>
+</body>
 </html>

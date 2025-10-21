@@ -1,0 +1,195 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Rifas disponibles</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <!-- Navbar -->
+    <header class="header">
+        <div class="container header-wrapper">
+            <a href="{% url 'index' %}" class="logo">
+                <i class="fas fa-flask-vial me-2"></i>PruebasApp
+            </a>
+            <nav>
+                <ul class="nav-list">
+                    <li><a href="{% url 'index' %}" class="active"><i class="fas fa-table"></i> Registros</a></li>
+                    <li><a href="#"><i class="fas fa-info-circle"></i> Acerca</a></li>
+                    <li><a href="#"><i class="fas fa-envelope"></i> Contacto</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="welcome-area" style="padding-top: 120px;">
+        <div class="container">
+            <div class="welcome-content">
+                <div class="welcome-text">
+                    <h1><i class="fas fa-ticket-alt"></i> Rifas disponibles</h1>
+                    <p>
+                        Compra tickets para participar en las rifas. Completa tu identificación y cantidad de tickets deseada.
+                    </p>
+                </div>
+                <div class="welcome-image">
+                    <img src="{% static 'images/data_hero.png' %}" alt="Registros" style="max-width:350px;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tabla de registros -->
+    <section class="section section-light" style="padding-top: 40px;">
+        <div class="container">
+            <h2 class="section-title" style="font-size:2rem;"><i class="fas fa-gift"></i> Rifas disponibles</h2>
+
+            {% if messages %}
+                <div class="mb-3">
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="row">
+                {% for rifa in rifas %}
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        {% if rifa.images.all %}
+                        <div id="carousel-idx-{{ rifa.id }}" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                {% for img in rifa.images.all %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <img src="{{ img.image.url }}" class="d-block w-100" alt="Foto rifa" style="max-height:250px; object-fit:cover;">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if rifa.images.count > 1 %}
+                            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-idx-{{ rifa.id }}" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#carousel-idx-{{ rifa.id }}" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ rifa.titulo }}</h5>
+                            <p class="card-text">{{ rifa.descripcion }}</p>
+                            <p>
+                                <strong>Sorteo:</strong> {{ rifa.fecha_sorteo }}<br>
+                                <strong>Tickets vendidos:</strong> {{ rifa.tickets_sold }} / {{ rifa.total_tickets }}<br>
+                                <strong>Disponibles:</strong> {{ rifa.tickets_available }}
+                            </p>
+
+                            {% if rifa.tickets_available > 0 %}
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <a href="{% url 'compra_rifa' rifa.id %}" class="btn btn-primary w-100">
+                                        <i class="fas fa-ticket-alt"></i> Comprar
+                                    </a>
+                                </div>
+                            </div>
+                            {% else %}
+                                <div class="alert alert-secondary">Agotada</div>
+                            {% endif %}
+                                                        <!-- Botón para confirmar ticket: abre modal donde se introduce identificación -->
+                                                        <div class="mt-2">
+                                                                <button class="btn btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#confirmModal{{ rifa.id }}">
+                                                                        <i class="fas fa-check-circle"></i> Confirmar ticket
+                                                                </button>
+
+                                                                <!-- Modal -->
+                                                                <div class="modal fade" id="confirmModal{{ rifa.id }}" tabindex="-1" aria-labelledby="confirmModalLabel{{ rifa.id }}" aria-hidden="true">
+                                                                    <div class="modal-dialog modal-dialog-centered">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h5 class="modal-title" id="confirmModalLabel{{ rifa.id }}">Confirmar Tickets - {{ rifa.titulo }}</h5>
+                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                <div class="mb-3">
+                                                                                        <label for="identificacionInput{{ rifa.id }}" class="form-label">Identificación</label>
+                                                                                        <input type="text" id="identificacionInput{{ rifa.id }}" class="form-control" placeholder="Ingrese identificación">
+                                                                                </div>
+                                                                                <div id="statusResult{{ rifa.id }}" style="min-height:80px;"></div>
+                                                                            </div>
+                                                                            <div class="modal-footer">
+                                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                                                                                        <button type="button" class="btn btn-primary" onclick="checkTickets('{{ rifa.id }}')">Buscar</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                        </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                    <p>No hay rifas disponibles.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer mt-5">
+        <div class="container footer-content">
+            <a href="{% url 'index' %}" class="footer-logo">
+                <i class="fas fa-flask-vial"></i> PruebasApp
+            </a>
+            <p>&copy; {{ now|date:"Y" }} PruebasApp. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function checkTickets(rifaId) {
+    const identInput = document.getElementById('identificacionInput' + rifaId);
+    const resultDiv = document.getElementById('statusResult' + rifaId);
+    if (!identInput) return;
+    const identificacion = identInput.value.trim();
+    if (!identificacion) {
+        resultDiv.innerHTML = '<div class="text-danger">Ingrese identificación</div>';
+        return;
+    }
+    resultDiv.innerHTML = '<div class="text-center">Buscando...</div>';
+    // Construir URL reemplazando el placeholder 0
+    let base = "{% url 'tickets_status' 0 %}";
+    base = base.replace('/0/', '/' + rifaId + '/');
+    const url = base + '?identificacion=' + encodeURIComponent(identificacion);
+    fetch(url)
+        .then(response => response.json().then(data => ({ ok: response.ok, status: response.status, data })))
+        .then(({ ok, data }) => {
+            if (!ok) {
+                resultDiv.innerHTML = '<div class="text-danger">' + (data.error || 'Error') + '</div>';
+                return;
+            }
+            if (data.status === 'CONFIRMADO') {
+                if (data.tickets && data.tickets.length) {
+                    resultDiv.innerHTML = '<div class="alert alert-success">Tickets asignados: <strong>' + data.tickets.join(', ') + '</strong></div>';
+                } else {
+                    resultDiv.innerHTML = '<div class="alert alert-warning">Compra confirmada pero no se encontraron tickets.</div>';
+                }
+            } else if (data.status === 'NO_PARTICIPANTE' || data.status === 'NO_COMPRA') {
+                resultDiv.innerHTML = '<div class="alert alert-info">' + (data.message || '') + '</div>';
+            } else {
+                resultDiv.innerHTML = '<div class="alert alert-warning">Estado: ' + (data.status || 'DESCONOCIDO') + (data.message ? ' - ' + data.message : '') + '</div>';
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            resultDiv.innerHTML = '<div class="text-danger">Error de red</div>';
+        });
+}
+</script>
+</html>

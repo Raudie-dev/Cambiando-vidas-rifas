@@ -52,7 +52,7 @@ def compra_rifa(request, rifa_id):
         return redirect('index')
 
     # GET: mostrar formulario de compra y métodos de pago
-    metodos_pago = ['Transferencia', 'Pago móvil', 'Depósito bancario']
+    metodos_pago = crud_app.obtener_metodos()
     return render(request, 'compra_rifa.html', {'rifa': rifa, 'metodos_pago': metodos_pago})
 
 

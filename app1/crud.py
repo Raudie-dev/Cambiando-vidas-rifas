@@ -1,4 +1,6 @@
 from .models import Rifa, Participante, Ticket, Compra
+from .models import PaymentMethod
+from .models import PaymentMethodField
 from django.db import transaction
 
 
@@ -66,3 +68,76 @@ def asignar_tickets_a_compra(compra):
         compra.save()
 
     return list(reserved_qs)
+
+
+def crear_metodo_pago(nombre, detalles='', activo=True):
+    metodo = PaymentMethod.objects.create(nombre=nombre, detalles=detalles, activo=activo)
+    return metodo
+
+
+def obtener_metodos():
+    return PaymentMethod.objects.filter(activo=True).prefetch_related('fields').order_by('-creado_en')
+
+
+def obtener_metodo(metodo_id):
+    return PaymentMethod.objects.get(id=metodo_id)
+
+
+def crear_metodo_con_campos(nombre, campos):
+    """campos: lista de tuplas (field_name, field_value)"""
+    metodo = PaymentMethod.objects.create(nombre=nombre, activo=True)
+    for idx, (fname, fval) in enumerate(campos):
+        PaymentMethodField.objects.create(metodo=metodo, field_name=fname, field_value=fval, orden=idx)
+    return metodo
+
+
+def obtener_todos_metodos():
+    """Devuelve todos los métodos (incluyendo inactivos) para uso administrativo."""
+    return PaymentMethod.objects.all().prefetch_related('fields').order_by('-creado_en')
+
+
+def actualizar_metodo(metodo_id, nombre=None, detalles=None, activo=None):
+    """Actualizar campos simples de un PaymentMethod."""
+    metodo = PaymentMethod.objects.get(id=metodo_id)
+    changed = False
+    if nombre is not None and metodo.nombre != nombre:
+        metodo.nombre = nombre
+        changed = True
+    if detalles is not None and metodo.detalles != detalles:
+        metodo.detalles = detalles
+        changed = True
+    if activo is not None and metodo.activo != activo:
+        metodo.activo = activo
+        changed = True
+    if changed:
+        metodo.save()
+    return metodo
+
+
+def actualizar_metodo_con_campos(metodo_id, nombre=None, campos=None, activo=None):
+    """Actualizar método y reemplazar sus campos.
+
+    campos: lista de tuplas (field_name, field_value)
+    """
+    metodo = actualizar_metodo(metodo_id, nombre=nombre, detalles=None, activo=activo)
+    if campos is not None:
+        # eliminar campos existentes y crear los nuevos en orden
+        PaymentMethodField.objects.filter(metodo=metodo).delete()
+        for idx, (fname, fval) in enumerate(campos):
+            PaymentMethodField.objects.create(metodo=metodo, field_name=fname, field_value=fval, orden=idx)
+    return metodo
+
+
+def desactivar_metodo(metodo_id):
+    """Marcar método como inactivo en lugar de eliminarlo."""
+    metodo = PaymentMethod.objects.get(id=metodo_id)
+    metodo.activo = False
+    metodo.save()
+    return metodo
+
+
+def eliminar_metodo(metodo_id):
+    """Eliminar permanentemente un método y sus campos."""
+    metodo = PaymentMethod.objects.get(id=metodo_id)
+    metodo.delete()
+    return True

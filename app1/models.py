@@ -81,3 +81,29 @@ class Compra(models.Model):
 
     def __str__(self):
         return f"Compra {self.id} - {self.participante_id} ({self.cantidad}) - {self.estado}"
+
+
+class PaymentMethod(models.Model):
+    nombre = models.CharField(max_length=200)
+    detalles = models.TextField(blank=True, help_text='Instrucciones o datos para el pago, p.ej. número de cuenta, titular, nota')
+    activo = models.BooleanField(default=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-creado_en', 'nombre']
+
+    def __str__(self):
+        return self.nombre
+
+
+class PaymentMethodField(models.Model):
+    metodo = models.ForeignKey(PaymentMethod, related_name='fields', on_delete=models.CASCADE)
+    field_name = models.CharField(max_length=200)
+    field_value = models.CharField(max_length=500)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['orden', 'id']
+
+    def __str__(self):
+        return f"{self.metodo.nombre}: {self.field_name}"

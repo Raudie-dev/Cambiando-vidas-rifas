@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import check_password
 from .models import User_admin
 from . import crud as crud_rifas
 from . import crud as admin_crud
+from app1 import crud as app1_crud
 
 
 def login(request):
@@ -41,6 +42,63 @@ def control(request):
 
     # Manejar creación de rifa
     if request.method == 'POST':
+        # Editar método de pago
+        if 'editar_metodo' in request.POST:
+            metodo_id = request.POST.get('editar_metodo_id')
+            nombre = request.POST.get('metodo_nombre_edit', '').strip()
+            field_names = request.POST.getlist('field_name_list')
+            field_values = request.POST.getlist('field_value_list')
+            campos = []
+            for i, fname in enumerate(field_names):
+                if fname.strip():
+                    fval = field_values[i] if i < len(field_values) else ''
+                    campos.append((fname.strip(), fval.strip()))
+            if campos:
+                app1_crud.actualizar_metodo_con_campos(metodo_id, nombre=nombre, campos=campos)
+            else:
+                app1_crud.actualizar_metodo(metodo_id, nombre=nombre)
+            messages.success(request, 'Método actualizado')
+            return redirect('control')
+
+        # Eliminar método (desde el botón en la tabla)
+        if 'eliminar_metodo_id' in request.POST:
+            metodo_id = request.POST.get('eliminar_metodo_id')
+            app1_crud.eliminar_metodo(metodo_id)
+            messages.success(request, 'Método eliminado')
+            return redirect('control')
+
+        # Toggle activar/desactivar método
+        if 'toggle_metodo_id' in request.POST:
+            metodo_id = request.POST.get('toggle_metodo_id')
+            activo_val = request.POST.get('activo')
+            activo = True if activo_val in ('1', 'true', 'True') else False
+            app1_crud.actualizar_metodo(metodo_id, activo=activo)
+            messages.success(request, 'Estado del método actualizado')
+            return redirect('control')
+
+        # Crear método de pago desde modal
+        if 'crear_metodo_pago' in request.POST:
+            nombre = request.POST.get('metodo_nombre', '').strip()
+            # recibir listas serializadas desde el modal
+            field_names = request.POST.getlist('field_name_list')
+            field_values = request.POST.getlist('field_value_list')
+            detalles = ''
+            if not nombre:
+                messages.error(request, 'Nombre del método requerido')
+                return redirect('control')
+            # emparejar campos
+            campos = []
+            for i, fname in enumerate(field_names):
+                if fname.strip():
+                    fval = field_values[i] if i < len(field_values) else ''
+                    campos.append((fname.strip(), fval.strip()))
+            if campos:
+                app1_crud.crear_metodo_con_campos(nombre=nombre, campos=campos)
+            else:
+                app1_crud.crear_metodo_pago(nombre=nombre, detalles=detalles)
+            messages.success(request, 'Método de pago creado')
+            return redirect('control')
+
         # El formulario de creación viene con campos: titulo, fecha_sorteo, total_tickets, descripcion, foto
         if 'eliminar_id' in request.POST:
             eliminar_id = request.POST.get('eliminar_id')
@@ -69,7 +127,9 @@ def control(request):
         return redirect('control')
 
     rifas = crud_rifas.obtener_rifas()
-    return render(request, 'control.html', {'rifas': rifas})
+    # En el panel admin mostramos todos los métodos (activos e inactivos)
+    app_methods = app1_crud.obtener_todos_metodos()
+    return render(request, 'control.html', {'rifas': rifas, 'app_methods': app_methods})
 
 
 def compras(request):

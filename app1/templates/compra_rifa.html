@@ -52,10 +52,16 @@
                                 <div class="mb-3">
                                     {% for metodo in metodos_pago %}
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="metodo_pago" id="metodo-{{ forloop.counter }}" value="{{ metodo }}" {% if forloop.first %}checked{% endif %}>
-                                        <label class="form-check-label" for="metodo-{{ forloop.counter }}">{{ metodo }}</label>
+                                        <input class="form-check-input payment-radio" type="radio" name="metodo_pago" id="metodo-{{ metodo.id }}" value="{{ metodo.nombre }}" {% if forloop.first %}checked{% endif %} data-metodo-id="{{ metodo.id }}">
+                                        <label class="form-check-label" for="metodo-{{ metodo.id }}">{{ metodo.nombre }}</label>
                                     </div>
                                     {% endfor %}
+                                </div>
+                                <div class="mb-3" id="paymentDetails">
+                                    <!-- detalles del método seleccionado aparecerán aquí -->
+                                </div>
+                                <div class="mb-3 d-flex gap-2" id="paymentCopyActions" style="display:none;">
+                                    
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Comprobante de pago (imagen)</label>
@@ -80,4 +86,128 @@
 
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+        const radios = document.querySelectorAll('.payment-radio');
+        const detailsDiv = document.getElementById('paymentDetails');
+    const copyActions = document.getElementById('paymentCopyActions');
+    const copyAllBtn = document.getElementById('copyAllBtn');
+    const copyFeedback = document.getElementById('copyFeedback');
+        function renderDetails(metodoId) {
+                // find method data in a JS object embedded below
+                if (!window._paymentMethods) return;
+                const m = window._paymentMethods.find(x => String(x.id) === String(metodoId));
+                if (!m) {
+                        detailsDiv.innerHTML = '';
+            copyActions.style.display = 'none';
+                        return;
+                }
+                // show its fields
+                let html = '';
+                if (m.fields && m.fields.length) {
+                        html += '<div class="card p-2">';
+            m.fields.forEach((f, idx) => {
+                // each field has a copy button
+                const safeName = String(f.field_name).replace(/"/g, '\\"');
+                const safeValue = String(f.field_value).replace(/"/g, '\\"');
+                html += '<div class="d-flex align-items-center justify-content-between mb-1">'
+                    + '<div><strong>' + f.field_name + ':</strong> <span class="field-value" data-field-idx="' + idx + '">' + f.field_value + '</span></div>'
+                    + '<div><button type="button" class="btn btn-sm btn-outline-primary copy-field" data-field-idx="' + idx + '" data-field-name="' + safeName + '" data-field-value="' + safeValue + '">Copiar</button></div>'
+                    + '</div>';
+            });
+                        html += '</div>';
+            copyActions.style.display = '';
+                } else if (m.detalles) {
+            html = '<div class="card p-2">' + m.detalles + '</div>';
+            copyActions.style.display = '';
+                } else {
+                        html = '';
+            copyActions.style.display = 'none';
+                }
+                detailsDiv.innerHTML = html;
+        attachCopyHandlers();
+        }
+    function attachCopyHandlers() {
+        // individual field copy buttons
+        const buttons = document.querySelectorAll('.copy-field');
+        buttons.forEach(b => {
+            b.removeEventListener('click', onCopyFieldClick);
+            b.addEventListener('click', onCopyFieldClick);
+        });
+    }
+    function onCopyFieldClick(e) {
+        const btn = e.currentTarget;
+        const value = btn.dataset.fieldValue || '';
+        copyToClipboard(value, function(success) {
+            showCopyFeedback(success);
+        });
+    }
+    function copyToClipboard(text, cb) {
+        if (!navigator.clipboard) {
+            // fallback
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                cb(Boolean(ok));
+            } catch (err) {
+                document.body.removeChild(ta);
+                cb(false);
+            }
+            return;
+        }
+        navigator.clipboard.writeText(text).then(() => cb(true)).catch(() => cb(false));
+    }
+    function showCopyFeedback(success) {
+        if (!success) return;
+        copyFeedback.style.display = '';
+        setTimeout(() => { copyFeedback.style.display = 'none'; }, 2000);
+    }
+        radios.forEach(r => r.addEventListener('change', function() { renderDetails(this.dataset.metodoId); }));
+        // initial render of first checked
+        const checked = document.querySelector('.payment-radio:checked');
+        if (checked) renderDetails(checked.dataset.metodoId);
+
+    // copy all details button
+    copyAllBtn.addEventListener('click', function() {
+        const checked = document.querySelector('.payment-radio:checked');
+        if (!checked) return;
+        const m = window._paymentMethods.find(x => String(x.id) === String(checked.dataset.metodoId));
+        if (!m) return;
+        let text = m.nombre + '\n';
+        if (m.fields && m.fields.length) {
+            m.fields.forEach(f => { text += f.field_name + ': ' + f.field_value + '\n'; });
+        } else if (m.detalles) {
+            text += m.detalles + '\n';
+        }
+        copyToClipboard(text, function(success) { showCopyFeedback(success); });
+    });
+});
+</script>
+
+    <!-- JSON con métodos de pago para uso en cliente -->
+    <script id="paymentMethodsData" type="application/json">
+    [
+    {% for metodo in metodos_pago %}
+        {
+            "id": {{ metodo.id }},
+            "nombre": "{{ metodo.nombre|escapejs }}",
+            "detalles": "{{ metodo.detalles|default:""|escapejs }}",
+            "fields": [
+                {% for f in metodo.fields.all %}
+                    { "field_name": "{{ f.field_name|escapejs }}", "field_value": "{{ f.field_value|escapejs }}" }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
+        }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+    ]
+    </script>
+    <script>
+    window._paymentMethods = JSON.parse(document.getElementById('paymentMethodsData').textContent || '[]');
+    </script>
 </html>

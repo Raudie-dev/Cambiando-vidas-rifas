@@ -55,9 +55,14 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="mb-0">Crear nueva rifa</h4>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createRifaModal">
+            <div>
+              <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#createRifaModal">
                 <i class="fas fa-plus me-1"></i> Nueva Rifa
             </button>
+              <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#createPaymentModal">
+                <i class="fas fa-credit-card me-1"></i> Nuevo método de pago
+              </button>
+            </div>
         </div>
 
         <!-- Modal: Crear Rifa -->
@@ -162,6 +167,117 @@
                 </table>
             </div>
         </div>
+    <!-- Métodos de pago existentes -->
+    <div class="card mt-4">
+      <div class="card-body">
+        <h5>Métodos de pago</h5>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Detalles</th>
+              <th>Activo</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for metodo in app_methods %}
+            <tr>
+              <td>{{ metodo.nombre }}</td>
+              <td style="max-width:400px; white-space:normal;">{{ metodo.detalles }}</td>
+              <td>
+                <form method="post" class="d-inline toggle-active-form" id="toggle-form-{{ metodo.id }}">
+                  {% csrf_token %}
+                  <input type="hidden" name="toggle_metodo_id" value="{{ metodo.id }}">
+                  <input type="hidden" name="activo" value="{% if metodo.activo %}1{% else %}0{% endif %}">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input toggle-active-input" type="checkbox" id="toggleActive{{ metodo.id }}" {% if metodo.activo %}checked{% endif %}>
+                    <label class="form-check-label" for="toggleActive{{ metodo.id }}"></label>
+                  </div>
+                </form>
+              </td>
+              <td>
+                <button type="button" class="btn btn-sm btn-outline-secondary edit-method-btn" data-id="{{ metodo.id }}" data-name="{{ metodo.nombre|escapejs }}" data-fields='[{% for f in metodo.fields.all %}{"field_name":"{{ f.field_name|escapejs }}","field_value":"{{ f.field_value|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]' data-bs-toggle="modal" data-bs-target="#editPaymentModal">Editar</button>
+                <form method="post" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="eliminar_metodo_id" value="{{ metodo.id }}">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3">No hay métodos registrados.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+      </div>
+      <!-- Modal: Crear método de pago -->
+      <div class="modal fade" id="createPaymentModal" tabindex="-1" aria-labelledby="createPaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="createPaymentModalLabel">Crear método de pago</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form method="post">
+            <div class="modal-body">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label class="form-label">Nombre del método</label>
+                <input type="text" name="metodo_nombre" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Campos del método (nombre del dato / valor)</label>
+                <div id="paymentFields">
+                  <div class="d-flex mb-2 field-row">
+                    <input type="text" name="field_name" class="form-control me-2" placeholder="Nombre del dato (p.ej. Cuenta)">
+                    <input type="text" name="field_value" class="form-control me-2" placeholder="Valor (p.ej. 1234-5678)">
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-field">-</button>
+                  </div>
+                </div>
+                <button type="button" id="addFieldBtn" class="btn btn-sm btn-outline-primary mt-2">Agregar campo</button>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" name="crear_metodo_pago" class="btn btn-primary">Crear</button>
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- Modal: Editar método de pago -->
+      <div class="modal fade" id="editPaymentModal" tabindex="-1" aria-labelledby="editPaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editPaymentModalLabel">Editar método de pago</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form method="post">
+            <div class="modal-body">
+              {% csrf_token %}
+              <input type="hidden" name="editar_metodo_id" id="editar_metodo_id">
+              <div class="mb-3">
+                <label class="form-label">Nombre del método</label>
+                <input type="text" name="metodo_nombre_edit" id="metodo_nombre_edit" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Campos del método (nombre del dato / valor)</label>
+                <div id="paymentFieldsEdit">
+                  <!-- filas se generarán dinámicamente -->
+                </div>
+                <button type="button" id="addFieldBtnEdit" class="btn btn-sm btn-outline-primary mt-2">Agregar campo</button>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" name="editar_metodo" class="btn btn-primary">Guardar cambios</button>
+            </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
 <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 3000;">
@@ -191,7 +307,133 @@ document.addEventListener('DOMContentLoaded', function() {
         var toast = new bootstrap.Toast(toastEl, { delay: 4000 });
         toast.show();
     });
+  // Dinámica para agregar/quitar campos en modal de métodos de pago
+  var addFieldBtn = document.getElementById('addFieldBtn');
+  var paymentFields = document.getElementById('paymentFields');
+  if (addFieldBtn && paymentFields) {
+    addFieldBtn.addEventListener('click', function() {
+      var row = document.createElement('div');
+      row.className = 'd-flex mb-2 field-row';
+      row.innerHTML = '<input type="text" name="field_name" class="form-control me-2" placeholder="Nombre del dato">'
+              + '<input type="text" name="field_value" class="form-control me-2" placeholder="Valor">'
+              + '<button type="button" class="btn btn-outline-danger btn-sm remove-field">-</button>';
+      paymentFields.appendChild(row);
+    });
+
+    paymentFields.addEventListener('click', function(e) {
+      if (e.target && e.target.classList.contains('remove-field')) {
+        var row = e.target.closest('.field-row');
+        if (row) row.remove();
+      }
+    });
+
+    // Before submitting the form, serialize field_name and field_value pairs into hidden inputs arrays
+    var paymentForm = document.querySelector('#createPaymentModal form');
+    if (paymentForm) {
+      paymentForm.addEventListener('submit', function() {
+        // remove any existing serialized inputs
+        var existing = paymentForm.querySelectorAll('input[name="field_name_list"] , input[name="field_value_list"]');
+        existing.forEach(function(el){ el.remove(); });
+        var rows = paymentFields.querySelectorAll('.field-row');
+        rows.forEach(function(r){
+          var nameInput = r.querySelector('input[name="field_name"]');
+          var valueInput = r.querySelector('input[name="field_value"]');
+          if (nameInput && valueInput && nameInput.value.trim()) {
+            var hn = document.createElement('input'); hn.type = 'hidden'; hn.name = 'field_name_list'; hn.value = nameInput.value.trim();
+            var hv = document.createElement('input'); hv.type = 'hidden'; hv.name = 'field_value_list'; hv.value = valueInput.value.trim();
+            paymentForm.appendChild(hn);
+            paymentForm.appendChild(hv);
+          }
+        });
+      });
+    }
+  // Edit modal logic
+  var editModal = document.getElementById('editPaymentModal');
+  var editBtnList = document.querySelectorAll('.edit-method-btn');
+  var paymentFieldsEdit = document.getElementById('paymentFieldsEdit');
+  var addFieldBtnEdit = document.getElementById('addFieldBtnEdit');
+  if (editModal) {
+    editBtnList.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var id = this.dataset.id;
+        var name = this.dataset.name;
+        var fields = [];
+        try { fields = JSON.parse(this.dataset.fields || '[]'); } catch(e){ fields = []; }
+        document.getElementById('editar_metodo_id').value = id;
+        document.getElementById('metodo_nombre_edit').value = name;
+        // clear existing rows
+        paymentFieldsEdit.innerHTML = '';
+        if (fields.length) {
+          fields.forEach(function(f){
+            var row = document.createElement('div');
+            row.className = 'd-flex mb-2 field-row';
+            row.innerHTML = '<input type="text" name="field_name_edit" class="form-control me-2" placeholder="Nombre del dato" value="'+ (f.field_name||'') +'">'
+                    + '<input type="text" name="field_value_edit" class="form-control me-2" placeholder="Valor" value="'+ (f.field_value||'') +'">'
+                    + '<button type="button" class="btn btn-outline-danger btn-sm remove-field">-</button>';
+            paymentFieldsEdit.appendChild(row);
+          });
+        } else {
+          // create one empty row
+          var row = document.createElement('div');
+          row.className = 'd-flex mb-2 field-row';
+          row.innerHTML = '<input type="text" name="field_name_edit" class="form-control me-2" placeholder="Nombre del dato">'
+                  + '<input type="text" name="field_value_edit" class="form-control me-2" placeholder="Valor">'
+                  + '<button type="button" class="btn btn-outline-danger btn-sm remove-field">-</button>';
+          paymentFieldsEdit.appendChild(row);
+        }
+      });
+    });
+
+    if (addFieldBtnEdit && paymentFieldsEdit) {
+      addFieldBtnEdit.addEventListener('click', function(){
+        var row = document.createElement('div');
+        row.className = 'd-flex mb-2 field-row';
+        row.innerHTML = '<input type="text" name="field_name_edit" class="form-control me-2" placeholder="Nombre del dato">'
+                + '<input type="text" name="field_value_edit" class="form-control me-2" placeholder="Valor">'
+                + '<button type="button" class="btn btn-outline-danger btn-sm remove-field">-</button>';
+        paymentFieldsEdit.appendChild(row);
+      });
+
+      paymentFieldsEdit.addEventListener('click', function(e){
+        if (e.target && e.target.classList.contains('remove-field')) {
+          var row = e.target.closest('.field-row');
+          if (row) row.remove();
+        }
+      });
+
+      var editForm = document.querySelector('#editPaymentModal form');
+      if (editForm) {
+        editForm.addEventListener('submit', function(){
+          // remove existing serialized inputs
+          var existing = editForm.querySelectorAll('input[name="field_name_list"] , input[name="field_value_list"]');
+          existing.forEach(function(el){ el.remove(); });
+          var rows = paymentFieldsEdit.querySelectorAll('.field-row');
+          rows.forEach(function(r){
+            var nameInput = r.querySelector('input[name="field_name_edit"]');
+            var valueInput = r.querySelector('input[name="field_value_edit"]');
+            if (nameInput && valueInput && nameInput.value.trim()) {
+              var hn = document.createElement('input'); hn.type = 'hidden'; hn.name = 'field_name_list'; hn.value = nameInput.value.trim();
+              var hv = document.createElement('input'); hv.type = 'hidden'; hv.name = 'field_value_list'; hv.value = valueInput.value.trim();
+              editForm.appendChild(hn);
+              editForm.appendChild(hv);
+            }
+          });
+        });
+      }
+    }
+  }
+  }
 });
+    // submit toggle form when switch changed
+    document.querySelectorAll('.toggle-active-input').forEach(function(chk){
+      chk.addEventListener('change', function(){
+        var form = this.closest('form.toggle-active-form');
+        if (!form) return;
+        var hidden = form.querySelector('input[name="activo"]');
+        if (hidden) hidden.value = this.checked ? '1' : '0';
+        form.submit();
+      });
+    });
 </script>
 </body>
 </html>

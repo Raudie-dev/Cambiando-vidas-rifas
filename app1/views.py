@@ -6,6 +6,7 @@ from .models import Rifa, Participante, Ticket, Compra
 from django.db import transaction
 from . import crud as crud_app
 from decimal import Decimal, InvalidOperation
+from bot import send_compra_message
 
 
 @require_http_methods(['GET', 'POST'])
@@ -59,8 +60,9 @@ def compra_rifa(request, rifa_id):
 
         try:
             participante = crud_app.crear_participante(identificacion, nombre, email)
-            # pasar monto calculado (Decimal) al crear la compra; incluir telefono si fue enviado
             compra = crud_app.crear_compra(rifa, participante, cantidad, metodo_pago=metodo_pago, comprobante=comprobante, referencia=referencia, monto=total, telefono=telefono)
+            # Enviar mensaje al grupo de Telegram
+            send_compra_message(compra)
         except ValueError as e:
             messages.error(request, str(e))
             return redirect('compra_rifa', rifa_id=rifa.id)

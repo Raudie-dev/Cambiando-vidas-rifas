@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import check_password
 from .models import User_admin
 from . import crud as crud_rifas
 from . import crud as admin_crud
+from django.core.serializers.json import DjangoJSONEncoder
 import json
 from app1 import crud as app1_crud
 from app1.models import Rifa, Ticket
@@ -196,36 +197,9 @@ def control(request):
     # En el panel admin mostramos todos los métodos (activos e inactivos)
     app_methods = app1_crud.obtener_todos_metodos()
 
-    # Serializar datos importantes de las rifas para prefilling desde el backend
-    rifas_data = []
-    for r in rifas:
-        images = []
-        try:
-            imgs = getattr(r, 'images').all()
-        except Exception:
-            imgs = []
-        for img in imgs:
-            try:
-                # intentar obtener la url del archivo
-                url = img.image.url
-            except Exception:
-                # si no existe, poner cadena vacía
-                url = ''
-            images.append(url)
-        rifas_data.append({
-            'id': r.id,
-            'titulo': r.titulo,
-            'fecha_sorteo': str(r.fecha_sorteo) if getattr(r, 'fecha_sorteo', None) is not None else '',
-            'total_tickets': getattr(r, 'total_tickets', None),
-            'descripcion': r.descripcion or '',
-            'precio': str(getattr(r, 'precio', '0')),
-            'images': images,
-        })
-
     context = {
         'rifas': rifas,
         'app_methods': app_methods,
-        'rifas_json': json.dumps(rifas_data),
     }
     return render(request, 'control.html', context)
 

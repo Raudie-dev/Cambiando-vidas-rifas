@@ -127,8 +127,11 @@
                 </td>
                 <td>
                   {% if rifa.images.all %}
-                    <button type="button" class="btn btn-sm btn-outline-primary view-photos-btn" data-id="{{ rifa.id }}" title="Ver fotos">
-                    <i class="fas fa-images"></i>
+                    <button type="button"
+                            class="btn btn-sm btn-outline-primary view-photos-btn"
+                            data-images='[{% for img in rifa.images.all %}"{{ img.image.url }}"{% if not forloop.last %},{% endif %}{% endfor %}]'
+                            title="Ver fotos">
+                      <i class="fas fa-images"></i>
                     </button>
                   {% else %}
                     <span class="text-muted">Sin imágenes</span>
@@ -715,7 +718,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var input = document.createElement('input');
     input.type = 'file';
-    input.name = nameAttr; // should be fotos_list[] or fotos_edit_list[]
+    // Cambia el name para que sea fotos_1, fotos_2, fotos_3 (crear) o fotos_edit_1, fotos_edit_2, fotos_edit_3 (editar)
+    input.name = nameAttr + '_' + slotId;
     input.accept = 'image/*';
     input.className = 'form-control form-control-sm';
     input.addEventListener('change', function(){ previewFile(this, img); });
@@ -741,7 +745,8 @@ document.addEventListener('DOMContentLoaded', function() {
     addCreateImage.addEventListener('click', function(){
       var count = createImageSlots.querySelectorAll('.image-slot').length;
       if (count >= 3) return;
-      var slot = createImageSlot(count+1, 'fotos_list', 'create_preview_'+(count+1));
+      // nameAttr = 'fotos' para crear
+      var slot = createImageSlot(count+1, 'fotos', 'create_preview_'+(count+1));
       createImageSlots.appendChild(slot);
       refreshCreateButtons();
     });
@@ -757,7 +762,8 @@ document.addEventListener('DOMContentLoaded', function() {
     addEditImage.addEventListener('click', function(){
       var count = editImageSlots.querySelectorAll('.image-slot').length;
       if (count >= 3) return;
-      var slot = createImageSlot(count+1, 'fotos_edit_list', 'edit_preview_dyn_'+(count+1));
+      // nameAttr = 'fotos_edit' para editar
+      var slot = createImageSlot(count+1, 'fotos_edit', 'edit_preview_dyn_'+(count+1));
       editImageSlots.appendChild(slot);
       refreshEditButtons();
     });
@@ -775,16 +781,16 @@ document.addEventListener('DOMContentLoaded', function() {
         editImageSlots.innerHTML = '';
         // create slots for existing images (up to 3)
         for (var i = 0; i < imgs.length && i < 3; i++) {
-          var slot = createImageSlot(i+1, 'fotos_edit_list', 'edit_dyn_preview_'+(i+1), imgs[i]);
+          var slot = createImageSlot(i+1, 'fotos_edit', 'edit_dyn_preview_'+(i+1), imgs[i]);
           editImageSlots.appendChild(slot);
         }
         // ensure at least one slot exists for adding/replacing
         if (editImageSlots.querySelectorAll('.image-slot').length === 0) {
-          var slot = createImageSlot(1, 'fotos_edit_list', 'edit_dyn_preview_1');
+          var slot = createImageSlot(1, 'fotos_edit', 'edit_dyn_preview_1');
           editImageSlots.appendChild(slot);
         } else if (editImageSlots.querySelectorAll('.image-slot').length < 3) {
           var next = editImageSlots.querySelectorAll('.image-slot').length;
-          var slot = createImageSlot(next+1, 'fotos_edit_list', 'edit_dyn_preview_'+(next+1));
+          var slot = createImageSlot(next+1, 'fotos_edit', 'edit_dyn_preview_'+(next+1));
           editImageSlots.appendChild(slot);
         }
         refreshEditButtons();
@@ -807,11 +813,13 @@ document.addEventListener('DOMContentLoaded', function() {
   if (photoButtons && photosCarouselInner) {
     photoButtons.forEach(function(btn){
       btn.addEventListener('click', function(){
-        var id = String(this.dataset.id);
-        var r = rifasData[id];
+        var images = [];
+        try {
+          images = JSON.parse(this.getAttribute('data-images') || '[]');
+        } catch(e) { images = []; }
         photosCarouselInner.innerHTML = '';
-        if (r && Array.isArray(r.images) && r.images.length) {
-          r.images.forEach(function(url, idx){
+        if (images.length) {
+          images.forEach(function(url, idx){
             var div = document.createElement('div');
             div.className = 'carousel-item' + (idx === 0 ? ' active' : '');
             var img = document.createElement('img');
@@ -822,7 +830,6 @@ document.addEventListener('DOMContentLoaded', function() {
             div.appendChild(img);
             photosCarouselInner.appendChild(div);
           });
-          // show modal
           if (photosModal) photosModal.show();
         } else {
           photosCarouselInner.innerHTML = '<div class="text-center py-4 text-muted">No hay imágenes disponibles</div>';

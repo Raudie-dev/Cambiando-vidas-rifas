@@ -113,6 +113,8 @@
                     <th>Precio</th>
                     <th>Estado</th>
                     <th>Ganador</th>
+                    <th>N° Ticket</th>
+                    <th>Teléfono</th>
                     <th class="text-center">Acciones</th>
                   </tr>
                 </thead>
@@ -132,17 +134,21 @@
                     </td>
                     <td>
                       {% if r.winner %}
-                        Ticket #{{ r.winner.number }} — {{ r.winner.nombre }}
+                        {{ r.winner.nombre }}
+                      {% else %}
+                        <span class="text-muted">—</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if r.winner %}
+                        {{ r.winner.number }}
                       {% else %}
                         <span class="text-muted">—</span>
                       {% endif %}
                     </td>
                     <td>
                       {% if r.winner and r.winner.telefono %}
-                        <small class="text-muted">Tel: <span class="winner-phone">{{ r.winner.telefono }}</span></small>
-                        <button type="button" class="btn btn-sm btn-outline-secondary btn-copy-phone ms-2" data-phone="{{ r.winner.telefono }}" title="Copiar teléfono">
-                          <i class="fa-regular fa-copy"></i>
-                        </button>
+                        <span class="text-success">{{ r.winner.telefono }}</span>
                       {% else %}
                         <span class="text-muted">—</span>
                       {% endif %}
@@ -158,7 +164,7 @@
                   </tr>
                   {% empty %}
                   <tr>
-                    <td colspan="8" class="text-center py-4">No hay rifas registradas.</td>
+                    <td colspan="9" class="text-center py-4">No hay rifas registradas.</td>
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -257,8 +263,10 @@
                 <h2 class="display-5 text-success mb-3">¡Tenemos un ganador!</h2>
                 <p id="winnerModalRifa" class="h5"></p>
                 <p id="winnerModalTicket" class="fs-4 fw-bold"></p>
-                <p id="winnerModalPhone" class="fs-6 text-muted"></p>
-                <div id="winnerModalPhoneActions" class="mb-2"></div>
+                <div id="winnerModalPhoneBlock" class="mb-2">
+                  <span id="winnerModalPhone" class="fs-6 text-muted text-success"></span>
+                  <span id="winnerModalPhoneActions" class="ms-2"></span>
+                </div>
                 <div class="mt-4">
                   <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
@@ -397,25 +405,23 @@ document.addEventListener('DOMContentLoaded', function() {
             var rifaEl = document.getElementById('winnerModalRifa');
             var ticketEl = document.getElementById('winnerModalTicket');
             var phoneEl = document.getElementById('winnerModalPhone');
+            var wActions = document.getElementById('winnerModalPhoneActions');
             var rifaTitle = row ? (row.querySelector('td:first-child') ? row.querySelector('td:first-child').textContent.trim() : '') : '';
             if (rifaEl) rifaEl.textContent = rifaTitle;
             if (ticketEl) ticketEl.textContent = data.winner_text || ('Ticket #' + data.winner.id + ' — ' + data.winner.nombre);
             if (phoneEl) phoneEl.textContent = data.winner && data.winner.telefono ? ('Tel: ' + data.winner.telefono) : '';
             // populate modal copy action
-            try {
-              var wActions = document.getElementById('winnerModalPhoneActions');
-              if (wActions) {
-                wActions.innerHTML = '';
-                if (data.winner && data.winner.telefono) {
-                  var btnCopy = document.createElement('button');
-                  btnCopy.type = 'button';
-                  btnCopy.className = 'btn btn-sm btn-outline-secondary';
-                  btnCopy.textContent = 'Copiar teléfono';
-                  btnCopy.addEventListener('click', function(){ copyToClipboard(data.winner.telefono); });
-                  wActions.appendChild(btnCopy);
-                }
+            if (wActions) {
+              wActions.innerHTML = '';
+              if (data.winner && data.winner.telefono) {
+                var btnCopy = document.createElement('button');
+                btnCopy.type = 'button';
+                btnCopy.className = 'btn btn-sm btn-outline-secondary ms-1';
+                btnCopy.textContent = 'Copiar teléfono';
+                btnCopy.addEventListener('click', function(){ copyToClipboard(data.winner.telefono); });
+                wActions.appendChild(btnCopy);
               }
-            } catch(e) {}
+            }
             wModal.show();
           }
         } catch(e) { console.warn('No se pudo mostrar modal ganador', e); }

@@ -15,7 +15,7 @@ def crear_rifa(titulo, fecha_sorteo, total_tickets=100, descripcion='', fotos=No
                 continue
             if count >= 3:
                 break
-            RifaImage.objects.create(rifa=rifa, image=f)
+            RifaImage.objects.create(rifa=rifa, image=f)  # image debe tener upload_to='rifas/'
             count += 1
 
     return rifa

@@ -46,11 +46,11 @@
             <i class="fas fa-dice fa-fw"></i>
             <span>Sorteos</span>
           </a>
-          <a href="{% url 'compras' %}" class="list-group-item active">
+          <a href="{% url 'compras' %}" class="list-group-item">
             <i class="fas fa-shopping-cart"></i>
             <span>Compras pendientes</span>
           </a>
-          <a href="{% url 'historial_compras' %}" class="list-group-item">
+          <a href="{% url 'historial_compras' %}" class="list-group-item active">
             <i class="fas fa-history"></i>
             <span>Historial Compras</span>
           </a>
@@ -71,10 +71,10 @@
 
         <!-- Header de la página -->
         <div class="mb-4">
-            <h2 class="mb-1">
-                <i class="fas fa-shopping-cart me-2 text-gradient"></i>Compras Pendientes
-            </h2>
-            <p class="text-secondary mb-0">Revisa y gestiona las compras de tickets</p>
+      <h2 class="mb-1">
+        <i class="fas fa-history me-2 text-gradient"></i>Historial de Compras
+      </h2>
+      <p class="text-secondary mb-0">Consulta los registros de compras y sus estados</p>
         </div>
 
         <!-- Filter by Rifa -->
@@ -116,9 +116,10 @@
                       <th><i class="fas fa-sort-numeric-up me-2"></i>Cantidad</th>
                       <th><i class="fas fa-money-bill-wave me-2"></i>Monto</th>
                       <th><i class="fas fa-credit-card me-2"></i>Método</th>
+                      <th><i class="fas fa-info-circle me-2"></i>Estado</th>
                       <th><i class="fas fa-receipt me-2"></i>Referencia</th>
                       <th><i class="fas fa-image me-2"></i>Comprobante</th>
-                      <th class="text-center"><i class="fas fa-cog me-2"></i>Acciones</th>
+                      
                     </tr>
                   </thead>
                   <tbody>
@@ -143,6 +144,9 @@
                         {{ c.metodo_pago }}
                       </td>
                       <td>
+                        <span class="badge bg-{{ c.badge_class }}">{{ c.estado }}</span>
+                      </td>
+                      <td>
                         <code class="text-info">{{ c.referencia }}</code>
                       </td>
                       <td>
@@ -156,24 +160,7 @@
                           <span class="text-muted">-</span>
                         {% endif %}
                       </td>
-                      <td class="text-center">
-                        <div class="d-flex gap-1 justify-content-center">
-                            <form method="post" style="display:inline;">
-                              {% csrf_token %}
-                              <input type="hidden" name="confirmar_id" value="{{ c.id }}">
-                              <button class="btn btn-success btn-sm" type="submit" title="Confirmar">
-                                <i class="fas fa-check"></i>
-                              </button>
-                            </form>
-                            <form method="post" style="display:inline;">
-                              {% csrf_token %}
-                              <input type="hidden" name="rechazar_id" value="{{ c.id }}">
-                              <button class="btn btn-danger btn-sm" type="submit" title="Rechazar">
-                                <i class="fas fa-times"></i>
-                              </button>
-                            </form>
-                        </div>
-                      </td>
+                      
                     </tr>
                     {% endfor %}
                   </tbody>

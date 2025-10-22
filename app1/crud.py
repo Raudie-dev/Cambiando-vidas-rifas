@@ -13,20 +13,32 @@ def obtener_rifa(rifa_id):
 
 
 def crear_participante(identificacion, nombre, email=''):
-    participante, _ = Participante.objects.get_or_create(identificacion=identificacion, defaults={'nombre': nombre, 'email': email})
+    participante, created = Participante.objects.get_or_create(identificacion=identificacion, defaults={'nombre': nombre, 'email': email})
+    changed = False
     if participante.nombre != nombre:
         participante.nombre = nombre
+        changed = True
+    if email and participante.email != email:
+        participante.email = email
+        changed = True
+    # note: telefono will be set by the caller if provided via crear_compra
+    if changed:
         participante.save()
     return participante
 
 
-def crear_compra(rifa, participante, cantidad, metodo_pago='', comprobante=None, referencia=''):
+def crear_compra(rifa, participante, cantidad, metodo_pago='', comprobante=None, referencia='', monto=None, telefono=None):
     # verifica disponibilidad
     if cantidad > rifa.tickets_available:
         raise ValueError('No hay suficientes tickets disponibles')
 
     # crear compra en estado PENDIENTE; reservar números (crear tickets con confirmed=False)
-    compra = Compra.objects.create(rifa=rifa, participante=participante, cantidad=cantidad, metodo_pago=metodo_pago, referencia=referencia)
+    # if telefono provided, ensure participante.telefono is saved
+    if telefono:
+        participante.telefono = telefono
+        participante.save()
+
+    compra = Compra.objects.create(rifa=rifa, participante=participante, cantidad=cantidad, metodo_pago=metodo_pago, referencia=referencia, monto=(monto or 0))
     if comprobante:
         compra.comprobante = comprobante
         compra.save()

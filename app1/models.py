@@ -6,6 +6,9 @@ class Rifa(models.Model):
     descripcion = models.TextField(blank=True)
     fecha_sorteo = models.DateField()
     total_tickets = models.PositiveIntegerField(default=100)
+    precio = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    # ganador: referencia al ticket ganador (si ya fue sorteado)
+    winner_ticket = models.ForeignKey('Ticket', null=True, blank=True, on_delete=models.SET_NULL, related_name='won_rifa')
 
     class Meta:
         ordering = ['-fecha_sorteo', 'titulo']
@@ -39,6 +42,7 @@ class Participante(models.Model):
     identificacion = models.CharField(max_length=30, primary_key=True)
     nombre = models.CharField(max_length=200)
     email = models.EmailField(blank=True)
+    telefono = models.CharField(max_length=30, blank=True)
 
     def __str__(self):
         return f"{self.nombre} ({self.identificacion})"
@@ -73,6 +77,8 @@ class Compra(models.Model):
     rifa = models.ForeignKey(Rifa, related_name='compras', on_delete=models.CASCADE)
     participante = models.ForeignKey(Participante, related_name='compras', on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
+    # monto total pagado o a pagar por esta compra (moneda local)
+    monto = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     metodo_pago = models.CharField(max_length=100, blank=True)
     comprobante = models.ImageField(upload_to='comprobantes/', blank=True, null=True)
     referencia = models.CharField(max_length=200, blank=True)
@@ -81,6 +87,15 @@ class Compra(models.Model):
 
     def __str__(self):
         return f"Compra {self.id} - {self.participante_id} ({self.cantidad}) - {self.estado}"
+
+    @property
+    def badge_class(self):
+        """Return bootstrap badge class name based on estado."""
+        if self.estado == 'CONFIRMADO':
+            return 'success'
+        if self.estado == 'PENDIENTE':
+            return 'warning'
+        return 'danger'
 
 
 class PaymentMethod(models.Model):

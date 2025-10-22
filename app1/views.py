@@ -5,6 +5,7 @@ from django.views.decorators.http import require_http_methods
 from .models import Rifa, Participante, Ticket, Compra
 from django.db import transaction
 from . import crud as crud_app
+from decimal import Decimal, InvalidOperation
 
 
 @require_http_methods(['GET', 'POST'])
@@ -32,6 +33,7 @@ def compra_rifa(request, rifa_id):
         identificacion = request.POST.get('identificacion', '').strip()
         nombre = request.POST.get('nombre', '').strip()
         email = request.POST.get('email', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
         cantidad = int(request.POST.get('cantidad') or 0)
         metodo_pago = request.POST.get('metodo_pago', '').strip()
         referencia = request.POST.get('referencia', '').strip()
@@ -41,19 +43,40 @@ def compra_rifa(request, rifa_id):
             messages.error(request, 'Completa todos los campos requeridos.')
             return redirect('compra_rifa', rifa_id=rifa.id)
 
+        # validate telefono if provided: allow digits, +, spaces, hyphens, parentheses, min length 7
+        telefono = request.POST.get('telefono', '').strip()
+        if telefono:
+            import re
+            if not re.match(r'^[0-9+()\-\s]{7,}$', telefono):
+                messages.error(request, 'Número de teléfono inválido. Use solo dígitos, +, espacios, guiones o paréntesis.')
+                return redirect('compra_rifa', rifa_id=rifa.id)
+
+        # calcular total usando el precio de la rifa (Decimal)
+        try:
+            total = (rifa.precio or Decimal('0')) * Decimal(cantidad)
+        except (InvalidOperation, TypeError):
+            total = Decimal('0')
+
         try:
             participante = crud_app.crear_participante(identificacion, nombre, email)
-            compra = crud_app.crear_compra(rifa, participante, cantidad, metodo_pago=metodo_pago, comprobante=comprobante, referencia=referencia)
+            # pasar monto calculado (Decimal) al crear la compra; incluir telefono si fue enviado
+            compra = crud_app.crear_compra(rifa, participante, cantidad, metodo_pago=metodo_pago, comprobante=comprobante, referencia=referencia, monto=total, telefono=telefono)
         except ValueError as e:
             messages.error(request, str(e))
             return redirect('compra_rifa', rifa_id=rifa.id)
+        # mostrar total en el mensaje de confirmación (formateado)
+        try:
+            total_str = f"{total:.2f}"
+        except Exception:
+            total_str = str(total)
 
-        messages.success(request, f'Compra registrada con ID {compra.id}. Estado: {compra.estado}. Esperando confirmación administrativa.')
+        messages.success(request, f'Compra registrada con ID {compra.id}. Estado: {compra.estado}. Importe a pagar: {total_str}. Esperando confirmación administrativa.')
         return redirect('index')
 
     # GET: mostrar formulario de compra y métodos de pago
     metodos_pago = crud_app.obtener_metodos()
-    return render(request, 'compra_rifa.html', {'rifa': rifa, 'metodos_pago': metodos_pago})
+    # pasar el precio de la rifa al template para cálculo en cliente si se desea
+    return render(request, 'compra_rifa.html', {'rifa': rifa, 'metodos_pago': metodos_pago, 'precio_rifa': rifa.precio})
 
 
 @require_http_methods(['GET'])

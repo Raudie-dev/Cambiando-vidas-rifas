@@ -42,7 +42,7 @@
                         <i class="fas fa-ticket-alt"></i>
                         <div>
                             <span class="info-label">Valor Boleto</span>
-                            <span class="info-value">Bs. 2600.00</span>
+                            <span class="info-value">Bs. {{ rifa.precio|floatformat:2 }}</span>
                         </div>
                     </div>
                 </div>
@@ -109,8 +109,9 @@
             <div class="purchase-section">
                 <div class="payment-summary">
                     <div class="summary-row">
-                        <span>Monto USD</span>
-                        <span id="montoUSD" class="summary-value">20.00 USD</span>
+                        <span>Monto a pagar (Bs.)</span>
+                        <span id="montoBs" class="summary-value">Bs. {{ rifa.precio|floatformat:2 }}</span>
+                        <input type="hidden" name="total" id="totalInput" value="{{ rifa.precio|floatformat:2 }}">
                     </div>
                     <div class="summary-row">
                         <span>Método de Pago</span>
@@ -180,9 +181,9 @@
                     <input type="email" id="correoInput" name="email" class="form-input" placeholder="Escriba su correo de uso diario">
                 </div>
 
-                <div class="form-group">
-                    <label for="telefonoInput">Teléfono/Whatsapp</label>
-                    <input type="tel" id="telefonoInput" name="telefono" class="form-input" placeholder="Escriba su nro de Whatsapp">
+                <div class="form-group mb-3">
+                    <label for="telefono">Teléfono</label>
+                    <input type="text" id="telefono" name="telefono" class="form-input" value="{{ request.POST.telefono|default:'' }}">
                 </div>
 
                 <div class="form-group">
@@ -289,17 +290,22 @@
         const copyFeedback = document.getElementById('copyFeedback');
         const metodoPagoText = document.getElementById('metodoPagoText');
         const fileInput = document.getElementById('comprobanteInput');
+    const precioRifa = parseFloat('{{ precio_rifa|default:rifa.precio|floatformat:2 }}');
+    const montoBsEl = document.getElementById('montoBs');
+    const totalInput = document.getElementById('totalInput');
 
         // Quantity controls
         minusBtn.addEventListener('click', () => {
             const current = parseInt(cantidadInput.value) || 1;
             if (current > 1) cantidadInput.value = current - 1;
+            updateTotal();
         });
 
         plusBtn.addEventListener('click', () => {
             const current = parseInt(cantidadInput.value) || 1;
             const max = parseInt(cantidadInput.max) || 999;
             if (current < max) cantidadInput.value = current + 1;
+            updateTotal();
         });
 
         quickSelectBtns.forEach(btn => {
@@ -310,8 +316,26 @@
                 
                 quickSelectBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+                updateTotal();
             });
         });
+
+        // update total display
+        function updateTotal() {
+            const qty = parseInt(cantidadInput.value) || 0;
+            const total = (isNaN(precioRifa) ? 0 : precioRifa) * qty;
+            if (montoBsEl) montoBsEl.textContent = 'Bs. ' + total.toFixed(2);
+            if (totalInput) totalInput.value = total.toFixed(2);
+        }
+
+        // recalc when typing directly in the number input
+        cantidadInput.addEventListener('input', function(){ updateTotal(); });
+
+        // ensure total is set before submit
+        const purchaseForm = document.querySelector('.purchase-form');
+        if (purchaseForm) {
+            purchaseForm.addEventListener('submit', function(){ updateTotal(); });
+        }
 
         // Carousel indicators (usando data-index en lugar de onclick inline)
         if (carouselIndicators && carouselIndicators.length) {

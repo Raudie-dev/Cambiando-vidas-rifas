@@ -42,9 +42,17 @@
             <i class="fas fa-gifts"></i>
             <span>Panel Rifas</span>
           </a>
+          <a href="{% url 'sorteos' %}" class="list-group-item">
+            <i class="fas fa-dice fa-fw"></i>
+            <span>Sorteos</span>
+          </a>
           <a href="{% url 'compras' %}" class="list-group-item">
             <i class="fas fa-shopping-cart"></i>
             <span>Compras pendientes</span>
+          </a>
+          <a href="{% url 'historial_compras' %}" class="list-group-item">
+            <i class="fas fa-history"></i>
+            <span>Historial Compras</span>
           </a>
         </div>
       </div>
@@ -95,6 +103,7 @@
                                 <th><i class="fas fa-tag me-2"></i>Título</th>
                                 <th><i class="fas fa-calendar me-2"></i>Fecha Sorteo</th>
                                 <th><i class="fas fa-ticket-alt me-2"></i>Tickets</th>
+                                <th><i class="fas fa-dollar-sign me-2"></i>Precio</th>
                                 <th><i class="fas fa-images me-2"></i>Fotos</th>
                                 <th class="text-center"><i class="fas fa-cog me-2"></i>Acciones</th>
                             </tr>
@@ -113,37 +122,31 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>
-                                    {% if rifa.images.all %}
-                                    <div id="carousel-{{ rifa.id }}" class="carousel slide" data-bs-ride="carousel" style="max-width:120px;">
-                                        <div class="carousel-inner" style="border-radius: 0.5rem; overflow: hidden;">
-                                            {% for img in rifa.images.all %}
-                                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                                <img src="{{ img.image.url }}" class="d-block w-100" alt="..." style="max-height:60px; object-fit:cover;">
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                        {% if rifa.images.count > 1 %}
-                                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ rifa.id }}" data-bs-slide="prev">
-                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        </button>
-                                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ rifa.id }}" data-bs-slide="next">
-                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        </button>
-                                        {% endif %}
-                                    </div>
-                                    {% else %}
-                                    <span class="text-muted">Sin imágenes</span>
-                                    {% endif %}
-                                </td>
+                <td>
+                  ${{ rifa.precio|default:0|floatformat:2 }}
+                </td>
+                <td>
+                  {% if rifa.images.all %}
+                    <button type="button" class="btn btn-sm btn-outline-primary view-photos-btn" data-id="{{ rifa.id }}" title="Ver fotos">
+                    <i class="fas fa-images"></i>
+                    </button>
+                  {% else %}
+                    <span class="text-muted">Sin imágenes</span>
+                  {% endif %}
+                </td>
                                 <td class="text-center">
-                                    <form method="post" style="display:inline;">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="eliminar_id" value="{{ rifa.id }}">
-                                        <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                  <div class="d-flex justify-content-center gap-1">
+                    <button type="button" class="btn btn-sm btn-outline-secondary edit-rifa-btn" data-id="{{ rifa.id }}" data-titulo="{{ rifa.titulo|escapejs }}" data-fecha="{{ rifa.fecha_sorteo }}" data-total="{{ rifa.total_tickets }}" data-desc="{{ rifa.descripcion|escapejs }}" data-precio="{{ rifa.precio|default:0 }}" data-bs-toggle="modal" data-bs-target="#editRifaModal">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <form method="post" style="display:inline;">
+                      {% csrf_token %}
+                      <input type="hidden" name="eliminar_id" value="{{ rifa.id }}">
+                      <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
+                  </div>
                                 </td>
                             </tr>
                             {% empty %}
@@ -158,6 +161,8 @@
                     </table>
                 </div>
             </div>
+
+              <!-- Edit Rifa modal moved below to avoid duplication inside table/loop -->
         </div>
 
         <!-- Card de Métodos de Pago -->
@@ -231,6 +236,31 @@
             </div>
           </div>
         </div>
+
+            <!-- Modal: Ver Fotos (carrusel reutilizable) - único lugar fuera de loops -->
+            <div class="modal fade" id="photosModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-images me-2"></i>Fotos de la Rifa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div id="photosCarousel" class="carousel slide" data-bs-ride="carousel">
+                      <div class="carousel-inner" id="photosCarouselInner" style="border-radius:0.5rem; overflow:hidden;">
+                        <!-- slides se generan por JS -->
+                      </div>
+                      <button class="carousel-control-prev" type="button" data-bs-target="#photosCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                      </button>
+                      <button class="carousel-control-next" type="button" data-bs-target="#photosCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
       </div>
     </div>
 
@@ -247,29 +277,37 @@
           <form method="post" enctype="multipart/form-data">
           <div class="modal-body">
                 {% csrf_token %}
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Título de la Rifa</label>
-                        <input type="text" name="titulo" class="form-control" placeholder="Ej: Rifa Premium 2024" required>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Fecha de Sorteo</label>
-                        <input type="date" name="fecha_sorteo" class="form-control" required>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Total de Tickets</label>
-                        <input type="number" name="total_tickets" class="form-control" placeholder="100" required min="1" value="100">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Descripción (Opcional)</label>
-                        <textarea name="descripcion" class="form-control" rows="3" placeholder="Describe los premios y detalles de la rifa..."></textarea>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Imágenes de los Premios (Hasta 3)</label>
-                        <input type="file" name="fotos" class="form-control" multiple accept="image/*">
-                        <small class="text-muted">Formatos aceptados: JPG, PNG, GIF</small>
-                    </div>
-                </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Título de la Rifa</label>
+            <input type="text" name="titulo" class="form-control" placeholder="Ej: Rifa Premium 2024" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Fecha de Sorteo</label>
+            <input type="date" name="fecha_sorteo" class="form-control" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Total de Tickets</label>
+            <input type="number" name="total_tickets" class="form-control" placeholder="100" required min="1" value="100">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Precio (por ticket)</label>
+            <input type="number" step="0.01" name="precio" class="form-control" min="0" value="0">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Descripción (Opcional)</label>
+            <textarea name="descripcion" class="form-control" rows="3" placeholder="Describe los premios y detalles de la rifa..."></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Imágenes de los Premios (Hasta 3)</label>
+            <small class="text-muted d-block mb-2">Añade hasta 3 imágenes. Puedes añadir o quitar ranuras como en los métodos de pago.</small>
+            <div id="createImageSlots" class="d-flex gap-2"></div>
+            <button type="button" id="addCreateImage" class="btn btn-sm btn-outline-primary mt-2">
+              <i class="fas fa-plus me-1"></i>Agregar imagen
+            </button>
+            <small class="text-muted d-block mt-1">Formatos aceptados: JPG, PNG, GIF.</small>
+          </div>
+        </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -367,6 +405,67 @@
           </div>
           </form>
         </div>
+      </div>
+    </div>
+
+    <!-- Single Modal: Editar Rifa (placed outside of rifas loop) -->
+    <div class="modal fade" id="editRifaModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-edit me-2"></i>Editar Rifa
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form method="post" enctype="multipart/form-data">
+        <div class="modal-body">
+          {% csrf_token %}
+          <input type="hidden" name="editar_rifa_id" id="editar_rifa_id">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Título de la Rifa</label>
+              <input type="text" name="titulo_edit" id="titulo_edit" class="form-control">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Fecha de Sorteo</label>
+              <input type="date" name="fecha_sorteo_edit" id="fecha_sorteo_edit" class="form-control">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Total de Tickets</label>
+              <input type="number" name="total_tickets_edit" id="total_tickets_edit" class="form-control" min="1">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Precio (por ticket)</label>
+              <input type="number" step="0.01" name="precio_edit" id="precio_edit" class="form-control" min="0" value="0">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Descripción (Opcional)</label>
+              <textarea name="descripcion_edit" id="descripcion_edit" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Imágenes de la Rifa (editar)</label>
+              <small class="text-muted d-block mb-2">Añade/quita hasta 3 ranuras. Las imágenes existentes se mostrarán como previews y puedes subir en la ranura para reemplazar.</small>
+              <div id="editImageSlots" class="d-flex gap-3 align-items-start"></div>
+              <button type="button" id="addEditImage" class="btn btn-sm btn-outline-primary mt-2">
+                <i class="fas fa-plus me-1"></i>Agregar ranura
+              </button>
+              <small class="text-muted d-block mt-1">Sube en la ranura correspondiente para reemplazar solo esa imagen.</small>
+            </div>
+          </div>
+        </div>
+
+            <!-- photos modal removed from here to avoid nesting; placed once after edit modal -->
+        <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i>Cancelar
+        </button>
+        <button type="submit" name="editar_rifa" class="btn btn-primary">
+          <i class="fas fa-save me-1"></i>Guardar Cambios
+        </button>
+        </div>
+        </form>
+      </div>
       </div>
     </div>
 
@@ -545,11 +644,193 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  // Edit Rifa modal prefilling
+  var editRifaBtns = document.querySelectorAll('.edit-rifa-btn');
+  var editRifaModal = document.getElementById('editRifaModal');
+
+  // parse rifas data passed from backend
+  var rifasData = {};
+  try {
+    rifasData = JSON.parse('{{ rifas_json|escapejs }}' || '{}');
+    // convert to map by id for quick lookup
+    var map = {};
+    if (Array.isArray(rifasData)) {
+      rifasData.forEach(function(r){ map[String(r.id)] = r; });
+      rifasData = map;
+    }
+  } catch(e) {
+    rifasData = {};
+  }
+
+  if (editRifaBtns && editRifaModal) {
+    editRifaBtns.forEach(function(b){
+      b.addEventListener('click', function(){
+        var id = String(this.dataset.id);
+        document.getElementById('editar_rifa_id').value = id;
+
+        // prefer backend-provided data when available
+        var backendRifa = rifasData[id];
+        if (backendRifa) {
+          document.getElementById('titulo_edit').value = backendRifa.titulo || '';
+          document.getElementById('fecha_sorteo_edit').value = backendRifa.fecha_sorteo || '';
+          document.getElementById('total_tickets_edit').value = backendRifa.total_tickets || '';
+          document.getElementById('descripcion_edit').value = backendRifa.descripcion || '';
+          document.getElementById('precio_edit').value = backendRifa.precio || '0';
+        } else {
+          // fallback to data-* attributes on the button
+          document.getElementById('titulo_edit').value = this.dataset.titulo || '';
+          document.getElementById('fecha_sorteo_edit').value = this.dataset.fecha || '';
+          document.getElementById('total_tickets_edit').value = this.dataset.total || '';
+          document.getElementById('descripcion_edit').value = this.dataset.desc || '';
+          document.getElementById('precio_edit').value = this.dataset.precio || '0';
+        }
+      });
+    });
+  }
+
+  // Image previews: Create modal inputs
+  function previewFile(inputEl, imgEl) {
+    var file = inputEl.files && inputEl.files[0];
+    if (!imgEl) return;
+    if (file) {
+      var reader = new FileReader();
+      reader.onload = function(e){ imgEl.src = e.target.result; imgEl.style.display = 'block'; };
+      reader.readAsDataURL(file);
+    } else { imgEl.src = ''; imgEl.style.display = 'none'; }
+  }
+
+  // Dynamic slots helper (max 3)
+  function createImageSlot(slotId, nameAttr, previewId, existingUrl) {
+    var container = document.createElement('div');
+    container.className = 'text-center image-slot';
+    container.style.minWidth = '120px';
+
+    var img = document.createElement('img');
+    img.id = previewId;
+    img.style.maxWidth = '120px';
+    img.style.maxHeight = '90px';
+    img.style.objectFit = 'cover';
+    img.className = 'mb-1';
+    if (existingUrl) { img.src = existingUrl; img.style.display = 'block'; } else { img.style.display = 'none'; }
+
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.name = nameAttr; // should be fotos_list[] or fotos_edit_list[]
+    input.accept = 'image/*';
+    input.className = 'form-control form-control-sm';
+    input.addEventListener('change', function(){ previewFile(this, img); });
+
+    var removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn btn-sm btn-danger mt-1 remove-image-slot';
+    removeBtn.innerHTML = '<i class="fas fa-minus"></i>';
+    removeBtn.addEventListener('click', function(){ container.remove(); });
+
+    container.appendChild(img);
+    container.appendChild(input);
+    container.appendChild(removeBtn);
+    container.dataset.slotId = slotId;
+    return container;
+  }
+
+  // Create modal slots management
+  var createImageSlots = document.getElementById('createImageSlots');
+  var addCreateImage = document.getElementById('addCreateImage');
+  function refreshCreateButtons() { if (!createImageSlots) return; var count = createImageSlots.querySelectorAll('.image-slot').length; addCreateImage.disabled = count >= 3; }
+  if (addCreateImage && createImageSlots) {
+    addCreateImage.addEventListener('click', function(){
+      var count = createImageSlots.querySelectorAll('.image-slot').length;
+      if (count >= 3) return;
+      var slot = createImageSlot(count+1, 'fotos_list', 'create_preview_'+(count+1));
+      createImageSlots.appendChild(slot);
+      refreshCreateButtons();
+    });
+    // initialize empty one slot by default
+    if (createImageSlots.querySelectorAll('.image-slot').length === 0) addCreateImage.click();
+  }
+
+  // Edit modal slots management
+  var editImageSlots = document.getElementById('editImageSlots');
+  var addEditImage = document.getElementById('addEditImage');
+  function refreshEditButtons() { if (!editImageSlots) return; var count = editImageSlots.querySelectorAll('.image-slot').length; addEditImage.disabled = count >= 3; }
+  if (addEditImage && editImageSlots) {
+    addEditImage.addEventListener('click', function(){
+      var count = editImageSlots.querySelectorAll('.image-slot').length;
+      if (count >= 3) return;
+      var slot = createImageSlot(count+1, 'fotos_edit_list', 'edit_preview_dyn_'+(count+1));
+      editImageSlots.appendChild(slot);
+      refreshEditButtons();
+    });
+    // initial population happens when opening the edit modal (below)
+  }
+
+  // When opening edit modal, populate dynamic edit slots with existing images
+  if (editRifaBtns && editImageSlots) {
+    editRifaBtns.forEach(function(b){
+      b.addEventListener('click', function(){
+        var id = String(this.dataset.id);
+        var r = rifasData[id] || {};
+        var imgs = r.images || [];
+        // clear current slots
+        editImageSlots.innerHTML = '';
+        // create slots for existing images (up to 3)
+        for (var i = 0; i < imgs.length && i < 3; i++) {
+          var slot = createImageSlot(i+1, 'fotos_edit_list', 'edit_dyn_preview_'+(i+1), imgs[i]);
+          editImageSlots.appendChild(slot);
+        }
+        // ensure at least one slot exists for adding/replacing
+        if (editImageSlots.querySelectorAll('.image-slot').length === 0) {
+          var slot = createImageSlot(1, 'fotos_edit_list', 'edit_dyn_preview_1');
+          editImageSlots.appendChild(slot);
+        } else if (editImageSlots.querySelectorAll('.image-slot').length < 3) {
+          var next = editImageSlots.querySelectorAll('.image-slot').length;
+          var slot = createImageSlot(next+1, 'fotos_edit_list', 'edit_dyn_preview_'+(next+1));
+          editImageSlots.appendChild(slot);
+        }
+        refreshEditButtons();
+      });
+    });
+  }
+
   // Apply data-progress widths to progress bars in the table
   document.querySelectorAll('.progress-bar[data-progress]').forEach(function(pb){
     var v = pb.getAttribute('data-progress');
     if (v !== null) pb.style.width = v + '%';
   });
+
+  // Photos modal handler (uses rifasData map)
+  var photoButtons = document.querySelectorAll('.view-photos-btn');
+  var photosModalEl = document.getElementById('photosModal');
+  var photosCarouselInner = document.getElementById('photosCarouselInner');
+  var photosModal = photosModalEl ? new bootstrap.Modal(photosModalEl) : null;
+
+  if (photoButtons && photosCarouselInner) {
+    photoButtons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = String(this.dataset.id);
+        var r = rifasData[id];
+        photosCarouselInner.innerHTML = '';
+        if (r && Array.isArray(r.images) && r.images.length) {
+          r.images.forEach(function(url, idx){
+            var div = document.createElement('div');
+            div.className = 'carousel-item' + (idx === 0 ? ' active' : '');
+            var img = document.createElement('img');
+            img.src = url || '';
+            img.className = 'd-block w-100';
+            img.style.maxHeight = '500px';
+            img.style.objectFit = 'contain';
+            div.appendChild(img);
+            photosCarouselInner.appendChild(div);
+          });
+          // show modal
+          if (photosModal) photosModal.show();
+        } else {
+          photosCarouselInner.innerHTML = '<div class="text-center py-4 text-muted">No hay imágenes disponibles</div>';
+          if (photosModal) photosModal.show();
+        }
+      });
+    });
+  }
 });
 </script>
 </body>

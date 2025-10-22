@@ -108,6 +108,7 @@
 
                 <div class="rifa-content">
                     <h3 class="rifa-title">{{ rifa.titulo }}</h3>
+                    <p class="rifa-price">Bs. {{ rifa.precio|floatformat:2 }}</p>
                     <p class="rifa-description">{{ rifa.descripcion|truncatewords:15 }}</p>
                     
                     <div class="rifa-info">

@@ -13,9 +13,9 @@
     <header class="header">
         <nav class="nav">
             <div class="nav-logo">
-                <a href="{% url 'index' %}"">
-                    <img src="{% static 'images/logo-img.png' %}" class="logo-img alt="logo">
-                    
+                <a href="{% url 'index' %}">
+                    <img src="{% static 'images/logo-img.png' %}" class="logo-img" alt="Cambia Vidas logo">
+                    Cambian Vida
                 </a>
             </div>
             <ul class="nav-menu">
@@ -23,11 +23,13 @@
                 <li><a href="#como-funciona">Cómo Funciona</a></li>
                 <li><a href="#quienes-somos">Quiénes Somos</a></li>
                 <li><a href="#contacto">Contacto</a></li>
+                <!-- Botón visible dentro del menú en dispositivos móviles -->
+                <li class="nav-action">
+                    <button id="navConfirmBtnMobile" class="btn-outline menu-action-btn" type="button">
+                        <i class="fas fa-check-circle"></i> Consultar Ticket
+                    </button>
+                </li>
             </ul>
-            <div class="nav-actions">
-                <button id="navConfirmBtn" class="btn-outline" type="button">
-                    <i class="fas fa-check-circle"></i> Consultar Ticket
-                </button>
             </div>
             <button class="mobile-menu-btn">
                 <span></span>
@@ -44,16 +46,15 @@
             
             <div class="hero-badge">
                 <span class="badge-dot"></span>
-                Rifas Activas Ahora
+                Cambia Vidas | Rifas con impacto social
             </div>
             <div class="hero-logo-container">
                 <img src="{% static 'images/cambiando vidas def-04.png' %}" alt="RifasApp Logo" class="hero-logo-img">
             </div>
             <h1 class="hero-title">Participa y Gana Increíbles Premios</h1>
-            
+
             <p class="hero-description">
-                Compra tus tickets de forma segura y participa en rifas de productos exclusivos. 
-                Transparencia garantizada en cada sorteo.
+                Nuestras rifas apoyan causas sociales: con lo recaudado llevamos ayuda a quienes más lo necesitan. Participa para ganar premios y, al mismo tiempo, contribuir al cambio.
             </p>
             <div class="hero-actions">
                 <a href="#rifas" class="btn-primary btn-large">Ver Rifas</a>
@@ -77,13 +78,16 @@
     <section id="rifas" class="rifas-section">
         <div class="section-header">
             <h2 class="section-title">Rifas Disponibles</h2>
-            <p class="section-description">Elige tu rifa favorita y compra tus tickets ahora</p>
+            <p class="section-description">Elige una rifa, compra tus tickets y forma parte de la comunidad que transforma amor en acción.</p>
+            <div class="divider"></div>
         </div>
+        
 
         <div class="rifas-grid">
             {% for rifa in rifas %}
             {% with delay=forloop.counter0|add:1 %}
-            <div class="rifa-card" data-animation-delay="{{ delay }}00" data-card-id="{{ rifa.id }}">
+            <!-- Made the entire card clickable to open modal -->
+            <div class="rifa-card" data-animation-delay="{{ delay }}00" data-card-id="{{ rifa.id }}" onclick="openRaffleModal('{{ rifa.id }}')">
                 {% if rifa.images.all %}
                 <div class="rifa-image-slider">
                     <div class="slider-wrapper">
@@ -92,10 +96,11 @@
                         {% endfor %}
                     </div>
                     {% if rifa.images.count > 1 %}
-                    <button class="slider-btn prev-btn" onclick="changeSlide(this, -1)">
+                    <!-- Added event.stopPropagation() to prevent modal opening when clicking slider buttons -->
+                    <button class="slider-btn prev-btn" onclick="event.stopPropagation(); changeSlide(this, -1)">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <button class="slider-btn next-btn" onclick="changeSlide(this, 1)">
+                    <button class="slider-btn next-btn" onclick="event.stopPropagation(); changeSlide(this, 1)">
                         <i class="fas fa-chevron-right"></i>
                     </button>
                     {% endif %}
@@ -132,20 +137,41 @@
                         </div>
                     </div>
 
+                    <!-- Updated footer buttons to prevent modal opening and added data attributes for modal -->
                     <div class="rifa-footer">
                         {% if rifa.tickets_available > 0 %}
-                        <a href="{% url 'compra_rifa' rifa.id %}" class="btn-primary" style="flex: 1;">
+                        <a href="{% url 'compra_rifa' rifa.id %}" class="btn-primary" style="flex: 1;" onclick="event.preventDefault(); event.stopPropagation(); openRaffleModal('{{ rifa.id }}');">
                             <i class="fas fa-shopping-cart"></i> Comprar
                         </a>
-                        <button class="btn-secondary" onclick="openConfirmModal('{{ rifa.id }}')">
+                        <button class="btn-secondary" onclick="event.stopPropagation(); openConfirmModal('{{ rifa.id }}')">
                             <i class="fas fa-check-circle"></i> Consultar Ticket
                         </button>
                         {% else %}
-                        <button class="btn-secondary" style="flex: 1;" disabled>
+                        <button class="btn-secondary" style="flex: 1;" disabled onclick="event.stopPropagation();">
                             <i class="fas fa-times-circle"></i> Agotada
                         </button>
                         {% endif %}
                     </div>
+                </div>
+                
+                <!-- Hidden data for modal population -->
+                <div class="rifa-data" style="display: none;">
+                    <span class="data-titulo">{{ rifa.titulo }}</span>
+                    <span class="data-descripcion">{{ rifa.descripcion }}</span>
+                    <span class="data-precio">{{ rifa.precio|floatformat:2 }}</span>
+                    <span class="data-fecha">{{ rifa.fecha_sorteo|date:"d M Y" }}</span>
+                    <span class="data-tickets-sold">{{ rifa.tickets_sold }}</span>
+                    <span class="data-total-tickets">{{ rifa.total_tickets }}</span>
+                    <span class="data-tickets-available">{{ rifa.tickets_available }}</span>
+                    <span class="data-progress">{{ fill_width }}</span>
+                    <span class="data-url">{% url 'compra_rifa' rifa.id %}</span>
+                    {% if rifa.images.all %}
+                    <div class="data-images">
+                        {% for img in rifa.images.all %}
+                        <span class="data-image-url">{{ img.image.url }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             {% endwith %}
@@ -158,6 +184,49 @@
         </div>
     </section>
 
+    <!-- Cómo Funciona Section -->
+    <section class="how-it-works" id="como-funciona">
+        <div class="section-header">
+            <h2 class="section-title">Cómo Funciona</h2>
+            <p class="section-description">Participar es fácil y seguro en solo 3 pasos</p>
+        </div>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+                    </svg>
+                </div>
+                <h3 class="step-title">Elige tu Rifa</h3>
+                <p class="step-description">Explora las rifas activas y selecciona la que más te guste. Revisa los premios, precios y fechas de sorteo.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="5" width="20" height="14" rx="2"/>
+                        <path d="M2 10h20"/>
+                    </svg>
+                </div>
+                <h3 class="step-title">Compra y registra tus Tickets</h3>
+                <p class="step-description">Selecciona la cantidad de tickets que deseas. Más tickets = más oportunidades de ganar.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <h3 class="step-title">Espera el Sorteo</h3>
+                <p class="step-description">Sigue el progreso en tiempo real. Te notificaremos si eres el ganador. ¡Así de simple!</p>
+            </div>
+        </div>
+    </section>
+
     <!-- Redesigned Quiénes Somos section -->
     <section id="quienes-somos" class="about-section">
         <div class="section-header">
@@ -167,16 +236,20 @@
                     <span>Conoces mas Sobre Nosotros</span>
             </div>
         </div>
-
         <div class="about-content">
-            <div class="about-text">
-                
-                <h3 class="about-subtitle">Tu plataforma de confianza para rifas online</h3>
+            <div class="about-text">        
+                <h3 class="about-subtitle">Cambian Vidas <br>
+                    Rifas que generan impacto</h3>
                 
                 <p class="about-paragraph">
-                    Somos una plataforma innovadora dedicada a ofrecer rifas transparentes y seguras. 
-                    Nuestro compromiso es brindar una experiencia excepcional a todos nuestros participantes, 
-                    garantizando sorteos justos y premios increíbles.
+                    En Cambia Vidas organizamos rifas transparentes y seguras con un objetivo claro: apoyar
+                    proyectos y familias que necesitan una mano amiga. Cada boleto que compras contribuye directamente
+                    a programas sociales, entrega de ayuda y proyectos comunitarios. Únete a nuestra comunidad y
+                    conviértete en parte del cambio.
+                </p>
+
+                <p style="font-weight: 700; font-size: 1.5rem;">
+                    Cada rifa que realizamos tiene un fin mucho más grande que ganar un premio
                 </p>
        
                 <div class="about-features">
@@ -213,10 +286,6 @@
             <div class="about-image">
                 <div class="about-image-wrapper">
                     <img src="https://images.ecestaticos.com/0heyD9gpC4g4bWgAd-9MmpLTaN4=/0x0:1254x836/1200x900/filters:fill(white):format(jpg)/f.elconfidencial.com%2Foriginal%2Faef%2Fa91%2Fdeb%2Faefa91debc6fa3c745636a3d329f91e2.jpg" alt="Equipo RifasApp">
-                    <div class="about-image-overlay">
-                        <i class="fas fa-play-circle"></i>
-                        <p>Ver cómo funcionamos</p>
-                    </div>
                 </div>
             </div>
         </div>
@@ -224,14 +293,14 @@
 
     <!-- Footer -->
     <footer id="contacto" class="footer">
-        <div class="footer-content">
+            <div class="footer-content">
             <div class="footer-section">
                 <div class="footer-logo">
-                    <i class="fas fa-ticket-alt"></i>
-                    <span class="logo-text">RifasApp</span>
+                    <i class="fas fa-hand-holding-heart"></i>
+                    <span class="logo-text">Cambia Vidas</span>
                 </div>
                 <p class="footer-description">
-                    Plataforma segura y transparente para participar en rifas y sorteos.
+                    Cada rifa ayuda a quienes más lo necesitan. Participa y transforma amor en acción.
                 </p>
             </div>
 
@@ -242,15 +311,6 @@
                     <li><a href="#como-funciona">Cómo Funciona</a></li>
                     <li><a href="#quienes-somos">Quiénes Somos</a></li>
                     <li><a href="#contacto">Contacto</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h4 class="footer-title">Legal</h4>
-                <ul class="footer-links">
-                    <li><a href="#">Términos y Condiciones</a></li>
-                    <li><a href="#">Política de Privacidad</a></li>
-                    <li><a href="#">Preguntas Frecuentes</a></li>
                 </ul>
             </div>
 
@@ -270,6 +330,74 @@
     </footer>
 
     <!-- Modals -->
+    <!-- Added new raffle detail modal -->
+    <div class="modal-overlay" id="raffleDetailModal">
+        <div class="modal-container raffle-detail-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="raffleModalTitle">Detalles de la Rifa</h3>
+                <button class="modal-close" onclick="closeRaffleModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Prize Images Carousel -->
+                <div class="raffle-modal-carousel" id="raffleModalCarousel">
+                    <div class="carousel-wrapper" id="raffleModalCarouselWrapper">
+                        <!-- Images will be populated by JavaScript -->
+                    </div>
+                    <button class="slider-btn prev-btn" id="modalPrevBtn" style="display: none;" onclick="changeModalSlide(-1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="slider-btn next-btn" id="modalNextBtn" style="display: none;" onclick="changeModalSlide(1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <div class="carousel-indicators" id="modalCarouselIndicators"></div>
+                </div>
+
+                <!-- Raffle Information -->
+                <div class="raffle-modal-info">
+                    <div class="raffle-modal-price">
+                        <i class="fas fa-tag"></i>
+                        <span>Precio por ticket:</span>
+                        <strong id="raffleModalPrice">Bs. 0.00</strong>
+                    </div>
+                    
+                    <div class="raffle-modal-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Fecha del sorteo:</span>
+                        <strong id="raffleModalDate">--/--/----</strong>
+                    </div>
+
+                    <div class="raffle-modal-tickets">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>Tickets vendidos:</span>
+                        <strong id="raffleModalTickets">0/0</strong>
+                    </div>
+
+                    <div class="raffle-modal-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="raffleModalProgressBar"></div>
+                        </div>
+                        <div class="progress-text" id="raffleModalAvailable">0 tickets disponibles</div>
+                    </div>
+
+                    <div class="raffle-modal-description">
+                        <h4><i class="fas fa-info-circle"></i> Descripción</h4>
+                        <p id="raffleModalDescription">Descripción de la rifa...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeRaffleModal()">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+                <a href="#" id="raffleModalBuyBtn" class="btn-primary">
+                    <i class="fas fa-shopping-cart"></i> Comprar Tickets
+                </a>
+            </div>
+        </div>
+    </div>
+
     {% for rifa in rifas %}
     <div class="modal-overlay" id="confirmModal{{ rifa.id }}">
         <div class="modal-container">
@@ -395,9 +523,99 @@
             });
     }
 
+    function openRaffleModal(rifaId) {
+        const modal = document.getElementById('raffleDetailModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            populateRaffleModal(rifaId);
+        }
+    }
+
+    function closeRaffleModal() {
+        const modal = document.getElementById('raffleDetailModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    function populateRaffleModal(rifaId) {
+        const rifaCard = document.querySelector(`[data-card-id="${rifaId}"]`);
+        if (!rifaCard) return;
+
+        const data = rifaCard.querySelector('.rifa-data');
+        if (!data) return;
+
+        const title = data.querySelector('.data-titulo').textContent;
+        const description = data.querySelector('.data-descripcion').textContent;
+        const price = data.querySelector('.data-precio').textContent;
+        const date = data.querySelector('.data-fecha').textContent;
+        const ticketsSold = data.querySelector('.data-tickets-sold').textContent;
+        const totalTickets = data.querySelector('.data-total-tickets').textContent;
+        const ticketsAvailable = data.querySelector('.data-tickets-available').textContent;
+        const progress = data.querySelector('.data-progress').textContent;
+        const url = data.querySelector('.data-url').textContent;
+        const images = data.querySelectorAll('.data-image-url');
+
+        document.getElementById('raffleModalTitle').textContent = title;
+        document.getElementById('raffleModalDescription').textContent = description;
+        document.getElementById('raffleModalPrice').textContent = price;
+        document.getElementById('raffleModalDate').textContent = date;
+        document.getElementById('raffleModalTickets').textContent = `${ticketsSold}/${totalTickets}`;
+        document.getElementById('raffleModalAvailable').textContent = `${ticketsAvailable} tickets disponibles`;
+        document.getElementById('raffleModalProgressBar').style.width = `${progress}%`;
+        document.getElementById('raffleModalBuyBtn').href = url;
+
+        const carouselWrapper = document.getElementById('raffleModalCarouselWrapper');
+        carouselWrapper.innerHTML = '';
+
+        images.forEach((img, index) => {
+            const imgElement = document.createElement('img');
+            imgElement.src = img.textContent;
+            imgElement.alt = title;
+            imgElement.classList.add('carousel-image');
+            imgElement.classList.toggle('active', index === 0);
+            carouselWrapper.appendChild(imgElement);
+        });
+
+        const modalPrevBtn = document.getElementById('modalPrevBtn');
+        const modalNextBtn = document.getElementById('modalNextBtn');
+        const modalCarouselIndicators = document.getElementById('modalCarouselIndicators');
+
+        modalPrevBtn.style.display = images.length > 1 ? 'block' : 'none';
+        modalNextBtn.style.display = images.length > 1 ? 'block' : 'none';
+
+        modalCarouselIndicators.innerHTML = '';
+        images.forEach((_, index) => {
+            const indicator = document.createElement('span');
+            indicator.classList.add('carousel-indicator');
+            indicator.classList.toggle('active', index === 0);
+            indicator.addEventListener('click', () => changeModalSlide(index));
+            modalCarouselIndicators.appendChild(indicator);
+        });
+    }
+
+    function changeModalSlide(direction) {
+        const carouselWrapper = document.getElementById('raffleModalCarouselWrapper');
+        const images = carouselWrapper.querySelectorAll('.carousel-image');
+        const indicators = document.getElementById('modalCarouselIndicators').querySelectorAll('.carousel-indicator');
+        let currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+
+        images[currentIndex].classList.remove('active');
+        indicators[currentIndex].classList.remove('active');
+
+        currentIndex = (currentIndex + direction + images.length) % images.length;
+
+        images[currentIndex].classList.add('active');
+        indicators[currentIndex].classList.add('active');
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
-        const navBtn = document.getElementById('navConfirmBtn');
-        const heroBtn = document.getElementById('heroConfirmBtn');
+    const navBtn = document.getElementById('navConfirmBtn');
+    const heroBtn = document.getElementById('heroConfirmBtn');
+    const mobileBtn = document.querySelector('.mobile-menu-btn');
+    const navMenu = document.querySelector('.nav-menu');
         
         function openFirstModal() {
             const modal = document.querySelector('[id^="confirmModal"]');
@@ -409,6 +627,36 @@
         
         if (navBtn) navBtn.addEventListener('click', openFirstModal);
         if (heroBtn) heroBtn.addEventListener('click', openFirstModal);
+        // Mobile menu CTA button
+        const navConfirmBtnMobile = document.getElementById('navConfirmBtnMobile');
+        if (navConfirmBtnMobile) {
+            navConfirmBtnMobile.addEventListener('click', function() {
+                // close the mobile menu if open
+                if (navMenu && navMenu.classList.contains('open')) {
+                    navMenu.classList.remove('open');
+                    if (mobileBtn) mobileBtn.classList.remove('open');
+                }
+                openFirstModal();
+            });
+        }
+
+        // Mobile menu toggle (hamburguesa)
+        if (mobileBtn && navMenu) {
+            mobileBtn.addEventListener('click', function() {
+                const isOpen = navMenu.classList.toggle('open');
+                mobileBtn.classList.toggle('open', isOpen);
+            });
+
+            // Close menu when clicking a nav link
+            navMenu.querySelectorAll('a').forEach(a => {
+                a.addEventListener('click', function() {
+                    if (navMenu.classList.contains('open')) {
+                        navMenu.classList.remove('open');
+                        mobileBtn.classList.remove('open');
+                    }
+                });
+            });
+        }
         
         // Close modal on outside click
         window.addEventListener('click', function(e) {
@@ -447,6 +695,28 @@
                 startAutoRotation(card);
             });
         });
+        // Open raffle detail modal when clicking on a card (but not when clicking buttons/links inside it)
+        document.querySelectorAll('.rifa-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.closest('a') || e.target.closest('button') || e.target.closest('.slider-btn')) return;
+                const cardId = card.getAttribute('data-card-id');
+                if (cardId) openRaffleModal(cardId);
+            });
+        });
+
+        // Ensure the modal buy button navigates and closes the modal reliably
+        const raffleBuyBtn = document.getElementById('raffleModalBuyBtn');
+        if (raffleBuyBtn) {
+            raffleBuyBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                closeRaffleModal();
+                if (href && href !== '#') {
+                    // small timeout to allow modal close animation (if any) then navigate
+                    setTimeout(() => { window.location.href = href; }, 50);
+                }
+            });
+        }
     });
     </script>
 </body>

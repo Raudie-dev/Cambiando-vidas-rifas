@@ -214,5 +214,139 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   }
 
+  function openRaffleModal(rifaId) {
+    const card = document.querySelector(`.rifa-card[data-card-id="${rifaId}"]`)
+    if (!card) return
+
+    const modal = document.getElementById("raffleDetailModal")
+    if (!modal) return
+
+    // Extract data from card
+    const data = card.querySelector(".rifa-data")
+    if (!data) return
+
+    const titulo = data.querySelector(".data-titulo")?.textContent || ""
+    const descripcion = data.querySelector(".data-descripcion")?.textContent || ""
+    const precio = data.querySelector(".data-precio")?.textContent || "0.00"
+    const fecha = data.querySelector(".data-fecha")?.textContent || ""
+    const ticketsSold = data.querySelector(".data-tickets-sold")?.textContent || "0"
+    const totalTickets = data.querySelector(".data-total-tickets")?.textContent || "0"
+    const ticketsAvailable = data.querySelector(".data-tickets-available")?.textContent || "0"
+    const progress = data.querySelector(".data-progress")?.textContent || "0"
+    const url = data.querySelector(".data-url")?.textContent || "#"
+
+    // Get images
+    const imagesContainer = data.querySelector(".data-images")
+    const imageUrls = imagesContainer
+      ? Array.from(imagesContainer.querySelectorAll(".data-image-url")).map((el) => el.textContent)
+      : []
+
+    // Populate modal
+    document.getElementById("raffleModalTitle").textContent = titulo
+    document.getElementById("raffleModalPrice").textContent = `Bs. ${precio}`
+    document.getElementById("raffleModalDate").textContent = fecha
+    document.getElementById("raffleModalTickets").textContent = `${ticketsSold}/${totalTickets}`
+    document.getElementById("raffleModalAvailable").textContent = `${ticketsAvailable} tickets disponibles`
+    document.getElementById("raffleModalDescription").textContent = descripcion
+    document.getElementById("raffleModalProgressBar").style.width = `${progress}%`
+    document.getElementById("raffleModalBuyBtn").href = url
+
+    // Populate carousel
+    const carouselWrapper = document.getElementById("raffleModalCarouselWrapper")
+    const indicatorsContainer = document.getElementById("modalCarouselIndicators")
+    const prevBtn = document.getElementById("modalPrevBtn")
+    const nextBtn = document.getElementById("modalNextBtn")
+
+    carouselWrapper.innerHTML = ""
+    indicatorsContainer.innerHTML = ""
+
+    if (imageUrls.length > 0) {
+      imageUrls.forEach((url, index) => {
+        const img = document.createElement("img")
+        img.src = url
+        img.alt = `${titulo} - Premio ${index + 1}`
+        img.className = `rifa-image ${index === 0 ? "active" : ""}`
+        carouselWrapper.appendChild(img)
+
+        const indicator = document.createElement("span")
+        indicator.className = `indicator ${index === 0 ? "active" : ""}`
+        indicator.onclick = () => goToModalSlide(index)
+        indicatorsContainer.appendChild(indicator)
+      })
+
+      // Show/hide navigation buttons
+      if (imageUrls.length > 1) {
+        prevBtn.style.display = "flex"
+        nextBtn.style.display = "flex"
+      } else {
+        prevBtn.style.display = "none"
+        nextBtn.style.display = "none"
+      }
+    } else {
+      // No images, show placeholder
+      const placeholder = document.createElement("div")
+      placeholder.className = "rifa-image-placeholder active"
+      placeholder.innerHTML = '<i class="fas fa-gift" style="font-size: 4rem; color: white;"></i>'
+      placeholder.style.display = "flex"
+      placeholder.style.alignItems = "center"
+      placeholder.style.justifyContent = "center"
+      placeholder.style.width = "100%"
+      placeholder.style.height = "100%"
+      carouselWrapper.appendChild(placeholder)
+
+      prevBtn.style.display = "none"
+      nextBtn.style.display = "none"
+    }
+
+    // Show modal
+    modal.style.display = "flex"
+    document.body.style.overflow = "hidden"
+  }
+
+  function closeRaffleModal() {
+    const modal = document.getElementById("raffleDetailModal")
+    if (modal) {
+      modal.style.display = "none"
+      document.body.style.overflow = "auto"
+    }
+  }
+
+  function changeModalSlide(direction) {
+    const carousel = document.getElementById("raffleModalCarouselWrapper")
+    if (!carousel) return
+
+    const images = carousel.querySelectorAll(".rifa-image")
+    const indicators = document.querySelectorAll("#modalCarouselIndicators .indicator")
+
+    if (images.length === 0) return
+
+    let currentIndex = Array.from(images).findIndex((img) => img.classList.contains("active"))
+    if (currentIndex < 0) currentIndex = 0
+
+    images[currentIndex].classList.remove("active")
+    if (indicators[currentIndex]) indicators[currentIndex].classList.remove("active")
+
+    currentIndex = (currentIndex + direction + images.length) % images.length
+
+    images[currentIndex].classList.add("active")
+    if (indicators[currentIndex]) indicators[currentIndex].classList.add("active")
+  }
+
+  function goToModalSlide(index) {
+    const carousel = document.getElementById("raffleModalCarouselWrapper")
+    if (!carousel) return
+
+    const images = carousel.querySelectorAll(".rifa-image")
+    const indicators = document.querySelectorAll("#modalCarouselIndicators .indicator")
+
+    if (index < 0 || index >= images.length) return
+
+    images.forEach((img) => img.classList.remove("active"))
+    indicators.forEach((ind) => ind.classList.remove("active"))
+
+    images[index].classList.add("active")
+    if (indicators[index]) indicators[index].classList.add("active")
+  }
+
   console.log("[v0] Scroll animations initialized")
 })

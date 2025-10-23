@@ -662,6 +662,51 @@ document.addEventListener('DOMContentLoaded', function() {
     rifasData = {};
   }
 
+  // Auto-open edit/view modal when URL contains ?open=<rifa_id>
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var openId = params.get('open');
+    if (openId && rifasData[String(openId)]) {
+      // populate edit modal fields and image slots (reuse existing functions)
+      var r = rifasData[String(openId)];
+      document.getElementById('editar_rifa_id').value = String(openId);
+      document.getElementById('titulo_edit').value = r.titulo || '';
+      document.getElementById('fecha_sorteo_edit').value = r.fecha_sorteo || '';
+      document.getElementById('total_tickets_edit').value = r.total_tickets || '';
+      document.getElementById('descripcion_edit').value = r.descripcion || '';
+      document.getElementById('precio_edit').value = (typeof r.precio !== 'undefined') ? r.precio : '0';
+
+      // populate edit image slots
+      if (editImageSlots) {
+        editImageSlots.innerHTML = '';
+        if (Array.isArray(r.images) && r.images.length) {
+          r.images.slice(0,3).forEach(function(url, idx){
+            var slot = createImageSlot(idx+1, 'fotos_edit_list', 'edit_dyn_preview_'+(idx+1), url);
+            editImageSlots.appendChild(slot);
+          });
+          // add an extra empty slot if less than 3 to allow replacements
+          if (r.images.length < 3) {
+            var slot = createImageSlot(r.images.length+1, 'fotos_edit_list', 'edit_dyn_preview_'+(r.images.length+1));
+            editImageSlots.appendChild(slot);
+          }
+        } else {
+          var slot = createImageSlot(1, 'fotos_edit_list', 'edit_dyn_preview_1');
+          editImageSlots.appendChild(slot);
+        }
+        refreshEditButtons();
+      }
+
+      // show modal
+      var editModalEl = document.getElementById('editRifaModal');
+      if (editModalEl) {
+        var bmodal = new bootstrap.Modal(editModalEl);
+        bmodal.show();
+      }
+    }
+  } catch(e) {
+    // non-fatal
+  }
+
   if (editRifaBtns && editRifaModal) {
     editRifaBtns.forEach(function(b){
       b.addEventListener('click', function(){

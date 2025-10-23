@@ -32,34 +32,32 @@ def crear_compra(rifa, participante, cantidad, metodo_pago='', comprobante=None,
     if cantidad > rifa.tickets_available:
         raise ValueError('No hay suficientes tickets disponibles')
 
-    # crear compra en estado PENDIENTE; reservar números (crear tickets con confirmed=False)
     # if telefono provided, ensure participante.telefono is saved
     if telefono:
         participante.telefono = telefono
         participante.save()
 
-    compra = Compra.objects.create(rifa=rifa, participante=participante, cantidad=cantidad, metodo_pago=metodo_pago, referencia=referencia, monto=(monto or 0))
-    if comprobante:
-        compra.comprobante = comprobante
-        compra.save()
-
-    # reservar números inmediatamente (no confirmados)
+    # Hacer la creación en una transacción para evitar datos parciales si algo falla
     assigned = []
-    used = set(Ticket.objects.filter(rifa=rifa).values_list('number', flat=True))
-    num = 1
-    while len(assigned) < cantidad and num <= rifa.total_tickets:
-        if num not in used:
-            ticket = Ticket.objects.create(rifa=rifa, participante=participante, number=num, compra=compra, confirmed=False)
-            assigned.append(ticket)
-            used.add(num)
-        num += 1
+    with transaction.atomic():
+        compra = Compra.objects.create(rifa=rifa, participante=participante, cantidad=cantidad, metodo_pago=metodo_pago, referencia=referencia, monto=(monto or 0))
+        if comprobante:
+            compra.comprobante = comprobante
+            compra.save()
 
-    if len(assigned) < cantidad:
-        # rollback: eliminar tickets creados y la compra
-        for t in assigned:
-            t.delete()
-        compra.delete()
-        raise ValueError('No hay suficientes tickets disponibles al intentar reservar')
+        # reservar números inmediatamente (no confirmados)
+        used = set(Ticket.objects.filter(rifa=rifa).values_list('number', flat=True))
+        num = 1
+        while len(assigned) < cantidad and num <= rifa.total_tickets:
+            if num not in used:
+                ticket = Ticket.objects.create(rifa=rifa, participante=participante, number=num, compra=compra, confirmed=False)
+                assigned.append(ticket)
+                used.add(num)
+            num += 1
+
+        if len(assigned) < cantidad:
+            # al estar dentro de la transacción, lanzamos error para hacer rollback automático
+            raise ValueError('No hay suficientes tickets disponibles al intentar reservar')
 
     return compra
 

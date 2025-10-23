@@ -35,17 +35,22 @@ def compra_rifa(request, rifa_id):
         nombre = request.POST.get('nombre', '').strip()
         email = request.POST.get('email', '').strip()
         telefono = request.POST.get('telefono', '').strip()
-        cantidad = int(request.POST.get('cantidad') or 0)
         metodo_pago = request.POST.get('metodo_pago', '').strip()
         referencia = request.POST.get('referencia', '').strip()
         comprobante = request.FILES.get('comprobante')
+
+        # parse cantidad safely
+        try:
+            cantidad = int(request.POST.get('cantidad') or 0)
+        except (ValueError, TypeError):
+            messages.error(request, 'Cantidad inválida')
+            return redirect('compra_rifa', rifa_id=rifa.id)
 
         if not (identificacion and nombre and cantidad > 0 and metodo_pago):
             messages.error(request, 'Completa todos los campos requeridos.')
             return redirect('compra_rifa', rifa_id=rifa.id)
 
         # validate telefono if provided: allow digits, +, spaces, hyphens, parentheses, min length 7
-        telefono = request.POST.get('telefono', '').strip()
         if telefono:
             import re
             if not re.match(r'^[0-9+()\-\s]{7,}$', telefono):
@@ -61,11 +66,20 @@ def compra_rifa(request, rifa_id):
         try:
             participante = crud_app.crear_participante(identificacion, nombre, email)
             compra = crud_app.crear_compra(rifa, participante, cantidad, metodo_pago=metodo_pago, comprobante=comprobante, referencia=referencia, monto=total, telefono=telefono)
-            # Enviar mensaje al grupo de Telegram
-            send_compra_message(compra)
         except ValueError as e:
             messages.error(request, str(e))
             return redirect('compra_rifa', rifa_id=rifa.id)
+        except Exception as e:
+            # capture unexpected errors during creation
+            print('Error creando compra:', e)
+            messages.error(request, 'Error interno al procesar la compra. Intenta nuevamente.')
+            return redirect('compra_rifa', rifa_id=rifa.id)
+
+        # Enviar mensaje al grupo de Telegram, pero no fallar la compra si el bot falla
+        try:
+            send_compra_message(compra)
+        except Exception as e:
+            print('Warning: fallo al enviar notificación bot:', e)
         # mostrar total en el mensaje de confirmación (formateado)
         try:
             total_str = f"{total:.2f}"

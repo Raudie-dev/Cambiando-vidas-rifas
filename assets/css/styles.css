@@ -558,6 +558,10 @@ button:disabled {
   position: relative;
 }
 
+img.carousel-image.active {
+    width: 100%;
+}
+
 .rifas-grid {
   display: grid;
   gap: var(--spacing-xl);
@@ -1052,7 +1056,7 @@ button:disabled {
   z-index: 2000;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-xl);
+  padding: 1rem;
   backdrop-filter: blur(8px);
 }
 
@@ -1869,7 +1873,7 @@ button:disabled {
     top: 55px;
     left: 0;
     right: 0;
-    background: rgba(15, 23, 42, 0.98);
+    background:rgb(29 29 31 / 95%);
     flex-direction: column;
     gap: 14px;
     padding: 2rem 2.25rem;
@@ -1905,6 +1909,7 @@ button:disabled {
 
   .hero-actions {
     flex-direction: column;
+    margin-bottom: 6rem;
     width: 100%;
   }
 
@@ -2000,11 +2005,6 @@ button:disabled {
 
   .stat-number {
     font-size: 2rem;
-  }
-
-  .modal-content,
-  .modal-container {
-    margin: var(--spacing-md);
   }
 
   .prize-image {

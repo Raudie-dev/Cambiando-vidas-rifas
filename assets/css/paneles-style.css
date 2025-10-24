@@ -4,7 +4,7 @@
    Variables CSS - Tema Oscuro
    =================================== */
 :root {
-   /* Primary Colors - Naranja coral */
+  /* Primary Colors - Naranja coral */
   --primary: #f15a29;
   --primary-dark: #d14820;
   --primary-light: #ff7a4d;
@@ -62,7 +62,6 @@
   box-sizing: border-box;
 }
 
-
 html,
 body {
   overflow-x: hidden;
@@ -73,7 +72,6 @@ body {
 html {
   scroll-behavior: smooth;
 }
-
 
 body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -91,7 +89,7 @@ body {
   background-color: var(--dark-surface) !important;
   border-bottom: 1px solid var(--dark-border);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  padding: 1rem 1.5rem;
+  padding: 0.5rem 1.5rem;
   /* Añadido z-index para mantener navbar sobre contenido */
   position: sticky;
   top: 0;
@@ -197,7 +195,8 @@ body {
    Contenido Principal
    =================================== */
 #page-content-wrapper {
-  min-width: 100vw;
+  /* Removed min-width: 100vw and adjusted to use flex-grow for proper width adaptation */
+  width: 100%;
   background-color: var(--dark-bg);
   padding: 2rem;
   /* Añadido margin-left para desktop */
@@ -454,6 +453,7 @@ code {
 /* ===================================
    Modales
    =================================== */
+
 .modal-content {
   background-color: var(--dark-surface);
   border: 1px solid var(--dark-border);
@@ -472,6 +472,10 @@ code {
   /* Mejorado para móviles */
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+div#editImageSlots {
+  flex-direction: column;
 }
 
 .modal-title {
@@ -647,13 +651,13 @@ textarea.form-control {
    =================================== */
 /* Mejorados estilos para slots de imágenes */
 div#createImageSlots {
-    flex-direction: column;
+  flex-direction: column;
 }
 
 .image-slot {
   position: relative;
   display: flex;
-  flex-direction: row ;
+  flex-direction: row;
   align-items: center;
   gap: 0.5rem;
 }
@@ -884,6 +888,7 @@ div#createImageSlots {
   .d-flex.gap-1,
   .d-flex.gap-2 {
     gap: 0.25rem !important;
+    flex-direction: column;
   }
 
   /* Progress bars móviles */
@@ -922,7 +927,7 @@ div#createImageSlots {
 
   .btn {
     padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
+    font-size: 0.55rem;
   }
 
   .btn-sm {
@@ -1110,7 +1115,7 @@ div#createImageSlots {
    Dark Mode Enhancements
    =================================== */
 /* Mejorados contrastes para dark mode */
-.fw-semibold,
+
 .fw-bold {
   color: var(--text-primary);
 }

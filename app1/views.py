@@ -86,7 +86,7 @@ def compra_rifa(request, rifa_id):
         except Exception:
             total_str = str(total)
 
-        messages.success(request, f'Compra registrada con ID {compra.id}. Estado: {compra.estado}. Importe a pagar: {total_str}. Esperando confirmación administrativa.')
+        messages.success(request, f'Compra registrada. Estado: {compra.estado}. Esperando confirmación administrativa.')
         return redirect('index')
 
     # GET: mostrar formulario de compra y métodos de pago
@@ -115,7 +115,7 @@ def tickets_status(request, rifa_id):
         return JsonResponse({'status': 'NO_COMPRA', 'message': 'No hay compras para ese participante en esta rifa'})
 
     if compra.estado != 'CONFIRMADO':
-        return JsonResponse({'status': compra.estado, 'message': f'Compra encontrada con estado {compra.estado}'})
+        return JsonResponse({'status': f'Compra encontrada con estado {compra.estado}'})
 
     tickets_qs = Ticket.objects.filter(rifa_id=rifa_id, participante=participante).order_by('number')
     tickets = list(tickets_qs.values_list('number', flat=True))

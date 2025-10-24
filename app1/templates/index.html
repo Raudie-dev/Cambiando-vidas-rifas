@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rifas Disponibles - RifasApp</title>
+    <title>Cambiando Vidas</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -15,7 +15,7 @@
             <div class="nav-logo">
                 <a href="{% url 'index' %}">
                     <img src="{% static 'images/logo-img.png' %}" class="logo-img" alt="Cambia Vidas logo">
-                    Cambian Vida
+                    Cambiando Vidas
                 </a>
             </div>
             <ul class="nav-menu">
@@ -39,17 +39,27 @@
         </nav>
     </header>
 
+   
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
             <!-- Logo agregado -->
-            
+             <!-- Messages -->
+            {% if messages %}
+            <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 1rem;">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
             <div class="hero-badge">
                 <span class="badge-dot"></span>
-                Cambia Vidas | Rifas con impacto social
+                Cambiando Vidas | Rifas con impacto social
             </div>
             <div class="hero-logo-container">
-                <img src="{% static 'images/cambiando vidas def-04.png' %}" alt="RifasApp Logo" class="hero-logo-img">
+                <img src="{% static 'images/cambiando-vidas.png' %}" alt="RifasApp Logo" class="hero-logo-img">
             </div>
             <h1 class="hero-title">Participa y Gana Increíbles Premios</h1>
 
@@ -63,16 +73,6 @@
         </div>
     </section>
 
-    <!-- Messages -->
-    {% if messages %}
-    <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 1rem;">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}" role="alert">
-            {{ message }}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
 
     <!-- Rifas Section -->
     <section id="rifas" class="rifas-section">
@@ -238,7 +238,7 @@
         </div>
         <div class="about-content">
             <div class="about-text">        
-                <h3 class="about-subtitle">Cambian Vidas <br>
+                <h3 class="about-subtitle">Cambiando Vidas <br>
                     Rifas que generan impacto</h3>
                 
                 <p class="about-paragraph">
@@ -296,8 +296,8 @@
             <div class="footer-content">
             <div class="footer-section">
                 <div class="footer-logo">
-                    <i class="fas fa-hand-holding-heart"></i>
-                    <span class="logo-text">Cambia Vidas</span>
+                    <img src="{% static 'images/logo-img.png' %}" class="logo-img" alt="Cambia Vidas logo">
+                    Cambiando Vidas
                 </div>
                 <p class="footer-description">
                     Cada rifa ayuda a quienes más lo necesitan. Participa y transforma amor en acción.

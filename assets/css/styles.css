@@ -1301,6 +1301,17 @@ img.carousel-image.active {
   color: var(--text-muted);
 }
 
+.form-input::-webkit-outer-spin-button,
+.form-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.form-input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 /* ===================================
    Alerts
    =================================== */
@@ -1315,9 +1326,9 @@ img.carousel-image.active {
 }
 
 .alert-success {
-  background-color: rgba(16, 185, 129, 0.1);
-  color: var(--accent-success);
-  border-left: 4px solid var(--accent-success);
+  background-color: rgba(99, 102, 241, 0.1);
+  color: var(--primary-light);
+  border-left: 4px solid rgba(99, 102, 241, 0.3);
 }
 
 .alert-error {

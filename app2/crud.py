@@ -152,3 +152,17 @@ def perform_sorteo(rifa_id, force=False):
     rifa.winner_ticket = winner
     rifa.save()
     return winner
+
+def asignar_ganador_manual(rifa_id, ticket_number):
+    """Asignar ganador manualmente por número de ticket"""
+    try:
+        rifa = Rifa.objects.get(id=rifa_id)
+        ticket = Ticket.objects.get(rifa=rifa, number=ticket_number, confirmed=True)
+        
+        # Asignar como ganador
+        rifa.winner_ticket = ticket
+        rifa.save()
+        
+        return ticket
+    except (Rifa.DoesNotExist, Ticket.DoesNotExist):
+        return None

@@ -393,3 +393,57 @@ def sorteos(request):
         })
 
     return render(request, 'sorteos.html', {'rifas': rifas_info})
+
+def asignar_ganador_manual(request, rifa_id):
+    """Asignar ganador manualmente por número de ticket"""
+    user_id = request.session.get('user_admin_id')
+    if not user_id:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'message': 'Debe iniciar sesión primero'})
+        messages.error(request, 'Debe iniciar sesión primero')
+        return redirect('login')
+
+    if request.method == 'POST' and 'ticket_number' in request.POST:
+        ticket_number = request.POST.get('ticket_number', '').strip()
+        
+        try:
+            rifa = Rifa.objects.get(id=rifa_id)
+            ticket = Ticket.objects.get(rifa=rifa, number=ticket_number, confirmed=True)
+            
+            # Asignar como ganador
+            rifa.winner_ticket = ticket
+            rifa.save()
+            
+            # Construir respuesta
+            winner_text = f'Ticket #{ticket.number} — {ticket.participante.nombre}'
+            telefono = getattr(ticket.participante, 'telefono', None)
+            
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'ok': True, 
+                    'winner': {
+                        'id': ticket.id, 
+                        'number': ticket.number, 
+                        'nombre': ticket.participante.nombre, 
+                        'identificacion': ticket.participante.identificacion, 
+                        'telefono': telefono
+                    }, 
+                    'winner_text': winner_text, 
+                    'rifa_id': rifa_id
+                })
+            
+            messages.success(request, f'Ganador asignado manualmente: {winner_text}')
+            return redirect(f"{reverse('sorteos')}?open={rifa_id}&winner={ticket.id}")
+            
+        except Rifa.DoesNotExist:
+            message = 'Rifa no encontrada'
+        except Ticket.DoesNotExist:
+            message = 'Ticket no encontrado o no confirmado'
+        except Exception as e:
+            message = f'Error al asignar ganador: {str(e)}'
+        
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'message': message})
+        messages.error(request, message)
+    
+    return redirect(f"{reverse('sorteos')}?open={rifa_id}")

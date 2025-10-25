@@ -8,4 +8,5 @@ urlpatterns = [
     path('historial-compras/', views.historial_compras, name='historial_compras'),
     path('sorteo/<int:rifa_id>/', views.sorteo, name='sorteo'),
     path('sorteos/', views.sorteos, name='sorteos'),
+    path('asignar-ganador/<int:rifa_id>/', views.asignar_ganador_manual, name='asignar_ganador'),
 ]

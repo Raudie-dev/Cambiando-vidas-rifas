@@ -313,6 +313,13 @@ def sorteo(request, rifa_id):
 
     can_draw = (getattr(rifa, 'fecha_sorteo', None) == today)
 
+    # VERIFICACIÓN ADICIONAL: Si ya tiene ganador, no permitir otro sorteo
+    if getattr(rifa, 'winner_ticket', None) and not request.POST.get('force'):
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'message': 'Esta rifa ya tiene un ganador asignado. No se puede realizar otro sorteo.'})
+        messages.error(request, 'Esta rifa ya tiene un ganador asignado. No se puede realizar otro sorteo.')
+        return redirect(f"{reverse('sorteos')}?open={rifa_id}")
+
     # listar tickets confirmados de la rifa
     tickets = Ticket.objects.filter(rifa=rifa, confirmed=True).order_by('number')
 
@@ -334,8 +341,8 @@ def sorteo(request, rifa_id):
         winner = local_crud.perform_sorteo(rifa_id, force=force)
         if not winner:
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({'ok': False, 'message': 'No hay tickets confirmados o la rifa no existe.'})
-            messages.error(request, 'No se pudo seleccionar un ganador (falta de tickets confirmados o rifa inexistente).')
+                return JsonResponse({'ok': False, 'message': 'No hay tickets confirmados o la rifa ya tiene ganador.'})
+            messages.error(request, 'No se pudo seleccionar un ganador (falta de tickets confirmados o rifa ya tiene ganador).')
             return redirect(f"{reverse('sorteos')}?open={rifa_id}")
 
         # build a short winner descriptor to show in UI
@@ -351,7 +358,6 @@ def sorteo(request, rifa_id):
     # Legacy: the single 'sorteo.html' view is deprecated; redirect to the
     # list page which contains the inline modal.
     return redirect(f"{reverse('sorteos')}?open={rifa_id}")
-
 
 def sorteos(request):
     """Lista simple de rifas con enlace a la página de sorteo para cada una."""
@@ -408,6 +414,27 @@ def asignar_ganador_manual(request, rifa_id):
         
         try:
             rifa = Rifa.objects.get(id=rifa_id)
+            
+            # VERIFICACIÓN: Si ya tiene ganador, no permitir asignar otro
+            if getattr(rifa, 'winner_ticket', None):
+                message = 'Esta rifa ya tiene un ganador asignado. No se puede asignar otro ganador.'
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'ok': False, 'message': message})
+                messages.error(request, message)
+                return redirect(f"{reverse('sorteos')}?open={rifa_id}")
+            
+            # VERIFICACIÓN: Solo permitir en la fecha del sorteo
+            now = timezone.localtime(timezone.now())
+            today = now.date()
+            can_draw = (getattr(rifa, 'fecha_sorteo', None) == today)
+            
+            if not can_draw:
+                message = 'La asignación manual solo puede realizarse en la fecha programada del sorteo.'
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'ok': False, 'message': message})
+                messages.error(request, message)
+                return redirect(f"{reverse('sorteos')}?open={rifa_id}")
+            
             ticket = Ticket.objects.get(rifa=rifa, number=ticket_number, confirmed=True)
             
             # Asignar como ganador

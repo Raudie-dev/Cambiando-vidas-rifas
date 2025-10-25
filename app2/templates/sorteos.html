@@ -255,7 +255,7 @@
                         </button>
                       </div>
                     </div>
-                    <div class="form-text">
+                    <div class="form-text text-white">
                       Ingresa el número del ticket que deseas asignar como ganador.
                     </div>
                   </div>
@@ -353,16 +353,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
 
-      // disable submit if no tickets sold or cannot draw today
-      var doBtn = document.getElementById('sorteoDoBtn');
-      var soldCount = parseInt(vendidos, 10) || 0;
-      if (doBtn) {
+    // disable submit if no tickets sold or cannot draw today
+    var doBtn = document.getElementById('sorteoDoBtn');
+    var asignarBtn = document.getElementById('asignarGanadorBtn'); // Nueva línea
+    var soldCount = parseInt(vendidos, 10) || 0;
+
+    if (doBtn) {
         if (!canDraw || soldCount <= 0) {
-          doBtn.disabled = true;
+            doBtn.disabled = true;
         } else {
-          doBtn.disabled = false;
+            doBtn.disabled = false;
         }
-      }
+    }
+
+    // Nueva validación para el botón de asignar ganador manualmente
+    if (asignarBtn) {
+        if (!canDraw || soldCount <= 0) {
+            asignarBtn.disabled = true;
+            // Opcional: agregar tooltip o mensaje explicativo
+            asignarBtn.title = "No se puede asignar ganador: no hay tickets vendidos o la fecha no coincide";
+        } else {
+            asignarBtn.disabled = false;
+            asignarBtn.title = "Asignar ganador manualmente por número de ticket";
+        }
+    }
 
       // set form action to existing sorteo URL
       if (formEl) {

@@ -1,0 +1,5 @@
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/v7nxuelnfjtl/public_html/Cambiando-vidas-rifas
+    - /bin/git pull origin master
+    - /bin/cp -R * $DEPLOYPATH

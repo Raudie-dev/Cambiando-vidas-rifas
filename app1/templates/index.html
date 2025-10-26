@@ -74,7 +74,6 @@
         </div>
     </section>
 
-
     <!-- Rifas Section -->
     <section id="rifas" class="rifas-section">
         <div class="section-header">
@@ -86,13 +85,14 @@
 
         <div class="rifas-grid">
             {% for rifa in rifas %}
+            {% if not rifa.has_winner %}  <!-- SOLO MOSTRAR RIFAS SIN GANADOR -->
             {% with delay=forloop.counter0|add:1 %}
             <!-- Made the entire card clickable to open modal -->
             <div class="rifa-card" data-animation-delay="{{ delay }}00" data-card-id="{{ rifa.id }}" onclick="openRaffleModal('{{ rifa.id }}')">
-                {% if rifa.images.all %}
+                {% if rifa.images %}
                 <div class="rifa-image-slider">
                     <div class="slider-wrapper">
-                        {% for img in rifa.images.all %}
+                        {% for img in rifa.images %}
                         <img src="{{ img.image.url }}" alt="{{ rifa.titulo }}" class="rifa-image {% if forloop.first %}active{% endif %}">
                         {% endfor %}
                     </div>
@@ -114,7 +114,7 @@
 
                 <div class="rifa-content">
                     <h3 class="rifa-title">{{ rifa.titulo }}</h3>
-                    <p class="rifa-price">Bs. {{ rifa.precio|floatformat:2 }}</p>
+                    <p class="rifa-price">$ {{ rifa.precio|floatformat:2 }}</p>
                     <p class="rifa-description">{{ rifa.descripcion|truncatewords:15 }}</p>
                     
                     <div class="rifa-info">
@@ -123,8 +123,8 @@
                             {{ rifa.fecha_sorteo|date:"d M Y" }}
                         </div>
                         <div class="rifa-tickets">
-                            <i class="fas fa-ticket-alt"></i>
-                            {{ rifa.tickets_sold }}/{{ rifa.total_tickets }}
+                            <!-- <i class="fas fa-ticket-alt"></i> -->
+                            <!-- {{ rifa.tickets_sold }}/{{ rifa.total_tickets }} -->
                         </div>
                     </div>
 
@@ -134,7 +134,7 @@
                             <div class="progress-fill" data-progress="{{ fill_width }}"></div>
                         </div>
                         <div class="progress-text">
-                            {{ rifa.tickets_available }} tickets disponibles
+                            <!-- {{ rifa.tickets_available }} tickets disponibles -->
                         </div>
                     </div>
 
@@ -165,10 +165,11 @@
                     <span class="data-total-tickets">{{ rifa.total_tickets }}</span>
                     <span class="data-tickets-available">{{ rifa.tickets_available }}</span>
                     <span class="data-progress">{{ fill_width }}</span>
+                    <span class="data-has-winner">{{ rifa.has_winner|yesno:"true,false" }}</span>  <!-- Nuevo campo -->
                     <span class="data-url">{% url 'compra_rifa' rifa.id %}</span>
-                    {% if rifa.images.all %}
+                    {% if rifa.images %}
                     <div class="data-images">
-                        {% for img in rifa.images.all %}
+                        {% for img in rifa.images %}
                         <span class="data-image-url">{{ img.image.url }}</span>
                         {% endfor %}
                     </div>
@@ -176,6 +177,7 @@
                 </div>
             </div>
             {% endwith %}
+            {% endif %}  <!-- Cierre del if not has_winner -->
             {% empty %}
             <div class="empty-state">
                 <i class="fas fa-inbox"></i>
@@ -183,6 +185,63 @@
             </div>
             {% endfor %}
         </div>
+
+<!-- Sección para rifas finalizadas (con ganador) -->
+{% with rifas_con_ganador=rifas|dictsort:"has_winner"|dictsortreversed:"has_winner" %}
+    {% if rifas_con_ganador.0.has_winner %}
+    <div class="completed-raffles-section">
+        <div class="section-header">
+            <h2 class="section-title">Rifas Finalizadas</h2>
+            <p class="section-description">Estas rifas ya tienen ganador asignado</p>
+            <div class="divider"></div>
+        </div>
+        <div class="completed-raffles-grid">
+            {% for rifa in rifas_con_ganador %}
+            {% if rifa.has_winner %}
+            <div class="completed-raffle-card">
+                <!-- Imagen de la rifa -->
+                {% if rifa.images.first %}
+                <div class="completed-raffle-image">
+                    <img src="{{ rifa.images.first.image.url }}" alt="{{ rifa.titulo }}">
+                    <span class="winner-badge">
+                        <i class="fas fa-trophy"></i> Sorteo Realizado
+                    </span>
+                </div>
+                {% else %}
+                <div class="completed-raffle-image-placeholder">
+                    <i class="fas fa-gift"></i>
+                    <span class="winner-badge">
+                        <i class="fas fa-trophy"></i> Sorteo Realizado
+                    </span>
+                </div>
+                {% endif %}
+                
+                <!-- Contenido de la tarjeta -->
+                <div class="completed-raffle-content">
+                    <div class="completed-raffle-header">
+                        <h4>{{ rifa.titulo }}</h4>
+                    </div>
+                    <div class="completed-raffle-info">
+                        <p>
+                            <i class="fas fa-calendar-check"></i>
+                            <strong>Fecha del sorteo:</strong> {{ rifa.fecha_sorteo|date:"d M Y" }}
+                        </p>
+                        <p>
+                            <i class="fas fa-check-circle"></i>
+                            <strong>Estado:</strong> Ganador asignado
+                        </p>
+                    </div>
+                    <!-- <button class="btn-outline" onclick="viewRaffleDetails('{{ rifa.id }}')">
+                        <i class="fas fa-eye"></i> Ver Detalles
+                    </button> -->
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+{% endwith %}
     </section>
 
     <!-- Cómo Funciona Section -->
@@ -364,7 +423,7 @@
                     <div class="raffle-modal-price">
                         <i class="fas fa-tag"></i>
                         <span>Precio por ticket:</span>
-                        <strong id="raffleModalPrice">Bs. 0.00</strong>
+                        <strong id="raffleModalPrice">$ 0.00</strong>
                     </div>
                     
                     <div class="raffle-modal-date">
@@ -414,8 +473,11 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="identificacionInput{{ rifa.id }}">Identificación</label>
-                    <input type="text" id="identificacionInput{{ rifa.id }}" class="form-input" placeholder="Ingrese su identificación">
+                    <label for="identificacionInput{{ rifa.id }}">
+                        <i class="fas fa-id-card"></i>  Ingrese su número de identificación
+                    </label>
+                    <input type="text" id="identificacionInput{{ rifa.id }}" class="form-input" placeholder="Ejemplo: 12345678">
+                    <small class="form-hint text-muted">Este número se usará para verificar su participación en el sorteo.</small>
                 </div>
                 <div id="statusResult{{ rifa.id }}" class="status-result"></div>
             </div>
@@ -496,7 +558,7 @@
             return;
         }
         
-        resultDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin"></i> Buscando...</div>';
+        resultDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin"></i> Buscando tickets...</div>';
         
         let base = "{% url 'tickets_status' 0 %}";
         base = base.replace('/0/', '/' + rifaId + '/');
@@ -510,14 +572,66 @@
                     return;
                 }
                 
-                if (data.status === 'CONFIRMADO') {
-                    if (data.tickets && data.tickets.length) {
-                        resultDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle"></i> <strong>Tickets confirmados:</strong> ' + data.tickets.join(', ') + '</div>';
-                    } else {
-                        resultDiv.innerHTML = '<div class="alert alert-warning">Compra confirmada pero no se encontraron tickets asignados.</div>';
+                if (data.status === 'NO_PARTICIPANTE' || data.status === 'NO_COMPRA') {
+                    resultDiv.innerHTML = '<div class="alert alert-info">' + (data.message || 'No se encontraron compras con esta identificación') + '</div>';
+                    return;
+                }
+                
+                if (data.status === 'SUCCESS') {
+                    let html = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> 
+                            <div class="participante-info">
+                                <strong>Tickets encontrados para:</strong> 
+                                <div><p>${data.participante.nombre}</p></div>
+                            </div>
+                        </div>
+                        <div class="tickets-summary">
+                            <p><strong>Total de compras:</strong> ${data.total_compras}</p>
+                            <p><strong>Total de tickets:</strong> ${data.total_tickets}</p>
+                        </div>
+                    `;
+                    
+                    // Mostrar cada compra individualmente
+                    data.compras.forEach((compra, index) => {
+                        const ticketsText = compra.tickets.length > 0 ? 
+                            compra.tickets.join(', ') : 'Sin tickets asignados';
+                        
+                        html += `
+                            <div class="compra-item ${compra.estado === 'CONFIRMADO' ? 'compra-confirmada' : 'compra-pendiente'}">
+                                <div class="compra-header">
+                                    <strong>Compra #${index + 1}</strong>
+                                    <span class="compra-estado ${compra.estado === 'CONFIRMADO' ? 'estado-confirmado' : 'estado-pendiente'}">
+                                        ${compra.estado}
+                                    </span>
+                                </div>
+                                <div class="compra-details">
+                                    <p><strong>Fecha:</strong> ${compra.fecha_compra}</p>
+                                    <p><strong>Cantidad:</strong> ${compra.cantidad} tickets</p>
+                                    <p><strong>Método de pago:</strong> ${compra.metodo_pago}</p>
+                                    <p><strong>Referencia:</strong> ${compra.referencia}</p>
+                                    <p><strong>Monto:</strong> $ ${compra.monto_total}</p>
+                                    ${compra.tickets.length > 0 ? `
+                                        <p><strong>Tickets asignados:</strong> ${ticketsText}</p>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    // Mostrar todos los tickets juntos
+                    if (data.tickets_totales.length > 0) {
+                        html += `
+                            <div class="all-tickets-summary">
+                                <h4><i class="fas fa-ticket-alt"></i> Todos tus tickets:</h4>
+                                <div class="tickets-list">
+                                    ${data.tickets_totales.join(', ')}
+                                </div>
+                            </div>
+                        `;
                     }
-                } else if (data.status === 'NO_PARTICIPANTE' || data.status === 'NO_COMPRA') {
-                    resultDiv.innerHTML = '<div class="alert alert-info">' + (data.message || 'No se encontraron tickets con esta identificación') + '</div>';
+                    
+                    resultDiv.innerHTML = html;
                 } else {
                     resultDiv.innerHTML = '<div class="alert alert-warning">Estado: ' + (data.status || 'DESCONOCIDO') + (data.message ? ' - ' + data.message : '') + '</div>';
                 }
@@ -527,7 +641,6 @@
                 resultDiv.innerHTML = '<div class="alert alert-error">Error de conexión. Por favor intente nuevamente.</div>';
             });
     }
-
     function openRaffleModal(rifaId) {
         const modal = document.getElementById('raffleDetailModal');
         if (modal) {
@@ -545,62 +658,114 @@
         }
     }
 
-    function populateRaffleModal(rifaId) {
-        const rifaCard = document.querySelector(`[data-card-id="${rifaId}"]`);
-        if (!rifaCard) return;
+function populateRaffleModal(rifaId) {
+    const rifaCard = document.querySelector(`[data-card-id="${rifaId}"]`);
+    if (!rifaCard) return;
 
-        const data = rifaCard.querySelector('.rifa-data');
-        if (!data) return;
+    const data = rifaCard.querySelector('.rifa-data');
+    if (!data) return;
 
-        const title = data.querySelector('.data-titulo').textContent;
-        const description = data.querySelector('.data-descripcion').textContent;
-        const price = data.querySelector('.data-precio').textContent;
-        const date = data.querySelector('.data-fecha').textContent;
-        const ticketsSold = data.querySelector('.data-tickets-sold').textContent;
-        const totalTickets = data.querySelector('.data-total-tickets').textContent;
-        const ticketsAvailable = data.querySelector('.data-tickets-available').textContent;
-        const progress = data.querySelector('.data-progress').textContent;
-        const url = data.querySelector('.data-url').textContent;
-        const images = data.querySelectorAll('.data-image-url');
+    const title = data.querySelector('.data-titulo').textContent;
+    const description = data.querySelector('.data-descripcion').textContent;
+    const price = data.querySelector('.data-precio').textContent;
+    const date = data.querySelector('.data-fecha').textContent;
+    const ticketsSold = data.querySelector('.data-tickets-sold').textContent;
+    const totalTickets = data.querySelector('.data-total-tickets').textContent;
+    const ticketsAvailable = data.querySelector('.data-tickets-available').textContent;
+    const progress = data.querySelector('.data-progress').textContent;
+    const hasWinner = data.querySelector('.data-has-winner').textContent === 'true';  // Nuevo
+    const url = data.querySelector('.data-url').textContent;
+    const images = data.querySelectorAll('.data-image-url');
 
-        document.getElementById('raffleModalTitle').textContent = title;
-        document.getElementById('raffleModalDescription').textContent = description;
-        document.getElementById('raffleModalPrice').textContent = price;
-        document.getElementById('raffleModalDate').textContent = date;
-        document.getElementById('raffleModalTickets').textContent = `${ticketsSold}/${totalTickets}`;
-        document.getElementById('raffleModalAvailable').textContent = `${ticketsAvailable} tickets disponibles`;
-        document.getElementById('raffleModalProgressBar').style.width = `${progress}%`;
-        document.getElementById('raffleModalBuyBtn').href = url;
+    document.getElementById('raffleModalTitle').textContent = title;
+    document.getElementById('raffleModalDescription').textContent = description;
+    document.getElementById('raffleModalPrice').textContent = price;
+    document.getElementById('raffleModalDate').textContent = date;
+    document.getElementById('raffleModalTickets').textContent = `${ticketsSold}/${totalTickets}`;
+    document.getElementById('raffleModalAvailable').textContent = `${ticketsAvailable} tickets disponibles`;
+    document.getElementById('raffleModalProgressBar').style.width = `${progress}%`;
 
-        const carouselWrapper = document.getElementById('raffleModalCarouselWrapper');
-        carouselWrapper.innerHTML = '';
-
-        images.forEach((img, index) => {
-            const imgElement = document.createElement('img');
-            imgElement.src = img.textContent;
-            imgElement.alt = title;
-            imgElement.classList.add('carousel-image');
-            imgElement.classList.toggle('active', index === 0);
-            carouselWrapper.appendChild(imgElement);
-        });
-
-        const modalPrevBtn = document.getElementById('modalPrevBtn');
-        const modalNextBtn = document.getElementById('modalNextBtn');
-        const modalCarouselIndicators = document.getElementById('modalCarouselIndicators');
-
-        modalPrevBtn.style.display = images.length > 1 ? 'block' : 'none';
-        modalNextBtn.style.display = images.length > 1 ? 'block' : 'none';
-
-        modalCarouselIndicators.innerHTML = '';
-        images.forEach((_, index) => {
-            const indicator = document.createElement('span');
-            indicator.classList.add('carousel-indicator');
-            indicator.classList.toggle('active', index === 0);
-            indicator.addEventListener('click', () => changeModalSlide(index));
-            modalCarouselIndicators.appendChild(indicator);
-        });
+    const buyBtn = document.getElementById('raffleModalBuyBtn');
+    
+    if (hasWinner) {
+        // Deshabilitar botón de compra si hay ganador
+        buyBtn.href = '#';
+        buyBtn.classList.add('btn-disabled');
+        buyBtn.innerHTML = '<i class="fas fa-times-circle"></i> Sorteo Realizado';
+        buyBtn.onclick = function(e) {
+            e.preventDefault();
+            return false;
+        };
+        
+        // Agregar mensaje de rifa finalizada
+        const modalBody = document.querySelector('.raffle-modal-info');
+        if (!document.querySelector('.raffle-completed-message')) {
+            const completedMessage = document.createElement('div');
+            completedMessage.className = 'raffle-completed-message';
+            completedMessage.innerHTML = `
+                <i class="fas fa-trophy"></i>
+                <h4>¡Esta rifa ya tiene ganador!</h4>
+                <p>El sorteo de esta rifa ha sido realizado. Consulta nuestras otras rifas disponibles.</p>
+            `;
+            modalBody.parentNode.insertBefore(completedMessage, modalBody);
+        }
+    } else {
+        // Habilitar botón de compra normal
+        buyBtn.href = url;
+        buyBtn.classList.remove('btn-disabled');
+        buyBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Comprar Tickets';
+        buyBtn.onclick = function(e) {
+            e.preventDefault();
+            const href = this.getAttribute('href');
+            closeRaffleModal();
+            if (href && href !== '#') {
+                setTimeout(() => { window.location.href = href; }, 50);
+            }
+        };
+        
+        // Remover mensaje de rifa finalizada si existe
+        const existingMessage = document.querySelector('.raffle-completed-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
     }
 
+    // Resto del código para el carrusel de imágenes...
+    const carouselWrapper = document.getElementById('raffleModalCarouselWrapper');
+    carouselWrapper.innerHTML = '';
+
+    images.forEach((img, index) => {
+        const imgElement = document.createElement('img');
+        imgElement.src = img.textContent;
+        imgElement.alt = title;
+        imgElement.classList.add('carousel-image');
+        imgElement.classList.toggle('active', index === 0);
+        carouselWrapper.appendChild(imgElement);
+    });
+
+    const modalPrevBtn = document.getElementById('modalPrevBtn');
+    const modalNextBtn = document.getElementById('modalNextBtn');
+    const modalCarouselIndicators = document.getElementById('modalCarouselIndicators');
+
+    modalPrevBtn.style.display = images.length > 1 ? 'block' : 'none';
+    modalNextBtn.style.display = images.length > 1 ? 'block' : 'none';
+
+    modalCarouselIndicators.innerHTML = '';
+    images.forEach((_, index) => {
+        const indicator = document.createElement('span');
+        indicator.classList.add('carousel-indicator');
+        indicator.classList.toggle('active', index === 0);
+        indicator.addEventListener('click', () => changeModalSlide(index));
+        modalCarouselIndicators.appendChild(indicator);
+    });
+}
+
+// Función para ver detalles de rifas finalizadas
+function viewRaffleDetails(rifaId) {
+    // Aquí puedes implementar qué hacer cuando se hace clic en "Ver Detalles"
+    // Por ejemplo, abrir un modal con información del ganador
+    alert('Esta rifa ya ha sido sorteada. Próximamente podrás ver más detalles del ganador.');
+}
     function changeModalSlide(direction) {
         const carouselWrapper = document.getElementById('raffleModalCarouselWrapper');
         const images = carouselWrapper.querySelectorAll('.carousel-image');

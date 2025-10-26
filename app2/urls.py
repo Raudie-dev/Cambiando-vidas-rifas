@@ -9,4 +9,8 @@ urlpatterns = [
     path('sorteo/<int:rifa_id>/', views.sorteo, name='sorteo'),
     path('sorteos/', views.sorteos, name='sorteos'),
     path('asignar-ganador/<int:rifa_id>/', views.asignar_ganador_manual, name='asignar_ganador'),
+    path('reportes/', views.reportes, name='reportes'),
+    path('reportes/ventas/', views.reporte_ventas, name='reporte_ventas'),
+    path('reportes/rifas/', views.reporte_rifas, name='reporte_rifas'),
+    path('reportes/participantes/', views.reporte_participantes, name='reporte_participantes'),
 ]

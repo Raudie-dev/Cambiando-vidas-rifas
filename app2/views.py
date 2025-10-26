@@ -366,7 +366,15 @@ def sorteos(request):
         messages.error(request, 'Debe iniciar sesión primero')
         return redirect('login')
 
-    rifas_qs = Rifa.objects.all().order_by('-fecha_sorteo').prefetch_related('tickets', 'images')
+    # Obtener el parámetro de filtro
+    selected_rifa = request.GET.get('rifa_id')
+    
+    # Filtrar rifas si se seleccionó una específica
+    if selected_rifa:
+        rifas_qs = Rifa.objects.filter(id=selected_rifa).order_by('-fecha_sorteo').prefetch_related('tickets', 'images')
+    else:
+        rifas_qs = Rifa.objects.all().order_by('-fecha_sorteo').prefetch_related('tickets', 'images')
+    
     now = timezone.localtime(timezone.now())
     today = now.date()
 
@@ -398,7 +406,14 @@ def sorteos(request):
             'winner': winner,
         })
 
-    return render(request, 'sorteos.html', {'rifas': rifas_info})
+    # Obtener todas las rifas para el dropdown
+    todas_las_rifas = Rifa.objects.all().order_by('titulo')
+
+    return render(request, 'sorteos.html', {
+        'rifas': rifas_info,
+        'rifas_filtro': todas_las_rifas,  # Cambié el nombre para evitar confusión
+        'selected_rifa': selected_rifa
+    })
 
 def asignar_ganador_manual(request, rifa_id):
     """Asignar ganador manualmente por número de ticket"""
@@ -474,3 +489,126 @@ def asignar_ganador_manual(request, rifa_id):
         messages.error(request, message)
     
     return redirect(f"{reverse('sorteos')}?open={rifa_id}")
+
+# Agregar a admin2/views.py
+
+def reportes(request):
+    """Vista principal de reportes con dashboard."""
+    user_id = request.session.get('user_admin_id')
+    if not user_id:
+        messages.error(request, 'Debe iniciar sesión primero')
+        return redirect('login')
+    
+    # Obtener estadísticas del dashboard
+    stats = admin_crud.obtener_estadisticas_dashboard()
+    
+    # Obtener todas las rifas para el selector
+    rifas = Rifa.objects.all().order_by('-fecha_sorteo')
+    
+    context = {
+        'stats': stats,
+        'rifas': rifas,
+    }
+    
+    return render(request, 'reportes.html', context)
+
+
+def reporte_ventas(request):
+    """Vista de reporte de ventas con filtros."""
+    user_id = request.session.get('user_admin_id')
+    if not user_id:
+        messages.error(request, 'Debe iniciar sesión primero')
+        return redirect('login')
+    
+    # Obtener parámetros de filtro
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    rifa_id = request.GET.get('rifa_id')
+    
+    # Convertir fechas si existen
+    if fecha_inicio:
+        from datetime import datetime
+        try:
+            fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+        except ValueError:
+            fecha_inicio = None
+    
+    if fecha_fin:
+        from datetime import datetime
+        try:
+            fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+            # Incluir todo el día
+            fecha_fin = fecha_fin.replace(hour=23, minute=59, second=59)
+        except ValueError:
+            fecha_fin = None
+    
+    # Generar reporte
+    reporte = admin_crud.obtener_reporte_ventas(
+        fecha_inicio=fecha_inicio,
+        fecha_fin=fecha_fin,
+        rifa_id=rifa_id
+    )
+    
+    # Obtener rifas para el selector
+    rifas = Rifa.objects.all().order_by('-fecha_sorteo')
+    
+    context = {
+        'reporte': reporte,
+        'rifas': rifas,
+        'filtros': {
+            'fecha_inicio': request.GET.get('fecha_inicio', ''),
+            'fecha_fin': request.GET.get('fecha_fin', ''),
+            'rifa_id': rifa_id
+        }
+    }
+    
+    return render(request, 'reporte_ventas.html', context)
+
+
+def reporte_rifas(request):
+    """Vista de reporte de estado de rifas."""
+    user_id = request.session.get('user_admin_id')
+    if not user_id:
+        messages.error(request, 'Debe iniciar sesión primero')
+        return redirect('login')
+    
+    reporte = admin_crud.obtener_reporte_rifas()
+    
+    # Calcular totales
+    totales = {
+        'total_rifas': len(reporte),
+        'total_tickets': sum(r['total_tickets'] for r in reporte),
+        'total_vendidos': sum(r['tickets_vendidos'] for r in reporte),
+        'total_ingresos': sum(r['ingresos'] for r in reporte),
+        'rifas_finalizadas': sum(1 for r in reporte if r['tiene_ganador']),
+        'rifas_activas': sum(1 for r in reporte if r['estado'] == 'activa')
+    }
+    
+    context = {
+        'reporte': reporte,
+        'totales': totales
+    }
+    
+    return render(request, 'reporte_rifas.html', context)
+
+
+def reporte_participantes(request):
+    """Vista de reporte de participantes."""
+    user_id = request.session.get('user_admin_id')
+    if not user_id:
+        messages.error(request, 'Debe iniciar sesión primero')
+        return redirect('login')
+    
+    rifa_id = request.GET.get('rifa_id')
+    reporte = admin_crud.obtener_reporte_participantes(rifa_id=rifa_id)
+    
+    # Obtener rifas para el selector
+    rifas = Rifa.objects.all().order_by('-fecha_sorteo')
+    
+    context = {
+        'reporte': reporte,
+        'rifas': rifas,
+        'rifa_id': rifa_id
+    }
+    
+    return render(request, 'reporte_participantes.html', context)

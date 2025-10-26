@@ -1404,6 +1404,24 @@ img.carousel-image.active {
   transition: var(--transition);
 }
 
+.footer-credits { 
+  font-size: 14px;
+  margin-top: -10px;
+}
+
+.logo-raudie{
+  width: 25px;
+}
+
+
+.footer-credits a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+
 .footer-links a:hover {
   color: var(--primary-light);
 }

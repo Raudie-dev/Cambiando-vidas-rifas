@@ -54,6 +54,10 @@
             <i class="fas fa-history"></i>
             <span>Historial Compras</span>
           </a>
+          <a href="{% url 'reportes' %}" class="list-group-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Reportes</span>
+          </a>
         </div>
       </div>
 
@@ -137,7 +141,7 @@
                         <span class="badge bg-primary">{{ c.cantidad }} tickets</span>
                       </td>
                       <td>
-                        <span class="text-success">Bs. {{ c.monto|floatformat:2 }}</span>
+                        <span class="text-success">$. {{ c.monto|floatformat:2 }}</span>
                       </td>
                       <td>
                         <i class="fas fa-credit-card me-1 text-success"></i>
@@ -205,7 +209,7 @@
                         </div>
             <div class="col-md-6">
               <small class="text-muted d-block">Monto</small>
-              <strong>Bs. {{ c.monto|floatformat:2 }}</strong>
+              <strong>$. {{ c.monto|floatformat:2 }}</strong>
             </div>
                         <div class="col-md-6">
                             <small class="text-muted d-block">Referencia</small>

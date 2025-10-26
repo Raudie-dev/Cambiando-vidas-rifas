@@ -54,6 +54,10 @@
             <i class="fas fa-history"></i>
             <span>Historial Compras</span>
           </a>
+          <a href="{% url 'reportes' %}" class="list-group-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Reportes</span>
+          </a>
         </div>
       </div>
 
@@ -79,21 +83,34 @@
 
         <!-- Filter by Rifa -->
         <div class="mb-3">
-          <form method="get" id="filterForm">
-            <div class="row g-2 align-items-center">
-              <div class="col-auto">
-                <label class="form-label mb-0">Filtrar por Rifa:</label>
-              </div>
-              <div class="col-auto">
-                <select name="rifa_id" id="rifaFilter" class="form-select form-select-sm">
-                  <option value="">-- Todas --</option>
-                  {% for r in rifas %}
-                    <option value="{{ r.id }}" {% if selected_rifa and selected_rifa|stringformat:"s" == r.id|stringformat:"s" %}selected{% endif %}>{{ r.titulo }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-          </form>
+            <form method="get" id="filterForm">
+                <div class="row g-2 align-items-center">
+                    <div class="col-auto">
+                        <label class="form-label mb-0">Filtrar por Rifa:</label>
+                    </div>
+                    <div class="col-auto">
+                        <select name="rifa_id" id="rifaFilter" class="form-select form-select-sm">
+                            <option value="">-- Todas las rifas --</option>
+                            {% for r in rifas_filtro %}
+                                <option value="{{ r.id }}" 
+                                    {% if selected_rifa and selected_rifa|stringformat:"s" == r.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ r.titulo }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <!-- Botón de submit para cuando JavaScript no funcione -->
+                    <!-- <div class="col-auto">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Filtrar</button>
+                    </div> -->
+                    <!-- Botón para limpiar filtro -->
+                    {% if selected_rifa %}
+                    <div class="col-auto">
+                        <a href="{% url 'sorteos' %}" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </form>
         </div>
 
         <!-- Card de Sorteos (lista) -->
@@ -124,7 +141,7 @@
                     <td class="fw-semibold">{{ r.titulo }}</td>
                     <td>{{ r.fecha_sorteo }}</td>
                     <td>{{ r.tickets_sold }} / {{ r.total_tickets }}</td>
-                    <td>Bs. {{ r.precio|floatformat:2 }}</td>
+                    <td>$. {{ r.precio|floatformat:2 }}</td>
                     <td>
                       {% if r.can_draw %}
                         <span class="badge bg-success">Puede sortear hoy</span>
@@ -202,7 +219,7 @@
                         </div>
             <div class="col-md-6">
               <small class="text-muted d-block">Monto</small>
-              <strong>Bs. {{ c.monto|floatformat:2 }}</strong>
+              <strong>$. {{ c.monto|floatformat:2 }}</strong>
             </div>
                         <div class="col-md-6">
                             <small class="text-muted d-block">Referencia</small>
@@ -238,7 +255,7 @@
                   <p><strong>Rifa:</strong> <span id="sorteo_rifa_titulo"></span></p>
                   <p><strong>Fecha:</strong> <span id="sorteo_rifa_fecha"></span></p>
                   <p><strong>Tickets vendidos:</strong> <span id="sorteo_rifa_vendidos"></span></p>
-                  <p><strong>Precio:</strong> Bs. <span id="sorteo_rifa_precio"></span></p>
+                  <p><strong>Precio:</strong> $. <span id="sorteo_rifa_precio"></span></p>
                   <div id="sorteo_warning" class="alert alert-warning d-none">El sorteo solo puede ejecutarse en la fecha programada.</div>
                   
                   <!-- Nueva sección para asignación manual -->
@@ -298,7 +315,57 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function() {
+
+  function showTicketWarning(message, type = 'warning') {
+      // Crear o mostrar toast
+      const toastContainer = document.querySelector('.position-fixed.top-0.end-0.p-3');
+      if (!toastContainer) {
+          console.log('No se encontró el contenedor de toasts');
+          return;
+      }
+
+      // Mapear tipos a clases e iconos
+      const typeConfig = {
+          'warning': { 
+              class: 'text-bg-warning', 
+              icon: 'fa-exclamation-triangle' 
+          },
+          'error': { 
+              class: 'text-bg-danger', 
+              icon: 'fa-exclamation-circle' 
+          },
+          'success': { 
+              class: 'text-bg-success', 
+              icon: 'fa-check-circle' 
+          },
+          'info': { 
+              class: 'text-bg-info', 
+              icon: 'fa-info-circle' 
+          }
+      };
+      
+      const config = typeConfig[type] || typeConfig.warning;
+      
+      const toast = document.createElement('div');
+      toast.className = `toast align-items-center ${config.class} border-0 show mb-2`;
+      toast.innerHTML = `
+          <div class="d-flex">
+              <div class="toast-body">
+                  <i class="fas ${config.icon} me-2"></i> ${message}
+              </div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+          </div>
+      `;
+      toastContainer.appendChild(toast);
+      
+      // Auto-remove after 3 seconds
+      setTimeout(() => {
+          if (toast.parentNode) {
+              toast.remove();
+          }
+      }, 3000);
+  }
     // Sidebar Toggle
     var sidebarToggle = document.getElementById('sidebarToggle');
     var wrapper = document.getElementById('wrapper');
@@ -308,13 +375,37 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-  var rifaFilter = document.getElementById('rifaFilter');
-  if (rifaFilter) {
-    rifaFilter.addEventListener('change', function(){
-      var f = document.getElementById('filterForm');
-      if (f) f.submit();
-    });
-  }
+    // Filter Form handling
+    var rifaFilter = document.getElementById('rifaFilter');
+    var filterForm = document.getElementById('filterForm');
+
+    if (rifaFilter && filterForm) {
+        rifaFilter.addEventListener('change', function(){
+            console.log('Filtrando por rifa:', this.value);
+            
+            // Si el valor está vacío (Todas las rifas), enviar el formulario inmediatamente
+            if (this.value === "") {
+                filterForm.submit();
+                return;
+            }
+            
+            // Validar que el valor sea un número válido
+            var rifaId = parseInt(this.value);
+            if (!isNaN(rifaId) && rifaId > 0) {
+                filterForm.submit();
+            } else {
+                console.error('ID de rifa inválido:', this.value);
+            }
+        });
+    }
+
+    // También manejar el evento submit del formulario por si acaso
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            console.log('Formulario de filtro enviado');
+            // No prevenir el comportamiento por defecto, dejar que se envíe normalmente
+        });
+    }
 
   // Sorteo inline modal handling
   var openBtns = document.querySelectorAll('.open-sorteo-btn');
@@ -404,7 +495,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return resp.json();
       }).then(function(data){
         if (!data || !data.ok) {
-          alert(data && data.message ? data.message : 'Error inesperado al realizar el sorteo');
+          showTicketWarning(data && data.message ? data.message : 'Error inesperado al realizar el sorteo', 'error');
           return;
         }
         // update the table row for rifa
@@ -460,7 +551,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) { console.warn('No se pudo mostrar modal ganador', e); }
       }).catch(function(err){
         console.error(err);
-        alert('Error al conectar con el servidor')
+        showTicketWarning('Error al conectar con el servidor', 'error');
       });
     });
   }
@@ -527,152 +618,152 @@ document.addEventListener('DOMContentLoaded', function() {
   } catch(e) { /* ignore URL parsing errors */ }
 
   // Asignación manual de ganador
-var asignarGanadorBtn = document.getElementById('asignarGanadorBtn');
-var ticketNumberInput = document.getElementById('ticketNumberInput');
+  var asignarGanadorBtn = document.getElementById('asignarGanadorBtn');
+  var ticketNumberInput = document.getElementById('ticketNumberInput');
 
-if (asignarGanadorBtn && ticketNumberInput) {
-  asignarGanadorBtn.addEventListener('click', function() {
-    var ticketNumber = ticketNumberInput.value.trim();
-    if (!ticketNumber) {
-      alert('Por favor ingresa un número de ticket');
-      return;
-    }
-
-    var currentRifaId = null;
-    var formEl = document.getElementById('sorteoInlineForm');
-    if (formEl) {
-      // Extraer el rifa_id de la acción del formulario
-      var action = formEl.action;
-      var match = action.match(/\/sorteo\/(\d+)\//);
-      if (match && match[1]) {
-        currentRifaId = match[1];
-      }
-    }
-
-    if (!currentRifaId) {
-      alert('No se pudo identificar la rifa');
-      return;
-    }
-
-    // Deshabilitar botón temporalmente
-    var originalText = asignarGanadorBtn.innerHTML;
-    asignarGanadorBtn.disabled = true;
-    asignarGanadorBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Asignando...';
-
-    // Enviar solicitud AJAX
-    fetch('{% url "asignar_ganador" 0 %}'.replace('/0/', '/' + currentRifaId + '/'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'X-Requested-With': 'XMLHttpRequest',
-        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-      },
-      body: 'ticket_number=' + encodeURIComponent(ticketNumber)
-    })
-    .then(function(resp) {
-      return resp.json();
-    })
-    .then(function(data) {
-      // Restaurar botón
-      asignarGanadorBtn.disabled = false;
-      asignarGanadorBtn.innerHTML = originalText;
-
-      if (!data || !data.ok) {
-        alert(data && data.message ? data.message : 'Error al asignar ganador');
+  if (asignarGanadorBtn && ticketNumberInput) {
+    asignarGanadorBtn.addEventListener('click', function() {
+      var ticketNumber = ticketNumberInput.value.trim();
+      if (!ticketNumber) {
+        showTicketWarning('Por favor ingresa un número de ticket', 'warning');
         return;
       }
 
-      // Actualizar la tabla
-      var rifaId = String(data.rifa_id || '');
-      var btn = document.querySelector('.open-sorteo-btn[data-id="' + rifaId + '"]');
-      if (btn) {
-        var row = btn.closest('tr');
-        if (row) {
-          // Actualizar celda de ganador (columna 6)
-          var winnerCell = row.querySelector('td:nth-child(6)');
-          if (winnerCell) {
-            var phoneHtml = '';
-            if (data.winner && data.winner.telefono) {
-              phoneHtml = '<br><small class="text-muted">Tel: ' + (data.winner.telefono || '') + '</small>';
-            }
-            winnerCell.innerHTML = (data.winner_text || ('Ticket #' + (data.winner ? data.winner.id : ''))) + phoneHtml;
-          }
-          
-          // Actualizar celda de número de ticket (columna 7)
-          var ticketCell = row.querySelector('td:nth-child(7)');
-          if (ticketCell && data.winner) {
-            ticketCell.innerHTML = data.winner.number || '';
-          }
-          
-          // Actualizar celda de teléfono (columna 8)
-          var phoneCell = row.querySelector('td:nth-child(8)');
-          if (phoneCell && data.winner && data.winner.telefono) {
-            phoneCell.innerHTML = '<span class="text-success">' + data.winner.telefono + '</span>';
-          }
-          
-          // Actualizar atributo en el botón
-          try { 
-            btn.setAttribute('data-winner-phone', (data.winner && data.winner.telefono) ? data.winner.telefono : ''); 
-          } catch(e){}
+      var currentRifaId = null;
+      var formEl = document.getElementById('sorteoInlineForm');
+      if (formEl) {
+        // Extraer el rifa_id de la acción del formulario
+        var action = formEl.action;
+        var match = action.match(/\/sorteo\/(\d+)\//);
+        if (match && match[1]) {
+          currentRifaId = match[1];
         }
       }
 
-      // Cerrar modal inline
-      if (sorteoModal) sorteoModal.hide();
-
-      // Mostrar modal de ganador
-      try {
-        var wModalEl = document.getElementById('winnerModal');
-        if (wModalEl) {
-          var wModal = new bootstrap.Modal(wModalEl);
-          var rifaEl = document.getElementById('winnerModalRifa');
-          var ticketEl = document.getElementById('winnerModalTicket');
-          var phoneEl = document.getElementById('winnerModalPhone');
-          var wActions = document.getElementById('winnerModalPhoneActions');
-          var rifaTitle = row ? (row.querySelector('td:first-child') ? row.querySelector('td:first-child').textContent.trim() : '') : '';
-          if (rifaEl) rifaEl.textContent = rifaTitle;
-          if (ticketEl) ticketEl.textContent = data.winner_text || ('Ticket #' + data.winner.number + ' — ' + data.winner.nombre);
-          if (phoneEl) phoneEl.textContent = data.winner && data.winner.telefono ? ('Tel: ' + data.winner.telefono) : '';
-          
-          // Agregar botón de copiar teléfono
-          if (wActions) {
-            wActions.innerHTML = '';
-            if (data.winner && data.winner.telefono) {
-              var btnCopy = document.createElement('button');
-              btnCopy.type = 'button';
-              btnCopy.className = 'btn btn-sm btn-outline-secondary ms-1';
-              btnCopy.textContent = 'Copiar teléfono';
-              btnCopy.addEventListener('click', function(){ copyToClipboard(data.winner.telefono); });
-              wActions.appendChild(btnCopy);
-            }
-          }
-          wModal.show();
-        }
-      } catch(e) { 
-        console.warn('No se pudo mostrar modal ganador', e); 
+      if (!currentRifaId) {
+        showTicketWarning('No se pudo identificar la rifa', 'error');
+        return;
       }
 
-      // Limpiar input
-      ticketNumberInput.value = '';
-      
-    })
-    .catch(function(err) {
-      console.error(err);
-      // Restaurar botón
-      asignarGanadorBtn.disabled = false;
-      asignarGanadorBtn.innerHTML = originalText;
-      alert('Error de conexión al asignar ganador');
+      // Deshabilitar botón temporalmente
+      var originalText = asignarGanadorBtn.innerHTML;
+      asignarGanadorBtn.disabled = true;
+      asignarGanadorBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Asignando...';
+
+      // Enviar solicitud AJAX
+      fetch('{% url "asignar_ganador" 0 %}'.replace('/0/', '/' + currentRifaId + '/'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: 'ticket_number=' + encodeURIComponent(ticketNumber)
+      })
+      .then(function(resp) {
+        return resp.json();
+      })
+      .then(function(data) {
+        // Restaurar botón
+        asignarGanadorBtn.disabled = false;
+        asignarGanadorBtn.innerHTML = originalText;
+
+        if (!data || !data.ok) {
+          showTicketWarning(data && data.message ? data.message : 'Error al asignar ganador', 'error');
+          return;
+        }
+
+        // Actualizar la tabla
+        var rifaId = String(data.rifa_id || '');
+        var btn = document.querySelector('.open-sorteo-btn[data-id="' + rifaId + '"]');
+        if (btn) {
+          var row = btn.closest('tr');
+          if (row) {
+            // Actualizar celda de ganador (columna 6)
+            var winnerCell = row.querySelector('td:nth-child(6)');
+            if (winnerCell) {
+              var phoneHtml = '';
+              if (data.winner && data.winner.telefono) {
+                phoneHtml = '<br><small class="text-muted">Tel: ' + (data.winner.telefono || '') + '</small>';
+              }
+              winnerCell.innerHTML = (data.winner_text || ('Ticket #' + (data.winner ? data.winner.id : ''))) + phoneHtml;
+            }
+            
+            // Actualizar celda de número de ticket (columna 7)
+            var ticketCell = row.querySelector('td:nth-child(7)');
+            if (ticketCell && data.winner) {
+              ticketCell.innerHTML = data.winner.number || '';
+            }
+            
+            // Actualizar celda de teléfono (columna 8)
+            var phoneCell = row.querySelector('td:nth-child(8)');
+            if (phoneCell && data.winner && data.winner.telefono) {
+              phoneCell.innerHTML = '<span class="text-success">' + data.winner.telefono + '</span>';
+            }
+            
+            // Actualizar atributo en el botón
+            try { 
+              btn.setAttribute('data-winner-phone', (data.winner && data.winner.telefono) ? data.winner.telefono : ''); 
+            } catch(e){}
+          }
+        }
+
+        // Cerrar modal inline
+        if (sorteoModal) sorteoModal.hide();
+
+        // Mostrar modal de ganador
+        try {
+          var wModalEl = document.getElementById('winnerModal');
+          if (wModalEl) {
+            var wModal = new bootstrap.Modal(wModalEl);
+            var rifaEl = document.getElementById('winnerModalRifa');
+            var ticketEl = document.getElementById('winnerModalTicket');
+            var phoneEl = document.getElementById('winnerModalPhone');
+            var wActions = document.getElementById('winnerModalPhoneActions');
+            var rifaTitle = row ? (row.querySelector('td:first-child') ? row.querySelector('td:first-child').textContent.trim() : '') : '';
+            if (rifaEl) rifaEl.textContent = rifaTitle;
+            if (ticketEl) ticketEl.textContent = data.winner_text || ('Ticket #' + data.winner.number + ' — ' + data.winner.nombre);
+            if (phoneEl) phoneEl.textContent = data.winner && data.winner.telefono ? ('Tel: ' + data.winner.telefono) : '';
+            
+            // Agregar botón de copiar teléfono
+            if (wActions) {
+              wActions.innerHTML = '';
+              if (data.winner && data.winner.telefono) {
+                var btnCopy = document.createElement('button');
+                btnCopy.type = 'button';
+                btnCopy.className = 'btn btn-sm btn-outline-secondary ms-1';
+                btnCopy.textContent = 'Copiar teléfono';
+                btnCopy.addEventListener('click', function(){ copyToClipboard(data.winner.telefono); });
+                wActions.appendChild(btnCopy);
+              }
+            }
+            wModal.show();
+          }
+        } catch(e) { 
+          console.warn('No se pudo mostrar modal ganador', e); 
+        }
+
+        // Limpiar input
+        ticketNumberInput.value = '';
+        showTicketWarning('Ganador asignado correctamente', 'success');
+      })
+      .catch(function(err) {
+        console.error(err);
+        // Restaurar botón
+        asignarGanadorBtn.disabled = false;
+        asignarGanadorBtn.innerHTML = originalText;
+        showTicketWarning('Error de conexión al asignar ganador', 'error');
+      });
     });
-  });
 
-  // Permitir presionar Enter en el input
-  ticketNumberInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      asignarGanadorBtn.click();
-    }
-  });
-}
+    // Permitir presionar Enter en el input
+    ticketNumberInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        asignarGanadorBtn.click();
+      }
+    });
+  }
   // table copy buttons
   try {
     document.querySelectorAll('.btn-copy-phone').forEach(function(b){
@@ -688,7 +779,7 @@ if (asignarGanadorBtn && ticketNumberInput) {
     if (!text) return;
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function(){
-        alert('Teléfono copiado: ' + text);
+        showTicketWarning('Teléfono copiado: ' + text, 'success');
       }, function(){
         fallbackCopy(text);
       });
@@ -705,12 +796,18 @@ if (asignarGanadorBtn && ticketNumberInput) {
       ta.select();
       document.execCommand('copy');
       ta.remove();
-      alert('Teléfono copiado: ' + text);
+      showTicketWarning('Teléfono copiado: ' + text, 'success');
     } catch(e) {
-      alert('No se pudo copiar teléfono');
+      showTicketWarning('No se pudo copiar teléfono', 'error');
     }
   }
 });
 </script>
+    <!-- Toast Container para mensajes dinámicos -->
+    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 3000;">
+      <!-- Los toasts se crearán dinámicamente con JavaScript -->
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

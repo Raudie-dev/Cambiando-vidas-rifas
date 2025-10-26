@@ -138,4 +138,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SESSION_COOKIE_AGE = 180  # 3 minutes
 SESSION_SAVE_EVERY_REQUEST = True
 
-CSRF_TRUSTED_ORIGINS = ['https://04c3925fdca1.ngrok-free.app']
+CSRF_TRUSTED_ORIGINS = ['https://creating-philips-collectibles-optics.trycloudflare.com']

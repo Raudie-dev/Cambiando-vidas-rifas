@@ -2081,3 +2081,788 @@ img.carousel-image.active {
 .visible {
   display: block;
 }
+
+/* Estilos para la visualización de múltiples compras - Tema Oscuro */
+.compra-item {
+    border: 1px solid #444;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background: linear-gradient(145deg, #2a2a2a, #333);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.compra-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    border-color: #555;
+}
+
+.compra-confirmada {
+    border-left: 4px solid #10b981;
+    background: linear-gradient(145deg, #1e3a2a, #2d4a3a);
+}
+
+.compra-pendiente {
+    border-left: 4px solid #f59e0b;
+    background: linear-gradient(145deg, #3a2e1e, #4a3f2d);
+}
+
+.compra-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #444;
+}
+
+.compra-header strong {
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.compra-estado {
+    padding: 6px 16px;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.estado-confirmado {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    border: 1px solid #34d399;
+}
+
+.estado-pendiente {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #ffffff;
+    border: 1px solid #fbbf24;
+}
+
+.compra-details {
+    color: #e5e7eb;
+}
+
+.compra-details p {
+    margin: 8px 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.compra-details strong {
+    color: #d1d5db;
+    font-weight: 600;
+}
+
+.tickets-summary {
+    background: linear-gradient(135deg, #1e3a2a, #2d4a3a);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #374151;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.tickets-summary p {
+    color: #e5e7eb;
+    margin: 8px 0;
+    font-size: 1rem;
+}
+
+.tickets-summary strong {
+    color: #10b981;
+}
+
+.all-tickets-summary {
+    background: linear-gradient(135deg, #3a2e1e, #4a3f2d);
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 20px;
+    border: 1px solid #374151;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.all-tickets-summary h4 {
+    color: #fbbf24;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.all-tickets-summary h4 i {
+    font-size: 1.2rem;
+}
+
+.tickets-list {
+    font-family: 'Courier New', monospace;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 12px;
+    color: #e5e7eb;
+    border: 1px solid #374151;
+    font-weight: 600;
+    /* Se eliminaron: max-height y overflow-y */
+    word-wrap: break-word;
+    line-height: 1.5;
+}
+
+/* Alertas mejoradas para tema oscuro */
+.alert {
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #1e3a2a, #2d4a3a);
+    color: #10b981;
+    border-color: #10b981;
+}
+
+.alert-success p {
+    color: #e5e7eb;
+    margin: 8px 0;
+    font-size: 1rem;
+}
+
+.alert-error {
+    background: linear-gradient(135deg, #3a1e1e, #4a2d2d);
+    color: #ef4444;
+    border-color: #ef4444;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #1e2a3a, #2d3a4a);
+    color: #60a5fa;
+    border-color: #60a5fa;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #3a2e1e, #4a3f2d);
+    color: #f59e0b;
+    border-color: #f59e0b;
+}
+
+.alert i {
+    margin-right: 10px;
+    font-size: 1.1rem;
+}
+
+/* Mejoras adicionales para el modal en tema oscuro */
+.modal-container .form-input {
+    background: #374151;
+    border: 1px solid #4b5563;
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.modal-container .form-input:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.modal-container .form-input::placeholder {
+    color: #9ca3af;
+}
+
+.modal-container label {
+    color: #d1d5db;
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* Animaciones suaves */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.compra-item,
+.tickets-summary,
+.all-tickets-summary,
+.alert {
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .compra-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .compra-estado {
+        align-self: flex-start;
+    }
+    
+    .compra-item {
+        padding: 15px;
+    }
+    
+    .tickets-list {
+        font-size: 0.9rem;
+        padding: 12px;
+    }
+}
+
+/* Efectos de brillo para elementos interactivos */
+.compra-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.compra-item:hover::before {
+    opacity: 1;
+}
+
+/* Estilos para rifas finalizadas */
+.completed-raffles-section {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 2px solid #e9ecef;
+}
+
+.completed-raffles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.completed-raffle-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.completed-raffle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.completed-raffle-header h4 {
+    margin: 0;
+    color: #495057;
+    font-size: 1.1rem;
+}
+
+.winner-badge {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.completed-raffle-info {
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+
+.completed-raffle-info p {
+    margin: 0.5rem 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.completed-raffle-info strong {
+    color: #495057;
+}
+
+/* ===================================
+   Estilos para Rifas Finalizadas
+   =================================== */
+
+/* Sección principal de rifas finalizadas */
+.completed-raffles-section {
+    margin-top: 4rem;
+    padding-top: 3rem;
+    border-top: 1px solid var(--dark-border);
+}
+
+.completed-raffles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--spacing-xl);
+    margin-top: 2rem;
+}
+
+/* Tarjeta de rifa finalizada */
+.completed-raffle-card {
+    background: linear-gradient(145deg, var(--dark-surface), #2d2d2d);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 1px solid var(--dark-border);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: var(--transition);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.completed-raffle-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-success), var(--secondary));
+    opacity: 0.8;
+    z-index: 1;
+}
+
+.completed-raffle-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    border-color: var(--accent-success);
+}
+
+/* Imagen de la rifa finalizada */
+.completed-raffle-image {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+    background-color: var(--dark-bg);
+}
+
+.completed-raffle-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.completed-raffle-card:hover .completed-raffle-image img {
+    transform: scale(1.05);
+}
+
+/* Overlay de estado completado */
+.completed-raffle-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+    pointer-events: none;
+}
+
+/* Badge sobre la imagen */
+.completed-raffle-image .winner-badge {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    z-index: 2;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Contenido de la tarjeta */
+.completed-raffle-content {
+    padding: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    flex: 1;
+}
+
+/* Header de la tarjeta */
+.completed-raffle-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.completed-raffle-header h4 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+/* Badge de ganador (cuando no está sobre la imagen) */
+.winner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--accent-success), #059669);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    width: fit-content;
+}
+
+.winner-badge i {
+    font-size: 1rem;
+}
+
+/* Información de la rifa finalizada */
+.completed-raffle-info {
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    flex: 1;
+}
+
+.completed-raffle-info p {
+    margin: var(--spacing-sm) 0;
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.completed-raffle-info p:first-child {
+    margin-top: 0;
+}
+
+.completed-raffle-info p:last-child {
+    margin-bottom: 0;
+}
+
+.completed-raffle-info strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.completed-raffle-info p i {
+    color: var(--primary);
+    font-size: 1rem;
+    min-width: 20px;
+}
+
+/* Botón de ver detalles */
+.completed-raffle-card .btn-outline {
+    width: 100%;
+    justify-content: center;
+    padding: 0.875rem 1.5rem;
+    font-weight: 600;
+    border-width: 2px;
+    transition: var(--transition);
+}
+
+.completed-raffle-card .btn-outline:hover {
+    background-color: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(241, 90, 41, 0.3);
+}
+
+/* Placeholder cuando no hay imagen */
+.completed-raffle-image-placeholder {
+    width: 100%;
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-primary);
+    color: white;
+    font-size: 3.5rem;
+    position: relative;
+}
+
+.completed-raffle-image-placeholder::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+.completed-raffle-image-placeholder i {
+    z-index: 1;
+    opacity: 0.7;
+}
+
+/* ===================================
+   Modal - Rifas Completadas
+   =================================== */
+
+/* Mensaje de rifa completada en el modal */
+.raffle-completed-message {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+    border: 2px solid rgba(16, 185, 129, 0.3);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.raffle-completed-message::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-success), var(--secondary));
+}
+
+.raffle-completed-message i {
+    color: var(--accent-success);
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+    display: block;
+    animation: trophy-bounce 2s ease-in-out infinite;
+}
+
+@keyframes trophy-bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.raffle-completed-message h4 {
+    color: var(--text-primary);
+    margin: var(--spacing-md) 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.raffle-completed-message p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+/* Botón deshabilitado en el modal */
+.btn-disabled {
+    background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+    border-color: #6c757d !important;
+    cursor: not-allowed !important;
+    opacity: 0.7;
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.btn-disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* ===================================
+   Responsive - Rifas Finalizadas
+   =================================== */
+
+@media (max-width: 768px) {
+    .completed-raffles-section {
+        margin-top: 3rem;
+        padding-top: 2rem;
+    }
+
+    .completed-raffles-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+
+    .completed-raffle-image {
+        height: 200px;
+    }
+
+    .completed-raffle-content {
+        padding: var(--spacing-lg);
+    }
+
+    .completed-raffle-header h4 {
+        font-size: 1.125rem;
+    }
+
+    .raffle-completed-message {
+        padding: var(--spacing-lg);
+    }
+
+    .raffle-completed-message i {
+        font-size: 2rem;
+    }
+
+    .raffle-completed-message h4 {
+        font-size: 1.125rem;
+    }
+
+    .completed-raffle-image .winner-badge {
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .completed-raffle-image {
+        height: 180px;
+    }
+
+    .completed-raffle-content {
+        padding: var(--spacing-md);
+        gap: var(--spacing-md);
+    }
+
+    .completed-raffle-info {
+        padding: var(--spacing-md);
+    }
+
+    .completed-raffle-image-placeholder {
+        font-size: 2.5rem;
+        height: 180px;
+    }
+}
+
+/* ===================================
+   Rifas Finalizadas - Correcciones específicas
+   =================================== */
+
+/* Contenedor de imagen para rifas finalizadas - MISMA ALTURA QUE RIFAS ACTIVAS */
+.completed-raffle-image {
+    position: relative;
+    width: 100%;
+    height: 460px; /* Misma altura que .rifa-image-slider */
+    overflow: hidden;
+    background-color: var(--dark-bg);
+}
+
+.completed-raffle-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Igual que .rifa-image */
+}
+
+/* Placeholder para rifas sin imagen - MISMA ALTURA */
+.completed-raffle-image-placeholder {
+    position: relative;
+    width: 100%;
+    height: 460px; /* Misma altura que .rifa-image-placeholder */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-primary);
+    color: white;
+    font-size: 4rem; /* Igual que .rifa-image-placeholder */
+}
+
+.completed-raffle-image-placeholder .fas.fa-gift {
+    opacity: 0.8;
+}
+
+/* Badge para rifas finalizadas - POSICIÓN ABSOLUTA EN AMBOS CONTENEDORES */
+.completed-raffle-image .winner-badge,
+.completed-raffle-image-placeholder .winner-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: linear-gradient(135deg, var(--accent-success), var(--secondary));
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-md);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.winner-badge i {
+    font-size: 0.9rem;
+}
+
+/* ===================================
+   Responsive - Rifas Finalizadas
+   =================================== */
+
+@media (max-width: 768px) {
+    .completed-raffle-image,
+    .completed-raffle-image-placeholder {
+        height: 300px; /* Ajuste proporcional para móviles */
+    }
+
+    .completed-raffle-image .winner-badge,
+    .completed-raffle-image-placeholder .winner-badge {
+        top: 0.75rem;
+        right: 0.75rem;
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .completed-raffle-image,
+    .completed-raffle-image-placeholder {
+        height: 250px; /* Ajuste proporcional para móviles pequeños */
+    }
+
+    .completed-raffle-image-placeholder {
+        font-size: 3rem;
+    }
+
+    .completed-raffle-image .winner-badge,
+    .completed-raffle-image-placeholder .winner-badge {
+        top: 0.5rem;
+        right: 0.5rem;
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
+    }
+}

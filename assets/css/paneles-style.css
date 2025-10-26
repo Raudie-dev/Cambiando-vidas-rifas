@@ -1145,3 +1145,63 @@ small {
 .table-responsive::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
 }
+/* ===================================
+   Sidebar Responsive Behavior
+   =================================== */
+
+/* Sidebar oculto por defecto en móvil */
+@media (max-width: 768px) {
+    #wrapper:not(.toggled) #sidebar-wrapper {
+        transform: translateX(-100%);
+    }
+    
+    #wrapper.toggled #sidebar-wrapper {
+        transform: translateX(0);
+    }
+    
+    #sidebar-wrapper {
+        transition: transform 0.3s ease-in-out;
+        position: fixed;
+        z-index: 1040;
+        height: 100vh;
+        overflow-y: auto;
+    }
+    
+    #page-content-wrapper {
+        width: 100%;
+    }
+}
+
+/* Sidebar visible por defecto en desktop */
+@media (min-width: 769px) {
+    #wrapper:not(.toggled) #sidebar-wrapper {
+        transform: translateX(0);
+    }
+    
+    #wrapper.toggled #sidebar-wrapper {
+        transform: translateX(-100%);
+    }
+    
+    #sidebar-wrapper {
+        transition: transform 0.3s ease-in-out;
+        position: relative;
+    }
+}
+
+/* Overlay para móvil cuando el sidebar está abierto */
+@media (max-width: 768px) {
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1035;
+    }
+    
+    #wrapper.toggled .sidebar-overlay {
+        display: block;
+    }
+}

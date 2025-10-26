@@ -42,7 +42,7 @@
                         <i class="fas fa-ticket-alt"></i>
                         <div>
                             <span class="info-label">Valor Boleto</span>
-                            <span class="info-value">Bs. {{ rifa.precio|floatformat:2 }}</span>
+                            <span class="info-value">$. {{ rifa.precio|floatformat:2 }}</span>
                         </div>
                     </div>
                 </div>
@@ -109,8 +109,8 @@
             <div class="purchase-section">
                 <div class="payment-summary">
                     <div class="summary-row">
-                        <span>Monto a pagar (Bs.)</span>
-                        <span id="montoBs" class="summary-value">Bs. {{ rifa.precio|floatformat:2 }}</span>
+                        <span>Monto a pagar ($.)</span>
+                        <span id="montoBs" class="summary-value">$. {{ rifa.precio|floatformat:2 }}</span>
                         <input type="hidden" name="total" id="totalInput" value="{{ rifa.precio|floatformat:2 }}">
                     </div>
                     <div class="summary-row">
@@ -178,17 +178,17 @@
 
                 <div class="form-group">
                     <label for="correoInput">Correo</label>
-                    <input type="email" id="correoInput" name="email" class="form-input" placeholder="Escriba su correo de uso diario">
+                    <input type="email" id="correoInput" name="email" class="form-input" placeholder="Escriba su correo de uso diario" required>
                 </div>
 
                 <div class="form-group mb-3">
                     <label for="telefono">Teléfono</label>
-                    <input type="number" id="telefono" name="telefono" class="form-input" value="{{ request.POST.telefono|default:'' }}">
+                    <input type="number" id="telefono" name="telefono" class="form-input" value="{{ request.POST.telefono|default:'' }}" required>
                 </div>
 
                 <div class="form-group">
                     <label for="comprobanteInput">Capture Bancario</label>
-                    <input type="file" id="comprobanteInput" name="comprobante" class="form-input-file" accept="image/*">
+                    <input type="file" id="comprobanteInput" name="comprobante" class="form-input-file" accept="image/*" required>
                     <label for="comprobanteInput" class="file-input-label">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <span>Seleccionar archivo</span>
@@ -200,7 +200,7 @@
                     <input type="text" id="referenciaInput" name="referencia" class="form-input"
                            placeholder="Últimos 6 dígitos de la referencia"
                            inputmode="numeric" maxlength="6" pattern="\d{6}" title="Ingrese exactamente 6 dígitos"
-                           oninput="this.value = this.value.replace(/\D/g,'').slice(0,6)">
+                           oninput="this.value = this.value.replace(/\D/g,'').slice(0,6)" required>
                 </div>
             </div>
 
@@ -326,7 +326,7 @@
         function updateTotal() {
             const qty = parseInt(cantidadInput.value) || 0;
             const total = (isNaN(precioRifa) ? 0 : precioRifa) * qty;
-            if (montoBsEl) montoBsEl.textContent = 'Bs. ' + total.toFixed(2);
+            if (montoBsEl) montoBsEl.textContent = '$. ' + total.toFixed(2);
             if (totalInput) totalInput.value = total.toFixed(2);
         }
 

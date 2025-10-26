@@ -166,3 +166,178 @@ def asignar_ganador_manual(rifa_id, ticket_number):
         return ticket
     except (Rifa.DoesNotExist, Ticket.DoesNotExist):
         return None
+    
+# Agregar al final de admin2/crud.py
+
+from django.db.models import Count, Sum, Q, Avg
+from django.utils import timezone
+from datetime import timedelta
+
+def obtener_reporte_ventas(fecha_inicio=None, fecha_fin=None, rifa_id=None):
+    """Genera reporte de ventas con métricas clave."""
+    qs = Compra.objects.filter(estado='CONFIRMADO')
+    
+    if fecha_inicio:
+        qs = qs.filter(creado_en__gte=fecha_inicio)
+    if fecha_fin:
+        qs = qs.filter(creado_en__lte=fecha_fin)
+    if rifa_id:
+        qs = qs.filter(rifa_id=rifa_id)
+    
+    # Métricas generales
+    total_ventas = qs.aggregate(
+        total_compras=Count('id'),
+        total_tickets=Sum('cantidad'),
+        total_ingresos=Sum('monto')
+    )
+    
+    # Ventas por rifa
+    ventas_por_rifa = qs.values(
+        'rifa__titulo',
+        'rifa__id'
+    ).annotate(
+        compras=Count('id'),
+        tickets_vendidos=Sum('cantidad'),
+        ingresos=Sum('monto')
+    ).order_by('-ingresos')
+    
+    # Ventas por método de pago
+    ventas_por_metodo = qs.values('metodo_pago').annotate(
+        compras=Count('id'),
+        ingresos=Sum('monto')
+    ).order_by('-ingresos')
+    
+    return {
+        'totales': total_ventas,
+        'por_rifa': list(ventas_por_rifa),
+        'por_metodo': list(ventas_por_metodo),
+        'periodo': {
+            'inicio': fecha_inicio,
+            'fin': fecha_fin
+        }
+    }
+
+
+def obtener_reporte_rifas():
+    """Genera reporte del estado de todas las rifas."""
+    rifas = Rifa.objects.all().prefetch_related('tickets')
+    
+    reporte = []
+    for rifa in rifas:
+        tickets_vendidos = rifa.tickets.filter(confirmed=True).count()
+        tickets_pendientes = rifa.tickets.filter(confirmed=False).count()
+        ingresos = Compra.objects.filter(
+            rifa=rifa, 
+            estado='CONFIRMADO'
+        ).aggregate(total=Sum('monto'))['total'] or 0
+        
+        porcentaje_venta = (tickets_vendidos / rifa.total_tickets * 100) if rifa.total_tickets > 0 else 0
+        
+        estado = 'finalizada' if getattr(rifa, 'winner_ticket', None) else (
+            'activa' if timezone.now().date() <= rifa.fecha_sorteo else 'pendiente_sorteo'
+        )
+        
+        reporte.append({
+            'id': rifa.id,
+            'titulo': rifa.titulo,
+            'fecha_sorteo': rifa.fecha_sorteo,
+            'total_tickets': rifa.total_tickets,
+            'tickets_vendidos': tickets_vendidos,
+            'tickets_pendientes': tickets_pendientes,
+            'porcentaje_venta': round(porcentaje_venta, 2),
+            'ingresos': float(ingresos),
+            'precio_ticket': float(rifa.precio),
+            'estado': estado,
+            'tiene_ganador': getattr(rifa, 'winner_ticket', None) is not None
+        })
+    
+    return reporte
+
+
+def obtener_reporte_participantes(rifa_id=None):
+    """Genera reporte de participantes."""
+    from app1.models import Participante, Ticket
+    
+    qs = Ticket.objects.filter(confirmed=True).select_related('participante', 'rifa')
+    
+    if rifa_id:
+        qs = qs.filter(rifa_id=rifa_id)
+    
+    # Participantes con más tickets
+    top_participantes = qs.values(
+        'participante__nombre',
+        'participante__identificacion',
+        'participante__telefono'
+    ).annotate(
+        total_tickets=Count('id'),
+        rifas_participadas=Count('rifa', distinct=True)
+    ).order_by('-total_tickets')[:10]
+    
+    return {
+        'top_participantes': list(top_participantes),
+        'total_participantes': qs.values('participante').distinct().count()
+    }
+
+
+def obtener_estadisticas_dashboard():
+    """Genera estadísticas para el dashboard principal."""
+    now = timezone.now()
+    hoy = now.date()
+    hace_7_dias = now - timedelta(days=7)
+    hace_30_dias = now - timedelta(days=30)
+    
+    # Rifas activas
+    rifas_activas = Rifa.objects.filter(
+        fecha_sorteo__gte=hoy
+    ).exclude(
+        winner_ticket__isnull=False
+    ).count()
+    
+    # Ventas hoy
+    ventas_hoy = Compra.objects.filter(
+        estado='CONFIRMADO',
+        creado_en__date=hoy
+    ).aggregate(
+        total=Count('id'),
+        ingresos=Sum('monto')
+    )
+    
+    # Ventas últimos 7 días
+    ventas_semana = Compra.objects.filter(
+        estado='CONFIRMADO',
+        creado_en__gte=hace_7_dias
+    ).aggregate(
+        total=Count('id'),
+        ingresos=Sum('monto'),
+        tickets=Sum('cantidad')
+    )
+    
+    # Ventas últimos 30 días
+    ventas_mes = Compra.objects.filter(
+        estado='CONFIRMADO',
+        creado_en__gte=hace_30_dias
+    ).aggregate(
+        total=Count('id'),
+        ingresos=Sum('monto'),
+        tickets=Sum('cantidad')
+    )
+    
+    # Compras pendientes
+    compras_pendientes = Compra.objects.filter(estado='PENDIENTE').count()
+    
+    # Próximos sorteos
+    proximos_sorteos = Rifa.objects.filter(
+        fecha_sorteo__gte=hoy,
+        fecha_sorteo__lte=hoy + timedelta(days=7)
+    ).exclude(
+        winner_ticket__isnull=False
+    ).count()
+    
+    return {
+        'rifas_activas': rifas_activas,
+        'ventas_hoy': ventas_hoy,
+        'ventas_semana': ventas_semana,
+        'ventas_mes': ventas_mes,
+        'compras_pendientes': compras_pendientes,
+        'proximos_sorteos': proximos_sorteos
+    }

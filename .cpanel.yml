@@ -1,5 +1,16 @@
+---
 deployment:
   tasks:
+    # Ruta de despliegue
     - export DEPLOYPATH=/home/v7nxuelnfjtl/public_html/Cambiando-vidas-rifas
-    - /bin/git pull origin master
-    - /bin/cp -R * $DEPLOYPATH
+
+    # Copiar archivos principales, excluyendo .git
+    - /bin/rsync -av --exclude '.git' --exclude '.gitignore' ./ $DEPLOYPATH
+
+    # Entrar al entorno y ejecutar comandos Django
+    - cd $DEPLOYPATH
+    - /opt/alt/python310/bin/python3 manage.py collectstatic --noinput
+    - /opt/alt/python310/bin/python3 manage.py migrate --noinput
+
+    # Reiniciar Passenger (para que tome los cambios)
+    - touch $DEPLOYPATH/tmp/restart.txt

@@ -1265,6 +1265,7 @@ img.carousel-image.active {
 }
 
 
+
 /* ===================================
    Forms
    =================================== */
@@ -1406,6 +1407,22 @@ img.carousel-image.active {
 
 .footer-links a:hover {
   color: var(--primary-light);
+}
+
+.footer-credits { 
+  font-size: 14px;
+  margin-top: -10px;
+}
+
+.footer-credits a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.raudie-logo {
+  width: 26px;
 }
 
 .footer-bottom {

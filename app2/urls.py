@@ -13,4 +13,5 @@ urlpatterns = [
     path('reportes/ventas/', views.reporte_ventas, name='reporte_ventas'),
     path('reportes/rifas/', views.reporte_rifas, name='reporte_rifas'),
     path('reportes/participantes/', views.reporte_participantes, name='reporte_participantes'),
+    path('logout/', views.logout, name='logout'),
 ]

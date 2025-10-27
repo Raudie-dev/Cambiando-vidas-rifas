@@ -612,3 +612,7 @@ def reporte_participantes(request):
     }
     
     return render(request, 'reporte_participantes.html', context)
+
+def logout(request):
+    request.session.flush()
+    return redirect('index')

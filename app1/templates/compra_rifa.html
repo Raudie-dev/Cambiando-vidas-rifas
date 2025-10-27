@@ -113,13 +113,9 @@
                         <span id="montoBs" class="summary-value">$. {{ rifa.precio|floatformat:2 }}</span>
                         <input type="hidden" name="total" id="totalInput" value="{{ rifa.precio|floatformat:2 }}">
                     </div>
-                    <div class="summary-row">
-                        <span>Método de Pago</span>
-                        <span id="metodoPagoText" class="summary-value">- - - - - -</span>
-                    </div>
                 </div>
             </div>
-
+            
             <!-- Payment Methods -->
             <div class="purchase-section">
                 <h3 class="section-subtitle">
@@ -146,14 +142,15 @@
                     </label>
                     {% endfor %}
                 </div>
-
+                <div class="summary-row">
+                    <span>Seleccione un Metodo para registrar el pago</span>
+                    <span id="metodoPagoText" class="summary-value">- - - - - -</span>
+                </div>
+                
                 <!-- Payment Details -->
                 <div id="paymentDetails" class="payment-details"></div>
                 
                 <div id="paymentCopyActions" class="copy-actions" style="display: none;">
-                    <button type="button" id="copyAllBtn" class="btn-copy">
-                        <i class="fas fa-copy"></i> Copiar Datos
-                    </button>
                     <span id="copyFeedback" class="copy-feedback" style="display: none;">
                         <i class="fas fa-check"></i> Copiado
                     </span>
@@ -288,7 +285,7 @@
         const paymentRadios = document.querySelectorAll('input[name="metodo_pago"]');
         const detailsDiv = document.getElementById('paymentDetails');
         const copyActions = document.getElementById('paymentCopyActions');
-        const copyAllBtn = document.getElementById('copyAllBtn');
+    // copyAllBtn removed; per-field buttons handle copying now
         const copyFeedback = document.getElementById('copyFeedback');
         const metodoPagoText = document.getElementById('metodoPagoText');
         const fileInput = document.getElementById('comprobanteInput');
@@ -363,6 +360,16 @@
         }
 
         // Payment method selection
+        // helper to escape attribute values when inserting into data-value
+        function escapeHtmlAttr(s) {
+            if (s === null || s === undefined) return '';
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
         function renderDetails(metodoId) {
             const m = window._paymentMethods.find(x => String(x.id) === String(metodoId));
             if (!m) {
@@ -378,9 +385,13 @@
             if (m.fields && m.fields.length) {
                 html += '<div class="payment-info-card">';
                 m.fields.forEach((f, idx) => {
+                    // show label and value, include a copy button that uses the .btn-copy style and label
                     html += '<div class="payment-info-row">'
                         + '<div class="payment-info-label">' + f.field_name + '</div>'
                         + '<div class="payment-info-value">' + f.field_value + '</div>'
+                        + '<button type="button" class="copy-field-btn btn-copy" data-value="' + escapeHtmlAttr(f.field_value) + '" title="Copiar">'
+                        + '<i class="fas fa-copy"></i> Copiar'
+                        + '</button>'
                         + '</div>';
                 });
                 html += '</div>';
@@ -406,25 +417,18 @@
         const checked = document.querySelector('input[name="metodo_pago"]:checked');
         if (checked) renderDetails(checked.dataset.metodoId);
 
-        // Copy all details
-        copyAllBtn.addEventListener('click', function() {
-            const checked = document.querySelector('input[name="metodo_pago"]:checked');
-            if (!checked) return;
-            
-            const m = window._paymentMethods.find(x => String(x.id) === String(checked.dataset.metodoId));
-            if (!m) return;
-            
-            let text = m.nombre + '\n';
-            if (m.fields && m.fields.length) {
-                m.fields.forEach(f => { text += f.field_name + ': ' + f.field_value + '\n'; });
-            } else if (m.detalles) {
-                text += m.detalles + '\n';
-            }
-            
-            copyToClipboard(text, function(success) {
+        // copy-all removed; per-field buttons handle copying now
+
+        // Delegate clicks on per-field copy buttons inside detailsDiv
+        detailsDiv.addEventListener('click', function(e) {
+            const btn = e.target.closest && e.target.closest('.copy-field-btn');
+            if (!btn) return;
+            const value = btn.getAttribute('data-value') || '';
+            if (!value) return;
+            copyToClipboard(value, function(success) {
                 if (success) {
                     copyFeedback.style.display = 'inline-flex';
-                    setTimeout(() => { copyFeedback.style.display = 'none'; }, 2000);
+                    setTimeout(() => { copyFeedback.style.display = 'none'; }, 1500);
                 }
             });
         });

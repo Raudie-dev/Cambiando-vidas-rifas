@@ -2035,6 +2035,11 @@ img.carousel-image.active {
     font-size: 2rem;
   }
 
+  .btn-copy{
+    padding: 0.45rem;
+    font-size: 0.75rem;
+  }
+
   .prize-image {
     height: 200px;
   }

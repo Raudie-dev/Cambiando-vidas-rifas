@@ -140,8 +140,8 @@
                     <!-- Updated footer buttons to prevent modal opening and added data attributes for modal -->
                     <div class="rifa-footer">
                         {% if rifa.tickets_available > 0 %}
-                        <a href="{% url 'compra_rifa' rifa.id %}" class="btn-primary" style="flex: 1;" onclick="event.preventDefault(); event.stopPropagation(); openRaffleModal('{{ rifa.id }}');">
-                            <i class="fas fa-shopping-cart"></i> Comprar
+                        <a href="#" id="raffleModalBuyBtn" class="btn-primary">
+                           <i class="fas fa-shopping-cart"></i> Comprar Tickets
                         </a>
                         <button class="btn-secondary" onclick="event.stopPropagation(); openConfirmModal('{{ rifa.id }}')">
                             <i class="fas fa-check-circle"></i> Consultar Ticket

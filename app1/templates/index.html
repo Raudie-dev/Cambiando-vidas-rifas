@@ -10,6 +10,214 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <style>
+        /* Social Media Section Styles */
+.social-media-section {
+  padding: 5rem 2rem;
+}
+
+.social-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.social-media-card {
+  background:   white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.social-media-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.social-media-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.social-media-header i {
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.social-media-header i.fa-tiktok {
+  background: linear-gradient(135deg, #000000 0%, #ee1d52 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.social-media-header i.fa-instagram {
+  background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.social-media-header h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.social-media-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.instagram-preview {
+  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  border-radius: 12px;
+  padding: 2rem;
+  width: 100%;
+}
+
+.instagram-placeholder {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.instagram-placeholder i {
+  font-size: 4rem;
+  background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.instagram-placeholder h4 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.instagram-placeholder p {
+  color: #666;
+  line-height: 1.6;
+  max-width: 400px;
+}
+
+.instagram-stats {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat-item i {
+  font-size: 1.5rem;
+  color: #667eea;
+}
+
+.stat-item span {
+  font-size: 0.875rem;
+  color: #666;
+  text-align: center;
+}
+
+.social-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.social-btn i {
+  font-size: 1.25rem;
+}
+
+/* TikTok embed responsive */
+.tiktok-embed {
+  margin: 0 auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .social-media-section {
+    padding: 3rem 1rem;
+  }
+
+  .social-media-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 1rem 0;
+  }
+
+  .social-media-card {
+    padding: 1.5rem;
+  }
+
+  .social-media-header h3 {
+    font-size: 1.5rem;
+  }
+
+  .instagram-stats {
+    gap: 1rem;
+  }
+
+  .stat-item span {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .social-media-header i {
+    font-size: 2rem;
+  }
+
+  .instagram-placeholder i {
+    font-size: 3rem;
+  }
+
+  .instagram-placeholder h4 {
+    font-size: 1.25rem;
+  }
+
+  .instagram-stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+    </style>
     <!-- Header -->
     <header class="header">
         <nav class="nav">
@@ -31,7 +239,6 @@
                     </button>
                 </li>
             </ul>
-            </div>
             <button class="mobile-menu-btn">
                 <span></span>
                 <span></span>
@@ -349,6 +556,66 @@
             </div>
         </div>
     </section>
+ 
+     <!-- Social Media Section -->
+    <section id="redes-sociales" class="social-media-section">
+        <div class="section-header">
+            <h2 class="section-title">Síguenos en Redes Sociales</h2>
+            <p class="section-description">Mantente al día con nuestras rifas, sorteos y las historias de quienes ayudamos</p>
+        </div>
+        
+        <div class="social-media-grid">
+            <!-- TikTok Embed -->
+            <div class="social-media-card">
+                <div class="social-media-header">
+                    <i class="fab fa-tiktok"></i>
+                    <h3>TikTok</h3>
+                </div>
+                <div class="social-media-content">
+                    <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@cambiandovidas81" data-unique-id="cambiandovidas81" data-embed-type="creator" style="max-width: 780px; min-width: 288px;">
+                        <section>
+                          <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@cambiandovidas81" data-unique-id="cambiandovidas81" data-embed-type="creator" style="max-width: 780px; min-width: 288px;" > <section> <a target="_blank" href="https://www.tiktok.com/@cambiandovidas81?refer=creator_embed">@cambiandovidas81</a> </section> </blockquote> <script async src="https://www.tiktok.com/embed.js"></script>
+                        </section>
+                    </blockquote>
+                </div>
+                <a href="https://www.tiktok.com/@cambiandovidas81" target="_blank" rel="noopener noreferrer" class="btn-primary social-btn">
+                    <i class="fab fa-tiktok"></i> Visitar TikTok
+                </a>
+            </div>
+
+            <!-- Instagram Card -->
+            <div class="social-media-card">
+                <div class="social-media-header">
+                    <i class="fab fa-instagram"></i>
+                    <h3>Instagram</h3>
+                </div>
+                <div class="social-media-content instagram-preview">
+                    <div class="instagram-placeholder">
+                        <i class="fab fa-instagram"></i>
+                        <h4>@cambiandovidas81</h4>
+                        <p>Síguenos para ver nuestras historias, sorteos en vivo y el impacto que generamos juntos en la comunidad.</p>
+                        <div class="instagram-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-images"></i>
+                                <span>Publicaciones diarias</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-video"></i>
+                                <span>Sorteos en vivo</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-heart"></i>
+                                <span>Historias de impacto</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a href="https://www.instagram.com/cambiandovidas81" target="_blank" rel="noopener noreferrer" class="btn-primary social-btn">
+                    <i class="fab fa-instagram"></i> Visitar Instagram
+                </a>
+            </div>
+        </div>
+    </section>
 
     <!-- Footer -->
     <footer id="contacto" class="footer">
@@ -394,6 +661,93 @@
     </footer>
 
     <!-- Modals -->
+
+     <!-- Updated Terms and Conditions Modal with real raffle terms -->
+    <div class="modal-overlay terms-modal-overlay" id="termsModal" style="display: flex;">
+        <div class="modal-container terms-modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-file-contract"></i> Términos y Condiciones | Rifa CAMBIANDO VIDAS
+                </h3>
+            </div>
+            <div class="modal-body terms-modal-body">
+                <div class="terms-content">
+                    <p style="margin-bottom: 1.5rem; font-weight: 500;">
+                        Antes de participar en nuestra rifa, por favor lee y acepta los siguientes términos y condiciones:
+                    </p>
+                    
+                    <div class="terms-section">
+                        <h5><i class="fas fa-building"></i> 1. ORGANIZADOR</h5>
+                        <p>La presente rifa es organizada por <strong>CAMBIANDO VIDAS</strong>, en adelante "el Organizador", con el objetivo de recaudar fondos para apoyar causas sociales y financiar proyectos comunitarios.</p>
+                    </div>
+                    
+                    <div class="terms-section">
+                        <h5><i class="fas fa-gift"></i> 2. OBJETO DE LA RIFA</h5>
+                        <p>El premio consiste en una <strong>motocicleta marca EUROMOT MODELO VITANGE CAFÉ 150</strong>, completamente nueva y legal para su uso en territorio nacional.</p>
+                        <p><strong>Importante:</strong> El premio no es transferible ni canjeable por dinero.</p>
+                    </div>
+                    
+                    <div class="terms-section">
+                        <h5><i class="fas fa-users"></i> 3. PARTICIPACIÓN</h5>
+                        <ul style="list-style: disc; margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>Podrán participar todas las personas mayores de 18 años, con residencia en <strong>CHILE</strong>.</li>
+                            <li>La compra de un número o ticket implica la aceptación total de estos Términos y Condiciones.</li>
+                            <li>Cada número tiene un costo de <strong>$1.000 CLP</strong> y puede adquirirse a través de <strong>TRANSFERENCIA BANCARIA</strong>.</li>
+                            <li><strong>No se aceptarán devoluciones, reembolsos ni cambios de número</strong> una vez realizada la compra.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="terms-section">
+                        <h5><i class="fas fa-calendar-alt"></i> 4. FECHA DEL SORTEO</h5>
+                        <p>El sorteo se realizará al completar el <strong>80% de tickets vendidos</strong>.</p>
+                        <p>Los resultados serán establecidos por la <strong>lotería nacional (LOTO)</strong>.</p>
+                    </div>
+                    
+                    <div class="terms-section">
+                        <h5><i class="fas fa-dice"></i> 5. MECÁNICA DEL SORTEO</h5>
+                        <ul style="list-style: disc; margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>El número ganador será aquel que coincida con los <strong>primeros 4 dígitos</strong> del sorteo al azar en transmisión en vivo.</li>
+                            <li>Si el número ganador no ha sido vendido, se repetirá el sorteo o se utilizará el método alternativo que será informado públicamente por el Organizador.</li>
+                            <li>El sorteo será <strong>transparente y público</strong>, transmitido en vivo desde la cuenta oficial.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="terms-section">
+                        <h5><i class="fas fa-trophy"></i> 6. ENTREGA DEL PREMIO</h5>
+                        <ul style="list-style: disc; margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>El ganador será contactado dentro de las <strong>48 horas posteriores</strong> al sorteo.</li>
+                            <li>El premio deberá ser retirado en <strong>SANTIAGO DE CHILE</strong>, previa validación de identidad y comprobante del número ganador.</li>
+                        </ul>
+                    </div>
+
+                    <div class="terms-section">
+                        <h5><i class="fas fa-shield-alt"></i> 7. PROTECCIÓN DE DATOS</h5>
+                        <p>Tus datos personales serán utilizados únicamente para gestionar tu participación en las rifas y contactarte en caso de resultar ganador. No compartiremos tu información con terceros.</p>
+                    </div>
+
+                    <div class="terms-section">
+                        <h5><i class="fas fa-gavel"></i> 8. RESPONSABILIDAD</h5>
+                        <p>CAMBIANDO VIDAS se reserva el derecho de modificar o cancelar rifas en caso de circunstancias extraordinarias. Los participantes serán notificados oportunamente.</p>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; border-radius: 4px;">
+                        <p style="margin: 0; font-weight: 500;">
+                            <i class="fas fa-exclamation-triangle" style="color: #ffc107;"></i>
+                            Al hacer clic en "Acepto los Términos", confirmas que has leído, entendido y aceptas todos los términos y condiciones aquí establecidos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer terms-modal-footer">
+                <button class="btn-secondary" onclick="rejectTerms()">
+                    <i class="fas fa-times"></i> No Acepto
+                </button>
+                <button class="btn-primary" onclick="acceptTerms()">
+                    <i class="fas fa-check"></i> Acepto los Términos
+                </button>
+            </div>
+        </div>
+    </div>
     <!-- Added new raffle detail modal -->
     <div class="modal-overlay" id="raffleDetailModal">
         <div class="modal-container raffle-detail-modal">
@@ -493,6 +847,26 @@
 
     <script src="{% static 'js/main.js' %}"></script>
     <script>
+    // Terms modal: show on every page load. Accept only hides for current view.
+    function acceptTerms() {
+        const modal = document.getElementById('termsModal');
+        if (modal) modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function rejectTerms() {
+        window.location.href = 'https://www.google.com';
+    }
+
+    // Always show the terms modal when the page loads
+    window.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('termsModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    });
+
     // Auto-rotation interval storage
     const autoRotateIntervals = new Map();
 
@@ -578,59 +952,57 @@
                 }
                 
                 if (data.status === 'SUCCESS') {
+                    // Construir HTML con template literals correctamente formados
                     let html = `
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle"></i> 
-                            <div class="participante-info">
-                                <strong>Tickets encontrados para:</strong> 
-                                <div><p>${data.participante.nombre}</p></div>
-                            </div>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="participante-info">
+                            <strong>Tickets encontrados para:</strong>
+                            <div><p>${data.participante.nombre}</p></div>
                         </div>
-                        <div class="tickets-summary">
-                            <p><strong>Total de compras:</strong> ${data.total_compras}</p>
-                            <p><strong>Total de tickets:</strong> ${data.total_tickets}</p>
-                        </div>
+                    </div>
+                    <div class="tickets-summary">
+                        <p><strong>Total de compras:</strong> ${data.total_compras}</p>
+                        <p><strong>Total de tickets:</strong> ${data.total_tickets}</p>
+                    </div>
                     `;
-                    
+
                     // Mostrar cada compra individualmente
                     data.compras.forEach((compra, index) => {
-                        const ticketsText = compra.tickets.length > 0 ? 
-                            compra.tickets.join(', ') : 'Sin tickets asignados';
-                        
+                        const ticketsText = compra.tickets.length > 0 ? compra.tickets.join(', ') : 'Sin tickets asignados';
+
                         html += `
-                            <div class="compra-item ${compra.estado === 'CONFIRMADO' ? 'compra-confirmada' : 'compra-pendiente'}">
-                                <div class="compra-header">
-                                    <strong>Compra #${index + 1}</strong>
-                                    <span class="compra-estado ${compra.estado === 'CONFIRMADO' ? 'estado-confirmado' : 'estado-pendiente'}">
-                                        ${compra.estado}
-                                    </span>
-                                </div>
-                                <div class="compra-details">
-                                    <p><strong>Fecha:</strong> ${compra.fecha_compra}</p>
-                                    <p><strong>Cantidad:</strong> ${compra.cantidad} tickets</p>
-                                    <p><strong>Método de pago:</strong> ${compra.metodo_pago}</p>
-                                    <p><strong>Referencia:</strong> ${compra.referencia}</p>
-                                    <p><strong>Monto:</strong> $ ${compra.monto_total}</p>
-                                    ${compra.tickets.length > 0 ? `
-                                        <p><strong>Tickets asignados:</strong> ${ticketsText}</p>
-                                    ` : ''}
-                                </div>
+                        <div class="compra-item ${compra.estado === 'CONFIRMADO' ? 'compra-confirmada' : 'compra-pendiente'}">
+                            <div class="compra-header">
+                                <strong>Compra #${index + 1}</strong>
+                                <span class="compra-estado ${compra.estado === 'CONFIRMADO' ? 'estado-confirmado' : 'estado-pendiente'}">
+                                    ${compra.estado}
+                                </span>
                             </div>
+                            <div class="compra-details">
+                                <p><strong>Fecha:</strong> ${compra.fecha_compra}</p>
+                                <p><strong>Cantidad:</strong> ${compra.cantidad} tickets</p>
+                                <p><strong>Método de pago:</strong> ${compra.metodo_pago}</p>
+                                <p><strong>Referencia:</strong> ${compra.referencia}</p>
+                                <p><strong>Monto:</strong> $ ${compra.monto_total}</p>
+                                ${compra.tickets.length > 0 ? `<p><strong>Tickets asignados:</strong> ${ticketsText}</p>` : ''}
+                            </div>
+                        </div>
                         `;
                     });
-                    
+
                     // Mostrar todos los tickets juntos
-                    if (data.tickets_totales.length > 0) {
+                    if (data.tickets_totales && data.tickets_totales.length > 0) {
                         html += `
-                            <div class="all-tickets-summary">
-                                <h4><i class="fas fa-ticket-alt"></i> Todos tus tickets:</h4>
-                                <div class="tickets-list">
-                                    ${data.tickets_totales.join(', ')}
-                                </div>
+                        <div class="all-tickets-summary">
+                            <h4><i class="fas fa-ticket-alt"></i> Todos tus tickets:</h4>
+                            <div class="tickets-list">
+                                ${data.tickets_totales.join(', ')}
                             </div>
+                        </div>
                         `;
                     }
-                    
+
                     resultDiv.innerHTML = html;
                 } else {
                     resultDiv.innerHTML = '<div class="alert alert-warning">Estado: ' + (data.status || 'DESCONOCIDO') + (data.message ? ' - ' + data.message : '') + '</div>';
@@ -658,114 +1030,114 @@
         }
     }
 
-function populateRaffleModal(rifaId) {
-    const rifaCard = document.querySelector(`[data-card-id="${rifaId}"]`);
-    if (!rifaCard) return;
+    function populateRaffleModal(rifaId) {
+        const rifaCard = document.querySelector(`[data-card-id="${rifaId}"]`);
+        if (!rifaCard) return;
 
-    const data = rifaCard.querySelector('.rifa-data');
-    if (!data) return;
+        const data = rifaCard.querySelector('.rifa-data');
+        if (!data) return;
 
-    const title = data.querySelector('.data-titulo').textContent;
-    const description = data.querySelector('.data-descripcion').textContent;
-    const price = data.querySelector('.data-precio').textContent;
-    const date = data.querySelector('.data-fecha').textContent;
-    const ticketsSold = data.querySelector('.data-tickets-sold').textContent;
-    const totalTickets = data.querySelector('.data-total-tickets').textContent;
-    const ticketsAvailable = data.querySelector('.data-tickets-available').textContent;
-    const progress = data.querySelector('.data-progress').textContent;
-    const hasWinner = data.querySelector('.data-has-winner').textContent === 'true';  // Nuevo
-    const url = data.querySelector('.data-url').textContent;
-    const images = data.querySelectorAll('.data-image-url');
+        const title = data.querySelector('.data-titulo').textContent;
+        const description = data.querySelector('.data-descripcion').textContent;
+        const price = data.querySelector('.data-precio').textContent;
+        const date = data.querySelector('.data-fecha').textContent;
+        const ticketsSold = data.querySelector('.data-tickets-sold').textContent;
+        const totalTickets = data.querySelector('.data-total-tickets').textContent;
+        const ticketsAvailable = data.querySelector('.data-tickets-available').textContent;
+        const progress = data.querySelector('.data-progress').textContent;
+        const hasWinner = data.querySelector('.data-has-winner').textContent === 'true';  // Nuevo
+        const url = data.querySelector('.data-url').textContent;
+        const images = data.querySelectorAll('.data-image-url');
 
-    document.getElementById('raffleModalTitle').textContent = title;
-    document.getElementById('raffleModalDescription').textContent = description;
-    document.getElementById('raffleModalPrice').textContent = price;
-    document.getElementById('raffleModalDate').textContent = date;
-    document.getElementById('raffleModalTickets').textContent = `${ticketsSold}/${totalTickets}`;
-    document.getElementById('raffleModalAvailable').textContent = `${ticketsAvailable} tickets disponibles`;
-    document.getElementById('raffleModalProgressBar').style.width = `${progress}%`;
+        document.getElementById('raffleModalTitle').textContent = title;
+        document.getElementById('raffleModalDescription').textContent = description;
+        document.getElementById('raffleModalPrice').textContent = price;
+        document.getElementById('raffleModalDate').textContent = date;
+        document.getElementById('raffleModalTickets').textContent = `${ticketsSold}/${totalTickets}`;
+        document.getElementById('raffleModalAvailable').textContent = `${ticketsAvailable} tickets disponibles`;
+        document.getElementById('raffleModalProgressBar').style.width = `${progress}%`;
 
-    const buyBtn = document.getElementById('raffleModalBuyBtn');
-    
-    if (hasWinner) {
-        // Deshabilitar botón de compra si hay ganador
-        buyBtn.href = '#';
-        buyBtn.classList.add('btn-disabled');
-        buyBtn.innerHTML = '<i class="fas fa-times-circle"></i> Sorteo Realizado';
-        buyBtn.onclick = function(e) {
-            e.preventDefault();
-            return false;
-        };
+        const buyBtn = document.getElementById('raffleModalBuyBtn');
         
-        // Agregar mensaje de rifa finalizada
-        const modalBody = document.querySelector('.raffle-modal-info');
-        if (!document.querySelector('.raffle-completed-message')) {
-            const completedMessage = document.createElement('div');
-            completedMessage.className = 'raffle-completed-message';
-            completedMessage.innerHTML = `
-                <i class="fas fa-trophy"></i>
-                <h4>¡Esta rifa ya tiene ganador!</h4>
-                <p>El sorteo de esta rifa ha sido realizado. Consulta nuestras otras rifas disponibles.</p>
-            `;
-            modalBody.parentNode.insertBefore(completedMessage, modalBody);
-        }
-    } else {
-        // Habilitar botón de compra normal
-        buyBtn.href = url;
-        buyBtn.classList.remove('btn-disabled');
-        buyBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Comprar Tickets';
-        buyBtn.onclick = function(e) {
-            e.preventDefault();
-            const href = this.getAttribute('href');
-            closeRaffleModal();
-            if (href && href !== '#') {
-                setTimeout(() => { window.location.href = href; }, 50);
+        if (hasWinner) {
+            // Deshabilitar botón de compra si hay ganador
+            buyBtn.href = '#';
+            buyBtn.classList.add('btn-disabled');
+            buyBtn.innerHTML = '<i class="fas fa-times-circle"></i> Sorteo Realizado';
+            buyBtn.onclick = function(e) {
+                e.preventDefault();
+                return false;
+            };
+            
+            // Agregar mensaje de rifa finalizada
+            const modalBody = document.querySelector('.raffle-modal-info');
+            if (!document.querySelector('.raffle-completed-message')) {
+                const completedMessage = document.createElement('div');
+                completedMessage.className = 'raffle-completed-message';
+                completedMessage.innerHTML = `
+                    <i class="fas fa-trophy"></i>
+                    <h4>¡Esta rifa ya tiene ganador!</h4>
+                    <p>El sorteo de esta rifa ha sido realizado. Consulta nuestras otras rifas disponibles.</p>
+                `;
+                modalBody.parentNode.insertBefore(completedMessage, modalBody);
             }
-        };
-        
-        // Remover mensaje de rifa finalizada si existe
-        const existingMessage = document.querySelector('.raffle-completed-message');
-        if (existingMessage) {
-            existingMessage.remove();
+        } else {
+            // Habilitar botón de compra normal
+            buyBtn.href = url;
+            buyBtn.classList.remove('btn-disabled');
+            buyBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Comprar Tickets';
+            buyBtn.onclick = function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                closeRaffleModal();
+                if (href && href !== '#') {
+                    setTimeout(() => { window.location.href = href; }, 50);
+                }
+            };
+            
+            // Remover mensaje de rifa finalizada si existe
+            const existingMessage = document.querySelector('.raffle-completed-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
         }
+
+        // Resto del código para el carrusel de imágenes...
+        const carouselWrapper = document.getElementById('raffleModalCarouselWrapper');
+        carouselWrapper.innerHTML = '';
+
+        images.forEach((img, index) => {
+            const imgElement = document.createElement('img');
+            imgElement.src = img.textContent;
+            imgElement.alt = title;
+            imgElement.classList.add('carousel-image');
+            imgElement.classList.toggle('active', index === 0);
+            carouselWrapper.appendChild(imgElement);
+        });
+
+        const modalPrevBtn = document.getElementById('modalPrevBtn');
+        const modalNextBtn = document.getElementById('modalNextBtn');
+        const modalCarouselIndicators = document.getElementById('modalCarouselIndicators');
+
+        modalPrevBtn.style.display = images.length > 1 ? 'block' : 'none';
+        modalNextBtn.style.display = images.length > 1 ? 'block' : 'none';
+
+        modalCarouselIndicators.innerHTML = '';
+        images.forEach((_, index) => {
+            const indicator = document.createElement('span');
+            indicator.classList.add('carousel-indicator');
+            indicator.classList.toggle('active', index === 0);
+            indicator.addEventListener('click', () => changeModalSlide(index));
+            modalCarouselIndicators.appendChild(indicator);
+        });
     }
 
-    // Resto del código para el carrusel de imágenes...
-    const carouselWrapper = document.getElementById('raffleModalCarouselWrapper');
-    carouselWrapper.innerHTML = '';
-
-    images.forEach((img, index) => {
-        const imgElement = document.createElement('img');
-        imgElement.src = img.textContent;
-        imgElement.alt = title;
-        imgElement.classList.add('carousel-image');
-        imgElement.classList.toggle('active', index === 0);
-        carouselWrapper.appendChild(imgElement);
-    });
-
-    const modalPrevBtn = document.getElementById('modalPrevBtn');
-    const modalNextBtn = document.getElementById('modalNextBtn');
-    const modalCarouselIndicators = document.getElementById('modalCarouselIndicators');
-
-    modalPrevBtn.style.display = images.length > 1 ? 'block' : 'none';
-    modalNextBtn.style.display = images.length > 1 ? 'block' : 'none';
-
-    modalCarouselIndicators.innerHTML = '';
-    images.forEach((_, index) => {
-        const indicator = document.createElement('span');
-        indicator.classList.add('carousel-indicator');
-        indicator.classList.toggle('active', index === 0);
-        indicator.addEventListener('click', () => changeModalSlide(index));
-        modalCarouselIndicators.appendChild(indicator);
-    });
-}
-
-// Función para ver detalles de rifas finalizadas
-function viewRaffleDetails(rifaId) {
-    // Aquí puedes implementar qué hacer cuando se hace clic en "Ver Detalles"
-    // Por ejemplo, abrir un modal con información del ganador
-    alert('Esta rifa ya ha sido sorteada. Próximamente podrás ver más detalles del ganador.');
-}
+    // Función para ver detalles de rifas finalizadas
+    function viewRaffleDetails(rifaId) {
+        // Aquí puedes implementar qué hacer cuando se hace clic en "Ver Detalles"
+        // Por ejemplo, abrir un modal con información del ganador
+        alert('Esta rifa ya ha sido sorteada. Próximamente podrás ver más detalles del ganador.');
+    }
     function changeModalSlide(direction) {
         const carouselWrapper = document.getElementById('raffleModalCarouselWrapper');
         const images = carouselWrapper.querySelectorAll('.carousel-image');

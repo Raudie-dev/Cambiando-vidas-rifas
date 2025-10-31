@@ -10,214 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <style>
-        /* Social Media Section Styles */
-.social-media-section {
-  padding: 5rem 2rem;
-}
-
-.social-media-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 3rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 0;
-}
-
-.social-media-card {
-  background:   white;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.social-media-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-}
-
-.social-media-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #f0f0f0;
-}
-
-.social-media-header i {
-  font-size: 2.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.social-media-header i.fa-tiktok {
-  background: linear-gradient(135deg, #000000 0%, #ee1d52 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.social-media-header i.fa-instagram {
-  background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.social-media-header h3 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin: 0;
-}
-
-.social-media-content {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-}
-
-.instagram-preview {
-  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
-  border-radius: 12px;
-  padding: 2rem;
-  width: 100%;
-}
-
-.instagram-placeholder {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.instagram-placeholder i {
-  font-size: 4rem;
-  background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.instagram-placeholder h4 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin: 0;
-}
-
-.instagram-placeholder p {
-  color: #666;
-  line-height: 1.6;
-  max-width: 400px;
-}
-
-.instagram-stats {
-  display: flex;
-  gap: 2rem;
-  margin-top: 1.5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.stat-item i {
-  font-size: 1.5rem;
-  color: #667eea;
-}
-
-.stat-item span {
-  font-size: 0.875rem;
-  color: #666;
-  text-align: center;
-}
-
-.social-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.social-btn i {
-  font-size: 1.25rem;
-}
-
-/* TikTok embed responsive */
-.tiktok-embed {
-  margin: 0 auto;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .social-media-section {
-    padding: 3rem 1rem;
-  }
-
-  .social-media-grid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    padding: 1rem 0;
-  }
-
-  .social-media-card {
-    padding: 1.5rem;
-  }
-
-  .social-media-header h3 {
-    font-size: 1.5rem;
-  }
-
-  .instagram-stats {
-    gap: 1rem;
-  }
-
-  .stat-item span {
-    font-size: 0.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .social-media-header i {
-    font-size: 2rem;
-  }
-
-  .instagram-placeholder i {
-    font-size: 3rem;
-  }
-
-  .instagram-placeholder h4 {
-    font-size: 1.25rem;
-  }
-
-  .instagram-stats {
-    flex-direction: column;
-    gap: 1rem;
-  }
-}
-
-    </style>
     <!-- Header -->
     <header class="header">
         <nav class="nav">
@@ -275,7 +67,8 @@
                 Nuestras rifas apoyan causas sociales: con lo recaudado llevamos ayuda a quienes más lo necesitan. Participa para ganar premios y, al mismo tiempo, contribuir al cambio.
             </p>
             <div class="hero-actions">
-                <a href="#rifas" class="btn-primary btn-large">Ver Rifas</a>
+                <!-- CAMBIO: Cambiado de "Ver Rifas" a "Términos y Condiciones" -->
+                <button id="termsBtn" class="btn-primary btn-large">Términos y Condiciones</button>
                 <button id="heroConfirmBtn" class="btn-outline btn-large">Consultar Ticket</button>
             </div>
         </div>
@@ -593,7 +386,7 @@
                     <div class="instagram-placeholder">
                         <i class="fab fa-instagram"></i>
                         <h4>@cambiandovidas81</h4>
-                        <p>Síguenos para ver nuestras historias, sorteos en vivo y el impacto que generamos juntos en la comunidad.</p>
+                        <p>Síguenos para ver nuestras historias, nuestros sorteos y el impacto que generamos juntos en la comunidad.</p>
                         <div class="instagram-stats">
                             <div class="stat-item">
                                 <i class="fas fa-images"></i>
@@ -601,11 +394,11 @@
                             </div>
                             <div class="stat-item">
                                 <i class="fas fa-video"></i>
-                                <span>Sorteos en vivo</span>
+                                <span>Estas atento de nuevas Rifas</span>
                             </div>
                             <div class="stat-item">
                                 <i class="fas fa-heart"></i>
-                                <span>Historias de impacto</span>
+                                <span>Observa desde las historias nuestras noticias</span>
                             </div>
                         </div>
                     </div>
@@ -644,8 +437,8 @@
                 <h4 class="footer-title">Contacto</h4>
                 <ul class="footer-links">
                     <li><i class="fas fa-envelope"></i> info@rifasapp.com</li>
-                    <li><i class="fas fa-phone"></i> +1 234 567 890</li>
-                    <li><i class="fas fa-map-marker-alt"></i> Ciudad, País</li>
+                    <li><i class="fas fa-phone"></i> +56 9 9893 6571</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Agencia Chilena</li>
                 </ul>
             </div>
         </div>
@@ -667,29 +460,33 @@
         <div class="modal-container terms-modal-container">
             <div class="modal-header">
                 <h3 class="modal-title">
-                    <i class="fas fa-file-contract"></i> Términos y Condiciones | Rifa CAMBIANDO VIDAS
+                  Términos y Condiciones | Rifa Cambiando Vidas 
                 </h3>
+                <!-- Botón de cerrar solo visible en modo lectura -->
+                <button class="modal-close" onclick="closeTermsModal()" style="display: none;">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div class="modal-body terms-modal-body">
                 <div class="terms-content">
-                    <p style="margin-bottom: 1.5rem; font-weight: 500;">
+                    <p style="font-size: 0.75rem; margin-bottom: 1rem; font-weight: 500;">
                         Antes de participar en nuestra rifa, por favor lee y acepta los siguientes términos y condiciones:
                     </p>
                     
                     <div class="terms-section">
-                        <h5><i class="fas fa-building"></i> 1. ORGANIZADOR</h5>
-                        <p>La presente rifa es organizada por <strong>CAMBIANDO VIDAS</strong>, en adelante "el Organizador", con el objetivo de recaudar fondos para apoyar causas sociales y financiar proyectos comunitarios.</p>
+                        <h5 class="litle-terms">1. ORGANIZADOR</h5>
+                        <p class="descripcion-terms">La presente rifa es organizada por <strong>CAMBIANDO VIDAS</strong>, en adelante "el Organizador", con el objetivo de recaudar fondos para apoyar causas sociales y financiar proyectos comunitarios.</p>
                     </div>
                     
                     <div class="terms-section">
-                        <h5><i class="fas fa-gift"></i> 2. OBJETO DE LA RIFA</h5>
-                        <p>El premio consiste en una <strong>motocicleta marca EUROMOT MODELO VITANGE CAFÉ 150</strong>, completamente nueva y legal para su uso en territorio nacional.</p>
-                        <p><strong>Importante:</strong> El premio no es transferible ni canjeable por dinero.</p>
+                        <h5 class="litle-terms">2. OBJETO DE LA RIFA</h5>
+                        <p class="descripcion-terms">El premio consiste en una <strong>motocicleta marca EUROMOT MODELO VITANGE CAFÉ 150</strong>, completamente nueva y legal para su uso en territorio nacional.</p>
+                        <p class="descripcion-terms"><strong>Importante:</strong> El premio no es transferible ni canjeable por dinero.</p>
                     </div>
                     
                     <div class="terms-section">
-                        <h5><i class="fas fa-users"></i> 3. PARTICIPACIÓN</h5>
-                        <ul style="list-style: disc; margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <h5 class="litle-terms">3. PARTICIPACIÓN</h5>
+                        <ul class="list-terms"">
                             <li>Podrán participar todas las personas mayores de 18 años, con residencia en <strong>CHILE</strong>.</li>
                             <li>La compra de un número o ticket implica la aceptación total de estos Términos y Condiciones.</li>
                             <li>Cada número tiene un costo de <strong>$1.000 CLP</strong> y puede adquirirse a través de <strong>TRANSFERENCIA BANCARIA</strong>.</li>
@@ -698,14 +495,16 @@
                     </div>
                     
                     <div class="terms-section">
-                        <h5><i class="fas fa-calendar-alt"></i> 4. FECHA DEL SORTEO</h5>
-                        <p>El sorteo se realizará al completar el <strong>80% de tickets vendidos</strong>.</p>
-                        <p>Los resultados serán establecidos por la <strong>lotería nacional (LOTO)</strong>.</p>
+                        <h5 class="litle-terms">4. FECHA DEL SORTEO</h5>
+                        <ul class="list-terms">
+                            <li>El sorteo se realizará al completar el <strong>80% de tickets vendidos</li>
+                            <li>Los resultados serán establecidos por la <strong>lotería nacional (LOTO)</li>
+                        </ul>
                     </div>
                     
                     <div class="terms-section">
-                        <h5><i class="fas fa-dice"></i> 5. MECÁNICA DEL SORTEO</h5>
-                        <ul style="list-style: disc; margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <h5 class="litle-terms">5. MECÁNICA DEL SORTEO</h5>
+                        <ul class="list-terms">
                             <li>El número ganador será aquel que coincida con los <strong>primeros 4 dígitos</strong> del sorteo al azar en transmisión en vivo.</li>
                             <li>Si el número ganador no ha sido vendido, se repetirá el sorteo o se utilizará el método alternativo que será informado públicamente por el Organizador.</li>
                             <li>El sorteo será <strong>transparente y público</strong>, transmitido en vivo desde la cuenta oficial.</li>
@@ -713,25 +512,25 @@
                     </div>
                     
                     <div class="terms-section">
-                        <h5><i class="fas fa-trophy"></i> 6. ENTREGA DEL PREMIO</h5>
-                        <ul style="list-style: disc; margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <h5 class="litle-terms">6. ENTREGA DEL PREMIO</h5>
+                        <ul class="list-terms">
                             <li>El ganador será contactado dentro de las <strong>48 horas posteriores</strong> al sorteo.</li>
                             <li>El premio deberá ser retirado en <strong>SANTIAGO DE CHILE</strong>, previa validación de identidad y comprobante del número ganador.</li>
                         </ul>
+                    </div>  
+
+                    <div class="terms-section">
+                        <h5 class="litle-terms">7. PROTECCIÓN DE DATOS</h5>
+                        <p class="descripcion-terms">Tus datos personales serán utilizados únicamente para gestionar tu participación en las rifas y contactarte en caso de resultar ganador. No compartiremos tu información con terceros.</p>
                     </div>
 
                     <div class="terms-section">
-                        <h5><i class="fas fa-shield-alt"></i> 7. PROTECCIÓN DE DATOS</h5>
-                        <p>Tus datos personales serán utilizados únicamente para gestionar tu participación en las rifas y contactarte en caso de resultar ganador. No compartiremos tu información con terceros.</p>
-                    </div>
-
-                    <div class="terms-section">
-                        <h5><i class="fas fa-gavel"></i> 8. RESPONSABILIDAD</h5>
-                        <p>CAMBIANDO VIDAS se reserva el derecho de modificar o cancelar rifas en caso de circunstancias extraordinarias. Los participantes serán notificados oportunamente.</p>
+                        <h5 class="litle-terms">8. RESPONSABILIDAD</h5>
+                        <p class="descripcion-terms">CAMBIANDO VIDAS se reserva el derecho de modificar o cancelar rifas en caso de circunstancias extraordinarias. Los participantes serán notificados oportunamente.</p>
                     </div>
 
                     <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; border-radius: 4px;">
-                        <p style="margin: 0; font-weight: 500;">
+                        <p style="margin: 0; font-size: 0.75rem; font-weight: 500;">
                             <i class="fas fa-exclamation-triangle" style="color: #ffc107;"></i>
                             Al hacer clic en "Acepto los Términos", confirmas que has leído, entendido y aceptas todos los términos y condiciones aquí establecidos.
                         </p>
@@ -847,8 +646,12 @@
 
     <script src="{% static 'js/main.js' %}"></script>
     <script>
+    // Variables globales para el estado de los términos
+    let termsAccepted = false;
+
     // Terms modal: show on every page load. Accept only hides for current view.
     function acceptTerms() {
+        termsAccepted = true;
         const modal = document.getElementById('termsModal');
         if (modal) modal.style.display = 'none';
         document.body.style.overflow = 'auto';
@@ -858,6 +661,29 @@
         window.location.href = 'https://www.google.com';
     }
 
+    function openTermsModal() {
+        const modal = document.getElementById('termsModal');
+        if (termsAccepted) {
+            // Modo lectura - solo mostrar botón de cerrar
+            modal.classList.add('read-mode');
+            modal.querySelector('.modal-close').style.display = 'block';
+            modal.querySelector('.terms-modal-footer').style.display = 'none';
+        } else {
+            // Modo aceptación - mostrar opciones de aceptar/rechazar
+            modal.classList.remove('read-mode');
+            modal.querySelector('.modal-close').style.display = 'none';
+            modal.querySelector('.terms-modal-footer').style.display = 'flex';
+        }
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeTermsModal() {
+        const modal = document.getElementById('termsModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
     // Always show the terms modal when the page loads
     window.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('termsModal');
@@ -865,6 +691,9 @@
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
+        
+        // Configurar evento para el botón de términos en el hero
+        document.getElementById('termsBtn').addEventListener('click', openTermsModal);
     });
 
     // Auto-rotation interval storage
@@ -1200,9 +1029,13 @@
             });
         }
         
-        // Close modal on outside click
+        // Close modal on outside click except for terms modal overlay
         window.addEventListener('click', function(e) {
+            // If clicked directly on an overlay
             if (e.target.classList.contains('modal-overlay')) {
+                // Do not close if this is the terms modal overlay (prevent closing by clicking borders)
+                if (e.target.classList.contains('terms-modal-overlay')) return;
+
                 e.target.style.display = 'none';
                 document.body.style.overflow = 'auto';
             }

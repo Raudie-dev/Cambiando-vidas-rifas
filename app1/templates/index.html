@@ -67,8 +67,8 @@
                 Nuestras rifas apoyan causas sociales: con lo recaudado llevamos ayuda a quienes más lo necesitan. Participa para ganar premios y, al mismo tiempo, contribuir al cambio.
             </p>
             <div class="hero-actions">
-                <!-- CAMBIO: Cambiado de "Ver Rifas" a "Términos y Condiciones" -->
-                <button id="termsBtn" class="btn-primary btn-large">Términos y Condiciones</button>
+                <!-- BOTÓN ORIGINAL RESTAURADO -->
+                <a href="#rifas" class="btn-primary btn-large">Ver Rifas</a>
                 <button id="heroConfirmBtn" class="btn-outline btn-large">Consultar Ticket</button>
             </div>
         </div>
@@ -430,13 +430,15 @@
                     <li><a href="#como-funciona">Cómo Funciona</a></li>
                     <li><a href="#quienes-somos">Quiénes Somos</a></li>
                     <li><a href="#contacto">Contacto</a></li>
+                    <!-- ENLACE DE TÉRMINOS Y CONDICIONES AGREGADO A LA LISTA -->
+                    <li><a href="#" id="footerTermsLink">Términos y Condiciones</a></li>
                 </ul>
             </div>
 
             <div class="footer-section">
                 <h4 class="footer-title">Contacto</h4>
                 <ul class="footer-links">
-                    <li><i class="fas fa-envelope"></i> info@rifasapp.com</li>
+                    <li><i class="fas fa-envelope"></i> cambiandovidas@cvidas.shop</li>
                     <li><i class="fas fa-phone"></i> +56 9 9893 6571</li>
                     <li><i class="fas fa-map-marker-alt"></i> Agencia Chilena</li>
                 </ul>
@@ -661,19 +663,29 @@
         window.location.href = 'https://www.google.com';
     }
 
-    function openTermsModal() {
+    function openTermsModal(fromFooter = false) {
         const modal = document.getElementById('termsModal');
-        if (termsAccepted) {
-            // Modo lectura - solo mostrar botón de cerrar
-            modal.classList.add('read-mode');
-            modal.querySelector('.modal-close').style.display = 'block';
-            modal.querySelector('.terms-modal-footer').style.display = 'none';
-        } else {
-            // Modo aceptación - mostrar opciones de aceptar/rechazar
+        
+        // SIEMPRE mostrar los botones cuando se abre desde el footer
+        if (fromFooter) {
             modal.classList.remove('read-mode');
             modal.querySelector('.modal-close').style.display = 'none';
             modal.querySelector('.terms-modal-footer').style.display = 'flex';
+        } else {
+            // Para apertura automática al cargar la página
+            if (termsAccepted) {
+                // Modo lectura - solo mostrar botón de cerrar
+                modal.classList.add('read-mode');
+                modal.querySelector('.modal-close').style.display = 'block';
+                modal.querySelector('.terms-modal-footer').style.display = 'none';
+            } else {
+                // Modo aceptación - mostrar opciones de aceptar/rechazar
+                modal.classList.remove('read-mode');
+                modal.querySelector('.modal-close').style.display = 'none';
+                modal.querySelector('.terms-modal-footer').style.display = 'flex';
+            }
         }
+        
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
     }
@@ -692,8 +704,12 @@
             document.body.style.overflow = 'hidden';
         }
         
-        // Configurar evento para el botón de términos en el hero
-        document.getElementById('termsBtn').addEventListener('click', openTermsModal);
+        // Configurar evento para el enlace de términos en el footer
+        document.getElementById('footerTermsLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            // Pasar true para indicar que se abre desde el footer
+            openTermsModal(true);
+        });
     });
 
     // Auto-rotation interval storage
